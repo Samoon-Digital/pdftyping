@@ -24,9 +24,6 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  // Key for capturing the preview widget as image for PDF
-  final _previewKey = GlobalKey();
-
   // Track if user has manually edited the name field
   bool _nameManuallyEdited = false;
 
@@ -121,29 +118,64 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     ];
   }
 
-  // ── Generate A4 PDF by capturing the Flutter preview widget as image ──
-  // This guarantees correct Devanagari rendering (Flutter uses HarfBuzz shaping)
-  // instead of relying on the pdf package's basic glyph lookup.
+  // ── Generate PDF by rendering at A4-width in an off-screen overlay ──
+  // Avoids the "zoomed / content clipped" problem caused by capturing the
+  // narrow phone-screen widget and scaling it to fill A4.
   Future<void> _generatePdf() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Capture the preview widget (Flutter renders Hindi correctly)
-    final boundary =
-        _previewKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-    final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+    // 1. Create a temporary GlobalKey for the off-screen render target.
+    final pdfCaptureKey = GlobalKey();
+
+    // 2. Insert an OverlayEntry positioned far off-screen (left: -2000).
+    //    560 dp width ≈ A4 proportional width; gives full-line text without wrapping too much.
+    final overlayEntry = OverlayEntry(
+      builder: (_) => Positioned(
+        left: -2000,
+        top: 0,
+        child: Material(
+          color: Colors.white,
+          child: RepaintBoundary(
+            key: pdfCaptureKey,
+            child: Container(
+              width: 560,
+              color: Colors.white,
+              padding: const EdgeInsets.fromLTRB(45, 50, 45, 50),
+              child: _buildApplicationPreview(),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(overlayEntry);
+
+    // 3. Wait for Flutter to fully layout + paint the new overlay widget.
+    await WidgetsBinding.instance.endOfFrame;
+
+    // 4. Capture the off-screen widget at good quality.
+    final boundary = pdfCaptureKey.currentContext!.findRenderObject()
+        as RenderRepaintBoundary;
+    final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
 
-    // Build a minimal PDF that embeds the captured image
+    // 5. Remove the overlay immediately after capture.
+    overlayEntry.remove();
+
+    // 6. Build a PDF page with A4 width and height proportional to the
+    //    captured image — so pw.BoxFit.fill maps pixels 1:1, no distortion,
+    //    no clipping, full width used.
     final pdf = pw.Document();
     final pdfImage = pw.MemoryImage(pngBytes);
+    final a4Width = PdfPageFormat.a4.width;
+    final pageHeight = a4Width * image.height / image.width;
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(32),
-        // fitWidth: scales image to fill full page width so text spans the whole A4 width
-        build: (pw.Context ctx) => pw.Image(pdfImage, fit: pw.BoxFit.fitWidth),
+        pageFormat: PdfPageFormat(a4Width, pageHeight),
+        margin: pw.EdgeInsets.zero,
+        build: (pw.Context ctx) => pw.Image(pdfImage, fit: pw.BoxFit.fill),
       ),
     );
 
@@ -176,8 +208,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── Application Preview ──
-              // Outer container: visual border shown on screen only (outside RepaintBoundary)
+              // ── Application Preview (on-screen display only) ──
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
@@ -192,15 +223,11 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(16),
-                  // RepaintBoundary captures ONLY clean white content — no border, no shadow
-                  child: RepaintBoundary(
-                    key: _previewKey,
-                    child: Container(
-                      width: double.infinity,
-                      color: Colors.white,
-                      padding: const EdgeInsets.all(20),
-                      child: _buildApplicationPreview(),
-                    ),
+                  child: Container(
+                    width: double.infinity,
+                    color: Colors.white,
+                    padding: const EdgeInsets.all(20),
+                    child: _buildApplicationPreview(),
                   ),
                 ),
               ),
