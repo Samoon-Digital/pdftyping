@@ -1,63 +1,27 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
-import '../main.dart';
 import 'application_editor_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  void _showLanguageDialog(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: Text(loc.chooseLanguage),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _LanguageTile(
-              label: loc.hindi,
-              locale: const Locale('hi'),
-              flag: '🇮🇳',
-            ),
-            const SizedBox(height: 8),
-            _LanguageTile(
-              label: loc.english,
-              locale: const Locale('en'),
-              flag: '🇬🇧',
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    // Template list data
+    // Template list — title & subtitle hardcoded in Hindi
     final templates = <_TemplateItem>[
-      _TemplateItem(
-        titleHi: 'अपने बचत खाते से बीमा हटवाने हेतु आवेदन',
-        titleEn: loc.template1Title,
-        subtitleEn: loc.template1Subtitle,
+      const _TemplateItem(
+        title: 'अपने बचत खाते से बीमा हटवाने हेतु आवेदन',
+        subtitle: 'बैंक शाखा बीमा हटवाने का आवेदन पत्र',
         icon: Icons.account_balance_rounded,
-        color: const Color(0xFF1565C0),
+        color: Color(0xFF1565C0),
       ),
     ];
 
     return Scaffold(
       appBar: AppBar(
         title: Text(loc.appTitle),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.translate_rounded),
-            tooltip: loc.language,
-            onPressed: () => _showLanguageDialog(context),
-          ),
-        ],
       ),
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -83,16 +47,14 @@ class HomePage extends StatelessWidget {
 
 // ── Data class for template items ──
 class _TemplateItem {
-  final String titleHi;
-  final String titleEn;
-  final String subtitleEn;
+  final String title;
+  final String subtitle;
   final IconData icon;
   final Color color;
 
   const _TemplateItem({
-    required this.titleHi,
-    required this.titleEn,
-    required this.subtitleEn,
+    required this.title,
+    required this.subtitle,
     required this.icon,
     required this.color,
   });
@@ -134,8 +96,9 @@ class _TemplateCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      template.titleEn,
+                      template.title,
                       style: const TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF212121),
@@ -143,8 +106,9 @@ class _TemplateCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      template.subtitleEn,
+                      template.subtitle,
                       style: const TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
                         fontSize: 13,
                         color: Color(0xFF757575),
                       ),
@@ -153,93 +117,6 @@ class _TemplateCard extends StatelessWidget {
                 ),
               ),
               const Icon(Icons.chevron_right_rounded, color: Color(0xFFBDBDBD)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ── Language tile for dialog ──
-class _LanguageTile extends StatelessWidget {
-  final String label;
-  final Locale locale;
-  final String flag;
-
-  const _LanguageTile({
-    required this.label,
-    required this.locale,
-    required this.flag,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Text(flag, style: const TextStyle(fontSize: 24)),
-      title: Text(label),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      tileColor: const Color(0xFFF5F7FA),
-      onTap: () {
-        MainApp.setLocale(context, locale);
-        Navigator.of(context).pop();
-      },
-    );
-  }
-}
-
-// ── Quick action card ──
-class _QuickAction extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _QuickAction({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 26),
-              ),
-              const SizedBox(height: 10),
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
-              ),
             ],
           ),
         ),

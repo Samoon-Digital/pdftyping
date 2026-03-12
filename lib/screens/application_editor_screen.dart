@@ -1,6 +1,6 @@
-import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/rendering.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -24,6 +24,9 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
   final _mobileCtrl = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+
+  // Key for capturing the preview widget as image for PDF
+  final _previewKey = GlobalKey();
 
   // ── Build the application text with filled-in values ──
   List<_TextSegment> _buildApplicationSegments() {
@@ -83,83 +86,33 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     ];
   }
 
-  // ── Generate A4 PDF ──
+  // ── Generate A4 PDF by capturing the Flutter preview widget as image ──
+  // This guarantees correct Devanagari rendering (Flutter uses HarfBuzz shaping)
+  // instead of relying on the pdf package's basic glyph lookup.
   Future<void> _generatePdf() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final loc = AppLocalizations.of(context)!;
+    // Capture the preview widget (Flutter renders Hindi correctly)
+    final boundary =
+        _previewKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+    final byteData =
+        await image.toByteData(format: ui.ImageByteFormat.png);
+    final pngBytes = byteData!.buffer.asUint8List();
 
-    // Load Noto Sans Devanagari font
-    final fontData = await rootBundle.load(
-      'assets/fonts/NotoSansDevanagari-VariableFont.ttf',
-    );
-    final hindiFont = pw.Font.ttf(fontData);
-
+    // Build a minimal PDF that embeds the captured image
     final pdf = pw.Document();
-
-    final branch = _branchNameCtrl.text.trim();
-    final address = _branchAddressCtrl.text.trim();
-    final accNo = _accountNumberCtrl.text.trim();
-    final accHolder = _accountHolderCtrl.text.trim();
-    final date = _dateCtrl.text.trim();
-    final name = _nameCtrl.text.trim();
-    final mobile = _mobileCtrl.text.trim();
-
-    final baseStyle = pw.TextStyle(font: hindiFont, fontSize: 14);
-    final boldStyle = pw.TextStyle(
-      font: hindiFont,
-      fontSize: 14,
-      fontWeight: pw.FontWeight.bold,
-    );
+    final pdfImage = pw.MemoryImage(pngBytes);
 
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
-        build: (pw.Context ctx) {
-          return pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
-            children: [
-              pw.Text('सेवा मैं', style: baseStyle),
-              pw.Text('श्रीमान ,', style: baseStyle),
-              pw.Text('शाखा प्रबंधक , $branch', style: baseStyle),
-              pw.Text(address, style: baseStyle),
-              pw.SizedBox(height: 24),
-              pw.Text(
-                'विषय : अपने बैंक खाते से बीमा योजनाओं को हटाने के संबंध में',
-                style: boldStyle,
-              ),
-              pw.SizedBox(height: 24),
-              pw.Text(
-                'सविनय , निवेदन यह है कि  मेरा बचत खाता आपकी शाखा मैं खुला हुआ जिसका नंबर $accNo है और यह खाता मेरे $accHolder नाम से है   मेरे बचत खाते से हर महीने  प्रधानमंत्री जीवन ज्योति बीमा योजना  / प्रधानमंत्री सुरक्षा बीमा योजना की प्रीमियम राशि कट रही है  जो अब मुझे जारी नहीं रखवानी है |',
-                style: baseStyle,
-              ),
-              pw.SizedBox(height: 16),
-              pw.Text(
-                'अत: श्रीमान जी से निवेदन है  मेरे बचत खाते से बीमा हटाने की कृपया करें और कटी हुई धनराशि वापस कराने की कृपा  करें  आपकी महान कृपा होगी |',
-                style: baseStyle,
-              ),
-              pw.SizedBox(height: 48),
-              pw.Row(
-                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                children: [
-                  pw.Text('दिनांक : $date', style: baseStyle),
-                  pw.Column(
-                    crossAxisAlignment: pw.CrossAxisAlignment.start,
-                    children: [
-                      pw.Text('नाम       : $name', style: baseStyle),
-                      pw.Text('मोबाईल : $mobile', style: baseStyle),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          );
-        },
+        margin: const pw.EdgeInsets.all(32),
+        build: (pw.Context ctx) =>
+            pw.Image(pdfImage, fit: pw.BoxFit.contain),
       ),
     );
 
-    // Show print/share preview
     if (!mounted) return;
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
@@ -191,23 +144,26 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── Application Preview ──
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE0E0E0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
+              // ── Application Preview (captured as image for PDF) ──
+              RepaintBoundary(
+                key: _previewKey,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE0E0E0)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: _buildApplicationPreview(),
                 ),
-                child: _buildApplicationPreview(),
               ),
 
               const SizedBox(height: 24),

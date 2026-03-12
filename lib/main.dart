@@ -8,25 +8,8 @@ void main() {
   runApp(const MainApp());
 }
 
-class MainApp extends StatefulWidget {
+class MainApp extends StatelessWidget {
   const MainApp({super.key});
-
-  /// Allow children to change the locale at runtime.
-  static void setLocale(BuildContext context, Locale locale) {
-    final state = context.findAncestorStateOfType<_MainAppState>();
-    state?._changeLocale(locale);
-  }
-
-  @override
-  State<MainApp> createState() => _MainAppState();
-}
-
-class _MainAppState extends State<MainApp> {
-  Locale _locale = const Locale('en');
-
-  void _changeLocale(Locale locale) {
-    setState(() => _locale = locale);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,8 +17,8 @@ class _MainAppState extends State<MainApp> {
       debugShowCheckedModeBanner: false,
       title: 'PDF Typing',
       theme: AppTheme.lightTheme,
-      locale: _locale,
-      supportedLocales: AppLocalizations.supportedLocales,
+      locale: const Locale('en'),
+      supportedLocales: const [Locale('en')],
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
