@@ -44,4 +44,43 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get chooseLanguage => 'भाषा चुनें';
+
+  @override
+  String get template1Title => 'अपने बचत खाते से बीमा हटवाने हेतु आवेदन';
+
+  @override
+  String get template1Subtitle => 'बैंक शाखा बीमा हटवाने का आवेदन पत्र';
+
+  @override
+  String get editorTitle => 'आवेदन एडिटर';
+
+  @override
+  String get branchName => 'शाखा का नाम';
+
+  @override
+  String get branchAddress => 'शाखा का पता';
+
+  @override
+  String get accountNumber => 'खाता नंबर';
+
+  @override
+  String get accountHolderName => 'खाताधारक का नाम';
+
+  @override
+  String get date => 'दिनांक';
+
+  @override
+  String get applicantName => 'आपका नाम';
+
+  @override
+  String get mobileNumber => 'मोबाइल नंबर';
+
+  @override
+  String get generatePdf => 'पीडीएफ बनाएं';
+
+  @override
+  String get fillAllFields => 'कृपया सभी फ़ील्ड भरें';
+
+  @override
+  String get pdfGenerated => 'पीडीएफ सफलतापूर्वक बन गया!';
 }

@@ -11,5 +11,18 @@
   "templates": "टेम्पलेट",
   "noTemplatesYet": "टेम्पलेट जल्द आ रहे हैं...",
   "settings": "सेटिंग्स",
-  "chooseLanguage": "भाषा चुनें"
+  "chooseLanguage": "भाषा चुनें",
+  "template1Title": "अपने बचत खाते से बीमा हटवाने हेतु आवेदन",
+  "template1Subtitle": "बैंक शाखा बीमा हटवाने का आवेदन पत्र",
+  "editorTitle": "आवेदन एडिटर",
+  "branchName": "शाखा का नाम",
+  "branchAddress": "शाखा का पता",
+  "accountNumber": "खाता नंबर",
+  "accountHolderName": "खाताधारक का नाम",
+  "date": "दिनांक",
+  "applicantName": "आपका नाम",
+  "mobileNumber": "मोबाइल नंबर",
+  "generatePdf": "पीडीएफ बनाएं",
+  "fillAllFields": "कृपया सभी फ़ील्ड भरें",
+  "pdfGenerated": "पीडीएफ सफलतापूर्वक बन गया!"
 }

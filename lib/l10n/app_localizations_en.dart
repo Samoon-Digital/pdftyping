@@ -44,4 +44,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get chooseLanguage => 'Choose Language';
+
+  @override
+  String get template1Title =>
+      'Application to remove insurance from savings account';
+
+  @override
+  String get template1Subtitle => 'Bank branch insurance removal application';
+
+  @override
+  String get editorTitle => 'Application Editor';
+
+  @override
+  String get branchName => 'Branch Name';
+
+  @override
+  String get branchAddress => 'Branch Address';
+
+  @override
+  String get accountNumber => 'Account Number';
+
+  @override
+  String get accountHolderName => 'Account Holder Name';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get applicantName => 'Your Name';
+
+  @override
+  String get mobileNumber => 'Mobile Number';
+
+  @override
+  String get generatePdf => 'Generate PDF';
+
+  @override
+  String get fillAllFields => 'Please fill all fields';
+
+  @override
+  String get pdfGenerated => 'PDF Generated Successfully!';
 }

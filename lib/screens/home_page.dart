@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../main.dart';
+import 'application_editor_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -35,7 +36,17 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
+
+    // Template list data
+    final templates = <_TemplateItem>[
+      _TemplateItem(
+        titleHi: 'अपने बचत खाते से बीमा हटवाने हेतु आवेदन',
+        titleEn: loc.template1Title,
+        subtitleEn: loc.template1Subtitle,
+        icon: Icons.account_balance_rounded,
+        color: const Color(0xFF1565C0),
+      ),
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -48,125 +59,102 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Welcome Card ──
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1565C0), Color(0xFF0D47A1)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+      body: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        itemCount: templates.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (context, index) {
+          final t = templates[index];
+          return _TemplateCard(
+            template: t,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const ApplicationEditorScreen(),
                 ),
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF1565C0).withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 6),
-                  ),
-                ],
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── Data class for template items ──
+class _TemplateItem {
+  final String titleHi;
+  final String titleEn;
+  final String subtitleEn;
+  final IconData icon;
+  final Color color;
+
+  const _TemplateItem({
+    required this.titleHi,
+    required this.titleEn,
+    required this.subtitleEn,
+    required this.icon,
+    required this.color,
+  });
+}
+
+// ── Template card widget ──
+class _TemplateCard extends StatelessWidget {
+  final _TemplateItem template;
+  final VoidCallback onTap;
+
+  const _TemplateCard({required this.template, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      elevation: 1,
+      shadowColor: template.color.withValues(alpha: 0.15),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: template.color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(template.icon, color: template.color, size: 24),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.2),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(
-                          Icons.description_rounded,
-                          color: Colors.white,
-                          size: 28,
-                        ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      template.titleEn,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF212121),
                       ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Text(
-                          loc.homeWelcome,
-                          style: const TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Text(
-                    loc.homeSubtitle,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.white.withValues(alpha: 0.9),
-                      height: 1.5,
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 28),
-
-            // ── Quick Actions ──
-            Row(
-              children: [
-                _QuickAction(
-                  icon: Icons.add_circle_outline_rounded,
-                  label: loc.templates,
-                  color: const Color(0xFF1565C0),
-                  onTap: () {},
+                    const SizedBox(height: 4),
+                    Text(
+                      template.subtitleEn,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Color(0xFF757575),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 12),
-                _QuickAction(
-                  icon: Icons.settings_outlined,
-                  label: loc.settings,
-                  color: const Color(0xFF00897B),
-                  onTap: () => _showLanguageDialog(context),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 28),
-
-            // ── Templates Section ──
-            Text(loc.templates, style: theme.textTheme.titleLarge),
-            const SizedBox(height: 12),
-
-            // Placeholder card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE0E0E0)),
               ),
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.folder_open_rounded,
-                    size: 48,
-                    color: Colors.grey.shade400,
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    loc.noTemplatesYet,
-                    style: TextStyle(fontSize: 16, color: Colors.grey.shade500),
-                  ),
-                ],
-              ),
-            ),
-          ],
+              const Icon(Icons.chevron_right_rounded, color: Color(0xFFBDBDBD)),
+            ],
+          ),
         ),
       ),
     );

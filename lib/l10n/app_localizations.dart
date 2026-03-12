@@ -169,6 +169,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose Language'**
   String get chooseLanguage;
+
+  /// First template list item title
+  ///
+  /// In en, this message translates to:
+  /// **'Application to remove insurance from savings account'**
+  String get template1Title;
+
+  /// First template subtitle
+  ///
+  /// In en, this message translates to:
+  /// **'Bank branch insurance removal application'**
+  String get template1Subtitle;
+
+  /// Editor screen title
+  ///
+  /// In en, this message translates to:
+  /// **'Application Editor'**
+  String get editorTitle;
+
+  /// Branch name field
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Name'**
+  String get branchName;
+
+  /// Branch address field
+  ///
+  /// In en, this message translates to:
+  /// **'Branch Address'**
+  String get branchAddress;
+
+  /// Account number field
+  ///
+  /// In en, this message translates to:
+  /// **'Account Number'**
+  String get accountNumber;
+
+  /// Name field
+  ///
+  /// In en, this message translates to:
+  /// **'Account Holder Name'**
+  String get accountHolderName;
+
+  /// Date field
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// Applicant name
+  ///
+  /// In en, this message translates to:
+  /// **'Your Name'**
+  String get applicantName;
+
+  /// Mobile number field
+  ///
+  /// In en, this message translates to:
+  /// **'Mobile Number'**
+  String get mobileNumber;
+
+  /// Generate PDF button text
+  ///
+  /// In en, this message translates to:
+  /// **'Generate PDF'**
+  String get generatePdf;
+
+  /// Validation message
+  ///
+  /// In en, this message translates to:
+  /// **'Please fill all fields'**
+  String get fillAllFields;
+
+  /// Success message
+  ///
+  /// In en, this message translates to:
+  /// **'PDF Generated Successfully!'**
+  String get pdfGenerated;
 }
 
 class _AppLocalizationsDelegate
