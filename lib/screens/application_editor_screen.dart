@@ -4,7 +4,6 @@ import 'package:flutter/rendering.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
-import '../l10n/app_localizations.dart';
 
 class ApplicationEditorScreen extends StatefulWidget {
   const ApplicationEditorScreen({super.key});
@@ -27,6 +26,42 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
   // Key for capturing the preview widget as image for PDF
   final _previewKey = GlobalKey();
+
+  // Track if user has manually edited the name field
+  bool _nameManuallyEdited = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Auto-fill name from account holder, unless user has manually edited name
+    _accountHolderCtrl.addListener(() {
+      if (!_nameManuallyEdited) {
+        final val = _accountHolderCtrl.text;
+        if (_nameCtrl.text != val) {
+          _nameCtrl.text = val;
+          setState(() {});
+        }
+      }
+    });
+  }
+
+  // ── Date picker ──
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: now,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      locale: const Locale('hi', 'IN'),
+    );
+    if (picked != null && mounted) {
+      final formatted =
+          '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
+      _dateCtrl.text = formatted;
+      setState(() {});
+    }
+  }
 
   // ── Build the application text with filled-in values ──
   List<_TextSegment> _buildApplicationSegments() {
@@ -131,10 +166,8 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-
     return Scaffold(
-      appBar: AppBar(title: Text(loc.editorTitle)),
+      appBar: AppBar(title: const Text('आवेदन एडिटर')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -177,45 +210,52 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
               _InputField(
                 controller: _branchNameCtrl,
-                label: loc.branchName,
-                hint: 'जैसे: स्टेट बैंक ऑफ इंडिया',
+                label: 'शाखा का नाम',
+                hint: 'जैसे : स्टेट बैंक ऑफ इंडिया',
                 onChanged: (_) => setState(() {}),
               ),
               _InputField(
                 controller: _branchAddressCtrl,
-                label: loc.branchAddress,
-                hint: 'जैसे: मुख्य शाखा, जिला मुख्यालय',
+                label: 'शाखा का पता',
+                hint: 'जैसे : नगला , लखीमपुर खीरी',
                 onChanged: (_) => setState(() {}),
               ),
               _InputField(
                 controller: _accountNumberCtrl,
-                label: loc.accountNumber,
-                hint: 'जैसे: 1234567890',
+                label: 'खाता नंबर',
+                hint: 'जैसे : 1234567890',
                 keyboardType: TextInputType.number,
                 onChanged: (_) => setState(() {}),
               ),
               _InputField(
                 controller: _accountHolderCtrl,
-                label: loc.accountHolderName,
-                hint: 'जैसे: राम प्रसाद',
+                label: 'खाताधारक का नाम',
+                hint: 'जैसे : सामून अली पुत्र अब्दुल वहाब',
                 onChanged: (_) => setState(() {}),
               ),
+              // Date field — opens calendar picker on tap
               _InputField(
                 controller: _dateCtrl,
-                label: loc.date,
-                hint: 'जैसे: 12/03/2026',
-                onChanged: (_) => setState(() {}),
+                label: 'दिनांक',
+                hint: 'जैसे : 12/03/2026',
+                readOnly: true,
+                onTap: _pickDate,
+                suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
               ),
+              // Name auto-filled from account holder, remains editable
               _InputField(
                 controller: _nameCtrl,
-                label: loc.applicantName,
-                hint: 'जैसे: राम प्रसाद',
-                onChanged: (_) => setState(() {}),
+                label: 'आपका नाम',
+                hint: 'जैसे : राम प्रसाद',
+                onChanged: (_) {
+                  _nameManuallyEdited = true;
+                  setState(() {});
+                },
               ),
               _InputField(
                 controller: _mobileCtrl,
-                label: loc.mobileNumber,
-                hint: 'जैसे: 9876543210',
+                label: 'मोबाइल नंबर',
+                hint: 'जैसे : 9876543210',
                 keyboardType: TextInputType.phone,
                 onChanged: (_) => setState(() {}),
               ),
@@ -228,7 +268,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
                 child: ElevatedButton.icon(
                   onPressed: _generatePdf,
                   icon: const Icon(Icons.picture_as_pdf_rounded),
-                  label: Text(loc.generatePdf),
+                  label: const Text('पीडीएफ बनाएं'),
                 ),
               ),
 
@@ -286,6 +326,9 @@ class _InputField extends StatelessWidget {
   final String hint;
   final TextInputType keyboardType;
   final ValueChanged<String>? onChanged;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final Widget? suffixIcon;
 
   const _InputField({
     required this.controller,
@@ -293,6 +336,9 @@ class _InputField extends StatelessWidget {
     required this.hint,
     this.keyboardType = TextInputType.text,
     this.onChanged,
+    this.readOnly = false,
+    this.onTap,
+    this.suffixIcon,
   });
 
   @override
@@ -303,6 +349,8 @@ class _InputField extends StatelessWidget {
         controller: controller,
         keyboardType: keyboardType,
         onChanged: onChanged,
+        readOnly: readOnly,
+        onTap: onTap,
         style: const TextStyle(fontFamily: 'NotoSansDevanagari', fontSize: 15),
         decoration: InputDecoration(
           labelText: label,
@@ -312,10 +360,11 @@ class _InputField extends StatelessWidget {
             fontFamily: 'NotoSansDevanagari',
             color: Colors.grey.shade400,
           ),
+          suffixIcon: suffixIcon,
         ),
         validator: (v) {
           if (v == null || v.trim().isEmpty) {
-            return AppLocalizations.of(context)!.fillAllFields;
+            return 'कृपया सभी फ़ील्ड भरें';
           }
           return null;
         },
