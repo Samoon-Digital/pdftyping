@@ -20,9 +20,7 @@ class HomePage extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(loc.appTitle),
-      ),
+      appBar: AppBar(title: Text(loc.appTitle)),
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         itemCount: templates.length,

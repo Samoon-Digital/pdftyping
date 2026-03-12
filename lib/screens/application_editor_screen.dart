@@ -96,8 +96,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     final boundary =
         _previewKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
     final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-    final byteData =
-        await image.toByteData(format: ui.ImageByteFormat.png);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
 
     // Build a minimal PDF that embeds the captured image
@@ -108,8 +107,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
       pw.Page(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
-        build: (pw.Context ctx) =>
-            pw.Image(pdfImage, fit: pw.BoxFit.contain),
+        build: (pw.Context ctx) => pw.Image(pdfImage, fit: pw.BoxFit.contain),
       ),
     );
 
