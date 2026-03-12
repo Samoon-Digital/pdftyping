@@ -154,8 +154,9 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     await WidgetsBinding.instance.endOfFrame;
 
     // 4. Capture the off-screen widget at good quality.
-    final boundary = pdfCaptureKey.currentContext!.findRenderObject()
-        as RenderRepaintBoundary;
+    final boundary =
+        pdfCaptureKey.currentContext!.findRenderObject()
+            as RenderRepaintBoundary;
     final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
@@ -323,7 +324,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
       text: TextSpan(
         style: const TextStyle(
           fontFamily: 'NotoSansDevanagari',
-          fontSize: 15,
+          fontSize: 11.3,
           color: Color(0xFF212121),
           height: 1.8,
         ),
@@ -386,7 +387,7 @@ class _InputField extends StatelessWidget {
         onChanged: onChanged,
         readOnly: readOnly,
         onTap: onTap,
-        style: const TextStyle(fontFamily: 'NotoSansDevanagari', fontSize: 15),
+        style: const TextStyle(fontFamily: 'NotoSansDevanagari', fontSize: 11.3),
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
