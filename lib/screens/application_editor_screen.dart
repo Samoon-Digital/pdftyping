@@ -142,7 +142,8 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
       pw.Page(
         pageFormat: PdfPageFormat.a4,
         margin: const pw.EdgeInsets.all(32),
-        build: (pw.Context ctx) => pw.Image(pdfImage, fit: pw.BoxFit.contain),
+        // fitWidth: scales image to fill full page width so text spans the whole A4 width
+        build: (pw.Context ctx) => pw.Image(pdfImage, fit: pw.BoxFit.fitWidth),
       ),
     );
 
@@ -175,25 +176,32 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── Application Preview (captured as image for PDF) ──
-              RepaintBoundary(
-                key: _previewKey,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE0E0E0)),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.04),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+              // ── Application Preview ──
+              // Outer container: visual border shown on screen only (outside RepaintBoundary)
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE0E0E0)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  // RepaintBoundary captures ONLY clean white content — no border, no shadow
+                  child: RepaintBoundary(
+                    key: _previewKey,
+                    child: Container(
+                      width: double.infinity,
+                      color: Colors.white,
+                      padding: const EdgeInsets.all(20),
+                      child: _buildApplicationPreview(),
+                    ),
                   ),
-                  child: _buildApplicationPreview(),
                 ),
               ),
 
