@@ -249,14 +249,17 @@ class _PdfCard extends StatelessWidget {
                           color: Colors.grey.shade400,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          date,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
+                        Expanded(
+                          child: Text(
+                            date,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade500,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(width: 10),
+                        const SizedBox(width: 6),
                         Text(
                           size,
                           style: TextStyle(
