@@ -144,7 +144,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     final boundary =
         pdfCaptureKey.currentContext!.findRenderObject()
             as RenderRepaintBoundary;
-    final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
+    final ui.Image image = await boundary.toImage(pixelRatio: 4.0);
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
 
