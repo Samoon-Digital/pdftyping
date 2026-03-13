@@ -1,58 +1,127 @@
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
+import '../services/ad_service.dart';
+import '../widgets/unlock_sheet.dart';
 import 'application_editor_screen.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final VoidCallback? onPdfSaved;
   const HomePage({super.key, this.onPdfSaved});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  // Template list — each has a unique id for unlock tracking
+  static const _templates = <_TemplateItem>[
+    _TemplateItem(
+      id: 'bima_hatao',
+      title: 'अपने बचत खाते से बीमा हटवाने हेतु आवेदन',
+      subtitle: 'बैंक शाखा बीमा हटवाने का आवेदन पत्र',
+      icon: Icons.account_balance_rounded,
+      color: Color(0xFF1565C0),
+    ),
+  ];
+
+  // Track which templates are unlocked  (id → bool)
+  final Map<String, bool> _unlocked = {};
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUnlockStates();
+  }
+
+  Future<void> _loadUnlockStates() async {
+    final ad = AdService.instance;
+    for (final t in _templates) {
+      _unlocked[t.id] = await ad.isUnlocked(t.id);
+    }
+    if (mounted) setState(() => _loading = false);
+  }
+
+  Future<void> _onTemplateTap(_TemplateItem t) async {
+    if (_unlocked[t.id] == true) {
+      // Already unlocked — open editor
+      _openEditor();
+      return;
+    }
+
+    // Show unlock sheet
+    final unlocked = await showUnlockSheet(
+      context: context,
+      templateId: t.id,
+      templateTitle: t.title,
+    );
+
+    if (unlocked) {
+      setState(() => _unlocked[t.id] = true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              '🎉 आवेदन अनलॉक हो गया!',
+              style: TextStyle(fontFamily: 'NotoSansDevanagari'),
+            ),
+            backgroundColor: const Color(0xFF00897B),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        _openEditor();
+      }
+    }
+  }
+
+  void _openEditor() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ApplicationEditorScreen(onPdfSaved: widget.onPdfSaved),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context)!;
 
-    // Template list — title & subtitle hardcoded in Hindi
-    final templates = <_TemplateItem>[
-      const _TemplateItem(
-        title: 'अपने बचत खाते से बीमा हटवाने हेतु आवेदन',
-        subtitle: 'बैंक शाखा बीमा हटवाने का आवेदन पत्र',
-        icon: Icons.account_balance_rounded,
-        color: Color(0xFF1565C0),
-      ),
-    ];
-
     return Scaffold(
       appBar: AppBar(title: Text(loc.appTitle)),
-      body: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: templates.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 10),
-        itemBuilder: (context, index) {
-          final t = templates[index];
-          return _TemplateCard(
-            template: t,
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) =>
-                      ApplicationEditorScreen(onPdfSaved: onPdfSaved),
-                ),
-              );
-            },
-          );
-        },
-      ),
+      body: _loading
+          ? const Center(child: CircularProgressIndicator())
+          : ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              itemCount: _templates.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              itemBuilder: (context, index) {
+                final t = _templates[index];
+                final isUnlocked = _unlocked[t.id] == true;
+                return _TemplateCard(
+                  template: t,
+                  isUnlocked: isUnlocked,
+                  onTap: () => _onTemplateTap(t),
+                );
+              },
+            ),
     );
   }
 }
 
 // ── Data class for template items ──
 class _TemplateItem {
+  final String id;
   final String title;
   final String subtitle;
   final IconData icon;
   final Color color;
 
   const _TemplateItem({
+    required this.id,
     required this.title,
     required this.subtitle,
     required this.icon,
@@ -63,9 +132,14 @@ class _TemplateItem {
 // ── Template card widget ──
 class _TemplateCard extends StatelessWidget {
   final _TemplateItem template;
+  final bool isUnlocked;
   final VoidCallback onTap;
 
-  const _TemplateCard({required this.template, required this.onTap});
+  const _TemplateCard({
+    required this.template,
+    required this.isUnlocked,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +190,43 @@ class _TemplateCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const Icon(Icons.chevron_right_rounded, color: Color(0xFFBDBDBD)),
+              // Lock / Unlock indicator
+              isUnlocked
+                  ? const Icon(
+                      Icons.chevron_right_rounded,
+                      color: Color(0xFFBDBDBD),
+                    )
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.orange.shade200),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.lock_rounded,
+                            size: 14,
+                            color: Colors.orange.shade700,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'अनलॉक',
+                            style: TextStyle(
+                              fontFamily: 'NotoSansDevanagari',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.orange.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
             ],
           ),
         ),
