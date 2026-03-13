@@ -60,15 +60,12 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     }
   }
 
-  // ── Build the application text with filled-in values ──
+  // ── Build the main body text segments (footer handled separately) ──
   List<_TextSegment> _buildApplicationSegments() {
     final branch = _branchNameCtrl.text.trim();
     final address = _branchAddressCtrl.text.trim();
     final accNo = _accountNumberCtrl.text.trim();
     final accHolder = _accountHolderCtrl.text.trim();
-    final date = _dateCtrl.text.trim();
-    final name = _nameCtrl.text.trim();
-    final mobile = _mobileCtrl.text.trim();
 
     return [
       const _TextSegment('सेवा मैं', false),
@@ -102,19 +99,6 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
         'अत: श्रीमान जी से निवेदन है  मेरे बचत खाते से बीमा हटाने की कृपया करें और कटी हुई धनराशि वापस कराने की कृपा  करें  आपकी महान कृपा होगी |',
         false,
       ),
-      const _TextSegment('\n\n\n\n', false),
-      const _TextSegment('दिनांक : ', false),
-      _TextSegment(date.isEmpty ? 'दिनांक' : date, date.isEmpty),
-      const _TextSegment(
-        '                                                   नाम       : ',
-        false,
-      ),
-      _TextSegment(name.isEmpty ? 'आपका नाम' : name, name.isEmpty),
-      const _TextSegment(
-        '\n                                                                         मोबाईल : ',
-        false,
-      ),
-      _TextSegment(mobile.isEmpty ? 'मोबाइल नंबर' : mobile, mobile.isEmpty),
     ];
   }
 
@@ -246,8 +230,8 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
               _InputField(
                 controller: _branchNameCtrl,
-                label: 'शाखा का नाम',
-                hint: 'जैसे : स्टेट बैंक ऑफ इंडिया',
+                label: 'बैंक का नाम',
+                hint: 'जैसे : बैंक ऑफ बड़ोदा',
                 onChanged: (_) => setState(() {}),
               ),
               _InputField(
@@ -319,34 +303,120 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
   // ── Live preview of the application ──
   Widget _buildApplicationPreview({double? fontSize}) {
     final segments = _buildApplicationSegments();
-
     final resolvedFontSize =
         fontSize ?? Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16.0;
 
-    return RichText(
-      text: TextSpan(
-        style: TextStyle(
-          fontFamily: 'NotoSansDevanagari',
-          fontSize: resolvedFontSize,
-          color: const Color(0xFF212121),
-          height: 1.8,
+    final date = _dateCtrl.text.trim();
+    final name = _nameCtrl.text.trim();
+    final mobile = _mobileCtrl.text.trim();
+    final branch = _branchNameCtrl.text.trim();
+    final isPdf = fontSize != null;
+
+    final baseStyle = TextStyle(
+      fontFamily: 'NotoSansDevanagari',
+      fontSize: resolvedFontSize,
+      color: const Color(0xFF212121),
+      height: 1.8,
+    );
+
+    const TextStyle phStyle = TextStyle(
+      color: Color(0xFF1565C0),
+      fontWeight: FontWeight.w600,
+      decoration: TextDecoration.underline,
+      decorationColor: Color(0xFF1565C0),
+      decorationStyle: TextDecorationStyle.dashed,
+    );
+
+    // Returns a Text that shows placeholder styling when value is empty.
+    Widget valueText(
+      String value,
+      String placeholder, {
+      TextAlign align = TextAlign.left,
+    }) {
+      final empty = value.isEmpty;
+      return Text(
+        empty ? placeholder : value,
+        style: empty ? baseStyle.merge(phStyle) : baseStyle,
+        softWrap: true,
+        textAlign: align,
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // ── Main body ──
+        RichText(
+          text: TextSpan(
+            style: baseStyle,
+            children: segments.map((seg) {
+              if (seg.isPlaceholder) {
+                // For on-screen preview only, replace branch placeholder
+                // with 'बैंक का नाम : बैंक ऑफ बड़ोदा' as requested.
+                if (!isPdf && seg.text == 'शाखा का नाम') {
+                  return const TextSpan(
+                    text: 'बैंक का नाम : बैंक ऑफ बड़ोदा',
+                    style: phStyle,
+                  );
+                }
+                return TextSpan(text: seg.text, style: phStyle);
+              }
+              return TextSpan(text: seg.text);
+            }).toList(),
+          ),
         ),
-        children: segments.map((seg) {
-          if (seg.isPlaceholder) {
-            return TextSpan(
-              text: seg.text,
-              style: const TextStyle(
-                color: Color(0xFF1565C0),
-                fontWeight: FontWeight.w600,
-                decoration: TextDecoration.underline,
-                decorationColor: Color(0xFF1565C0),
-                decorationStyle: TextDecorationStyle.dashed,
+
+        // Spacing before footer (≈ 3 blank lines)
+        SizedBox(height: resolvedFontSize * 1.8 * 3),
+
+        // ── Footer: date left, name+mobile right with aligned values ──
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Date (left side — takes its natural width)
+            RichText(
+              text: TextSpan(
+                style: baseStyle,
+                children: [
+                  const TextSpan(text: 'दिनांक : '),
+                  TextSpan(
+                    text: date.isEmpty ? 'दिनांक' : date,
+                    style: date.isEmpty ? phStyle : null,
+                  ),
+                ],
               ),
-            );
-          }
-          return TextSpan(text: seg.text);
-        }).toList(),
-      ),
+            ),
+
+            const Spacer(),
+
+            // Name + Mobile — IntrinsicWidth shrinks Table to content,
+            // Spacer above pushes the whole block to the right edge.
+            IntrinsicWidth(
+              child: Table(
+                defaultVerticalAlignment: TableCellVerticalAlignment.top,
+                columnWidths: const {
+                  0: IntrinsicColumnWidth(), // label — auto-sizes to widest label
+                  1: IntrinsicColumnWidth(), // value — sizes to content (no flex needed)
+                },
+                children: [
+                  TableRow(
+                    children: [
+                      Text('नाम : ', style: baseStyle),
+                      valueText(name, 'आपका नाम'),
+                    ],
+                  ),
+                  TableRow(
+                    children: [
+                      Text('मोबाईल : ', style: baseStyle),
+                      valueText(mobile, 'मोबाइल नंबर'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -390,10 +460,7 @@ class _InputField extends StatelessWidget {
         onChanged: onChanged,
         readOnly: readOnly,
         onTap: onTap,
-        style: const TextStyle(
-          fontFamily: 'NotoSansDevanagari',
-          fontSize: 11.3,
-        ),
+        style: const TextStyle(fontFamily: 'NotoSansDevanagari', fontSize: 16),
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
