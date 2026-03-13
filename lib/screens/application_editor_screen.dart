@@ -387,29 +387,31 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
               ),
             ),
 
-            const Spacer(),
-
-            // Name + Mobile — IntrinsicWidth shrinks Table to content,
-            // Spacer above pushes the whole block to the right edge.
-            IntrinsicWidth(
-              child: Table(
-                defaultVerticalAlignment: TableCellVerticalAlignment.top,
-                columnWidths: const {
-                  0: IntrinsicColumnWidth(), // label — auto-sizes to widest label
-                  1: IntrinsicColumnWidth(), // value — sizes to content (no flex needed)
-                },
+            // Name + Mobile — right-aligned, values can wrap on long names.
+            // Expanded gives bounded width; inner Row pushes content to end;
+            // Flexible value-Column allows text to wrap without overflow.
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TableRow(
+                  // Labels column — intrinsic (never wraps)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('नाम : ', style: baseStyle),
-                      valueText(name, 'आपका नाम'),
+                      Text('मोबाईल : ', style: baseStyle),
                     ],
                   ),
-                  TableRow(
-                    children: [
-                      Text('मोबाईल : ', style: baseStyle),
-                      valueText(mobile, 'मोबाइल नंबर'),
-                    ],
+                  // Values column — Flexible so long names wrap, no overflow
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        valueText(name, 'आपका नाम'),
+                        valueText(mobile, 'मोबाइल नंबर'),
+                      ],
+                    ),
                   ),
                 ],
               ),
