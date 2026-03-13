@@ -5,45 +5,32 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 
-class ApplicationEditorScreen extends StatefulWidget {
+class MobileUpdateEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
-  const ApplicationEditorScreen({super.key, this.onPdfSaved});
+  const MobileUpdateEditorScreen({super.key, this.onPdfSaved});
 
   @override
-  State<ApplicationEditorScreen> createState() =>
-      _ApplicationEditorScreenState();
+  State<MobileUpdateEditorScreen> createState() =>
+      _MobileUpdateEditorScreenState();
 }
 
-class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
+class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
+  final _bankNameCtrl = TextEditingController();
   final _branchNameCtrl = TextEditingController();
-  final _branchAddressCtrl = TextEditingController();
-  final _accountNumberCtrl = TextEditingController();
-  final _accountHolderCtrl = TextEditingController();
-  final _dateCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
-  final _mobileCtrl = TextEditingController();
+  final _accountNumberCtrl = TextEditingController();
+  final _oldMobileCtrl = TextEditingController();
+  final _newMobileCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
+  final _dateCtrl = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-
-  // Track if user has manually edited the name field
-  bool _nameManuallyEdited = false;
 
   @override
   void initState() {
     super.initState();
-    // Auto-fill name from account holder, unless user has manually edited name
-    _accountHolderCtrl.addListener(() {
-      if (!_nameManuallyEdited) {
-        final val = _accountHolderCtrl.text;
-        if (_nameCtrl.text != val) {
-          _nameCtrl.text = val;
-          setState(() {});
-        }
-      }
-    });
-    // Auto-fill date field with today's date on open
+    // Auto-fill date with today's date
     final now = DateTime.now();
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
@@ -67,59 +54,69 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     }
   }
 
-  // ── Build the main body text segments (footer handled separately) ──
+  // ── Build the main body text segments ──
   List<_TextSegment> _buildApplicationSegments() {
-    final branch = _branchNameCtrl.text.trim();
-    final address = _branchAddressCtrl.text.trim();
+    final bankName = _bankNameCtrl.text.trim();
+    final branchName = _branchNameCtrl.text.trim();
+    final name = _nameCtrl.text.trim();
     final accNo = _accountNumberCtrl.text.trim();
-    final accHolder = _accountHolderCtrl.text.trim();
+    final oldMobile = _oldMobileCtrl.text.trim();
+    final newMobile = _newMobileCtrl.text.trim();
 
     return [
-      const _TextSegment('सेवा मैं', false),
-      const _TextSegment('\nश्रीमान ,', false),
-      const _TextSegment('\nशाखा प्रबंधक , ', false),
-      _TextSegment(branch.isEmpty ? 'शाखा का नाम' : branch, branch.isEmpty),
+      const _TextSegment('सेवा में,', false),
+      const _TextSegment('\nशाखा प्रबंधक महोदय,', false),
       const _TextSegment('\n', false),
-      _TextSegment(address.isEmpty ? 'शाखा का पता' : address, address.isEmpty),
-      const _TextSegment('\n\n\n', false),
-      const _TextSegment(
-        'विषय : अपने बैंक खाते से बीमा योजनाओं को हटाने के संबंध में',
-        false,
-      ),
-      const _TextSegment('\n\n\n', false),
-      const _TextSegment(
-        'सविनय , निवेदन यह है कि  मेरा बचत खाता आपकी शाखा मैं खुला हुआ जिसका नंबर ',
-        false,
-      ),
-      _TextSegment(accNo.isEmpty ? 'खाता नंबर' : accNo, accNo.isEmpty),
-      const _TextSegment(' है और यह खाता मेरे ', false),
       _TextSegment(
-        accHolder.isEmpty ? 'खाताधारक का नाम' : accHolder,
-        accHolder.isEmpty,
+        bankName.isEmpty ? '………… बैंक' : '$bankName बैंक',
+        bankName.isEmpty,
       ),
-      const _TextSegment(
-        ' नाम से है   मेरे बचत खाते से हर महीने  प्रधानमंत्री जीवन ज्योति बीमा योजना  / प्रधानमंत्री सुरक्षा बीमा योजना की प्रीमियम राशि कट रही है  जो अब मुझे जारी नहीं रखवानी है |',
-        false,
+      const _TextSegment('\nशाखा – ', false),
+      _TextSegment(
+        branchName.isEmpty ? '…………' : branchName,
+        branchName.isEmpty,
       ),
       const _TextSegment('\n\n', false),
       const _TextSegment(
-        'अत: श्रीमान जी से निवेदन है  मेरे बचत खाते से बीमा हटाने की कृपया करें और कटी हुई धनराशि वापस कराने की कृपा  करें  आपकी महान कृपा होगी |',
+        'विषय: बचत खाते में मोबाइल नंबर परिवर्तन हेतु आवेदन।',
         false,
       ),
+      const _TextSegment('\n\n', false),
+      const _TextSegment('महोदय,', false),
+      const _TextSegment('\n\n', false),
+      const _TextSegment('सविनय निवेदन है कि मेरा नाम ', false),
+      _TextSegment(name.isEmpty ? '……………' : name, name.isEmpty),
+      const _TextSegment(' है। मेरा आपके बैंक की शाखा ', false),
+      _TextSegment(
+        branchName.isEmpty ? '……………' : branchName,
+        branchName.isEmpty,
+      ),
+      const _TextSegment(' में एक बचत खाता है, जिसका खाता संख्या ', false),
+      _TextSegment(accNo.isEmpty ? '……………' : accNo, accNo.isEmpty),
+      const _TextSegment(' है।', false),
+      const _TextSegment('\n\n', false),
+      const _TextSegment(
+        'किसी कारणवश मेरे खाते में पंजीकृत (Registered) मोबाइल नंबर अब उपयोग में नहीं है। अतः आपसे निवेदन है कि मेरे खाते में दर्ज पुराने मोबाइल नंबर ',
+        false,
+      ),
+      _TextSegment(oldMobile.isEmpty ? '……………' : oldMobile, oldMobile.isEmpty),
+      const _TextSegment(' को हटाकर नया मोबाइल नंबर ', false),
+      _TextSegment(newMobile.isEmpty ? '……………' : newMobile, newMobile.isEmpty),
+      const _TextSegment(
+        ' अपडेट करने की कृपा करें। जिससे मुझे बैंक से संबंधित सभी सूचनाएँ प्राप्त होती रहें।',
+        false,
+      ),
+      const _TextSegment('\n\n\n', false),
+      const _TextSegment('धन्यवाद।', false),
     ];
   }
 
-  // ── Generate PDF by rendering at A4-width in an off-screen overlay ──
-  // Avoids the "zoomed / content clipped" problem caused by capturing the
-  // narrow phone-screen widget and scaling it to fill A4.
+  // ── Generate PDF ──
   Future<void> _generatePdf() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // 1. Create a temporary GlobalKey for the off-screen render target.
     final pdfCaptureKey = GlobalKey();
 
-    // 2. Insert an OverlayEntry positioned far off-screen (left: -2000).
-    //    560 dp width ≈ A4 proportional width; gives full-line text without wrapping too much.
     final overlayEntry = OverlayEntry(
       builder: (_) => Positioned(
         left: -2000,
@@ -140,11 +137,8 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     );
 
     Overlay.of(context).insert(overlayEntry);
-
-    // 3. Wait for Flutter to fully layout + paint the new overlay widget.
     await WidgetsBinding.instance.endOfFrame;
 
-    // 4. Capture the off-screen widget at good quality.
     final boundary =
         pdfCaptureKey.currentContext!.findRenderObject()
             as RenderRepaintBoundary;
@@ -152,14 +146,8 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
     final pngBytes = byteData!.buffer.asUint8List();
 
-    // 5. Remove the overlay immediately after capture.
     overlayEntry.remove();
 
-    // 6. Standard A4 page — image width-fills the page and is anchored to the
-    //    top. Remaining space below is white (correct A4 letter behaviour).
-    //    SizedBox constrains the image to its natural proportional height so
-    //    BoxFit.fill works without distortion.  pw.Column is top-aligned by
-    //    default, avoiding the vertical-centering that pw.Align would cause.
     final pdf = pw.Document();
     final pdfImage = pw.MemoryImage(pngBytes);
     final a4Width = PdfPageFormat.a4.width;
@@ -184,26 +172,22 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
     if (!mounted) return;
 
-    // Save PDF to app documents directory for Saved tab
     final docsDir = await getApplicationDocumentsDirectory();
-    final branch = _branchNameCtrl.text.trim();
     final name = _nameCtrl.text.trim();
+    final bank = _bankNameCtrl.text.trim();
     final now = DateTime.now();
     final stamp =
         '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
         '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
     final safeName = name.replaceAll(RegExp(r'[^\w\u0900-\u097F ]'), '').trim();
-    final safeBranch = branch
-        .replaceAll(RegExp(r'[^\w\u0900-\u097F ]'), '')
-        .trim();
+    final safeBank = bank.replaceAll(RegExp(r'[^\w\u0900-\u097F ]'), '').trim();
     final fileName =
-        '${safeName.isNotEmpty ? safeName : 'आवेदन'}_${safeBranch.isNotEmpty ? safeBranch : 'बैंक'}_$stamp.pdf';
+        'मोबाइल_${safeName.isNotEmpty ? safeName : 'आवेदन'}_${safeBank.isNotEmpty ? safeBank : 'बैंक'}_$stamp.pdf';
     final pdfBytes = await pdf.save();
     final file = File('${docsDir.path}/$fileName');
     await file.writeAsBytes(pdfBytes);
 
     if (!mounted) return;
-    // Notify shell → switch to Saved tab and refresh list
     widget.onPdfSaved?.call();
     Navigator.of(context).pop();
     ScaffoldMessenger.of(context).showSnackBar(
@@ -222,20 +206,21 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
   @override
   void dispose() {
+    _bankNameCtrl.dispose();
     _branchNameCtrl.dispose();
-    _branchAddressCtrl.dispose();
-    _accountNumberCtrl.dispose();
-    _accountHolderCtrl.dispose();
-    _dateCtrl.dispose();
     _nameCtrl.dispose();
-    _mobileCtrl.dispose();
+    _accountNumberCtrl.dispose();
+    _oldMobileCtrl.dispose();
+    _newMobileCtrl.dispose();
+    _addressCtrl.dispose();
+    _dateCtrl.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('आवेदन एडिटर')),
+      appBar: AppBar(title: const Text('मोबाइल नंबर अपडेट आवेदन')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -243,7 +228,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── Application Preview (on-screen display only) ──
+              // ── Application Preview ──
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
@@ -269,7 +254,6 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
               const SizedBox(height: 24),
 
-              // ── Input Fields ──
               Text(
                 'विवरण भरें',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -279,60 +263,61 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
               const SizedBox(height: 12),
 
               _InputField(
-                controller: _branchNameCtrl,
+                controller: _bankNameCtrl,
                 label: 'बैंक का नाम',
                 hint: 'जैसे : बैंक ऑफ बड़ोदा',
                 onChanged: (_) => setState(() {}),
               ),
               _InputField(
-                controller: _branchAddressCtrl,
-                label: 'शाखा का पता',
+                controller: _branchNameCtrl,
+                label: 'शाखा का नाम',
                 hint: 'जैसे : नगला , लखीमपुर खीरी',
                 onChanged: (_) => setState(() {}),
               ),
               _InputField(
+                controller: _nameCtrl,
+                label: 'आपका नाम',
+                hint: 'जैसे : राम प्रसाद',
+                onChanged: (_) => setState(() {}),
+              ),
+              _InputField(
                 controller: _accountNumberCtrl,
-                label: 'खाता नंबर',
+                label: 'खाता संख्या',
                 hint: 'जैसे : 1234567890',
                 keyboardType: TextInputType.number,
                 onChanged: (_) => setState(() {}),
               ),
               _InputField(
-                controller: _accountHolderCtrl,
-                label: 'खाताधारक का नाम',
-                hint: 'जैसे : सामून अली पुत्र अब्दुल वहाब',
-                onChanged: (_) => setState(() {}),
-              ),
-              // Date field — opens calendar picker on tap
-              _InputField(
-                controller: _dateCtrl,
-                label: 'दिनांक',
-                hint: 'जैसे : 12/03/2026',
-                readOnly: true,
-                onTap: _pickDate,
-                suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
-              ),
-              // Name auto-filled from account holder, remains editable
-              _InputField(
-                controller: _nameCtrl,
-                label: 'आपका नाम',
-                hint: 'जैसे : राम प्रसाद',
-                onChanged: (_) {
-                  _nameManuallyEdited = true;
-                  setState(() {});
-                },
-              ),
-              _InputField(
-                controller: _mobileCtrl,
-                label: 'मोबाइल नंबर',
+                controller: _oldMobileCtrl,
+                label: 'पुराना मोबाइल नंबर',
                 hint: 'जैसे : 9876543210',
                 keyboardType: TextInputType.phone,
                 onChanged: (_) => setState(() {}),
               ),
+              _InputField(
+                controller: _newMobileCtrl,
+                label: 'नया मोबाइल नंबर',
+                hint: 'जैसे : 9123456789',
+                keyboardType: TextInputType.phone,
+                onChanged: (_) => setState(() {}),
+              ),
+              _InputField(
+                controller: _addressCtrl,
+                label: 'पता',
+                hint: 'जैसे : ग्राम – नगला, जिला – लखीमपुर खीरी',
+                onChanged: (_) => setState(() {}),
+              ),
+              _InputField(
+                controller: _dateCtrl,
+                label: 'दिनांक',
+                hint: 'जैसे : 13/03/2026',
+                readOnly: true,
+                onTap: _pickDate,
+                suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
+              ),
 
               const SizedBox(height: 20),
 
-              // ── Generate PDF Button ──
               SizedBox(
                 height: 52,
                 child: ElevatedButton.icon(
@@ -350,7 +335,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     );
   }
 
-  // ── Live preview of the application ──
+  // ── Live preview ──
   Widget _buildApplicationPreview({double? fontSize}) {
     final segments = _buildApplicationSegments();
     final resolvedFontSize =
@@ -358,9 +343,9 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
     final date = _dateCtrl.text.trim();
     final name = _nameCtrl.text.trim();
-    final mobile = _mobileCtrl.text.trim();
-    final branch = _branchNameCtrl.text.trim();
-    final isPdf = fontSize != null;
+    final address = _addressCtrl.text.trim();
+    final mobile = _newMobileCtrl.text.trim();
+    final accNo = _accountNumberCtrl.text.trim();
 
     final baseStyle = TextStyle(
       fontFamily: 'NotoSansDevanagari',
@@ -377,18 +362,12 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
       decorationStyle: TextDecorationStyle.dashed,
     );
 
-    // Returns a Text that shows placeholder styling when value is empty.
-    Widget valueText(
-      String value,
-      String placeholder, {
-      TextAlign align = TextAlign.left,
-    }) {
+    Widget valueText(String value, String placeholder) {
       final empty = value.isEmpty;
       return Text(
         empty ? placeholder : value,
         style: empty ? baseStyle.merge(phStyle) : baseStyle,
         softWrap: true,
-        textAlign: align,
       );
     }
 
@@ -401,14 +380,6 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
             style: baseStyle,
             children: segments.map((seg) {
               if (seg.isPlaceholder) {
-                // For on-screen preview only, replace branch placeholder
-                // with 'बैंक का नाम : बैंक ऑफ बड़ोदा' as requested.
-                if (!isPdf && seg.text == 'शाखा का नाम') {
-                  return const TextSpan(
-                    text: 'बैंक का नाम : बैंक ऑफ बड़ोदा',
-                    style: phStyle,
-                  );
-                }
                 return TextSpan(text: seg.text, style: phStyle);
               }
               return TextSpan(text: seg.text);
@@ -416,64 +387,71 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
           ),
         ),
 
-        // Spacing before footer (≈ 3 blank lines)
-        SizedBox(height: resolvedFontSize * 1.8 * 3),
+        SizedBox(height: resolvedFontSize * 1.8 * 2),
 
-        // ── Footer: date left, name+mobile right with aligned values ──
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Date (left side — takes its natural width)
-            RichText(
-              text: TextSpan(
-                style: baseStyle,
+        // ── Footer: right-aligned भवदीय block ──
+        Align(
+          alignment: Alignment.centerRight,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('भवदीय,', style: baseStyle),
+              SizedBox(height: resolvedFontSize * 0.5),
+              Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  const TextSpan(text: 'दिनांक : '),
-                  TextSpan(
-                    text: date.isEmpty ? 'दिनांक' : date,
-                    style: date.isEmpty ? phStyle : null,
-                  ),
+                  Text('नाम – ', style: baseStyle),
+                  valueText(name, '……………'),
                 ],
               ),
-            ),
-
-            // Name + Mobile — right-aligned, values can wrap on long names.
-            // Expanded gives bounded width; inner Row pushes content to end;
-            // Flexible value-Column allows text to wrap without overflow.
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Labels column — intrinsic (never wraps)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('नाम : ', style: baseStyle),
-                      Text('मोबाईल : ', style: baseStyle),
-                    ],
-                  ),
-                  // Values column — Flexible so long names wrap, no overflow
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        valueText(name, 'आपका नाम'),
-                        valueText(mobile, 'मोबाइल नंबर'),
-                      ],
-                    ),
-                  ),
+                  Text('पता – ', style: baseStyle),
+                  valueText(address, '……………'),
                 ],
               ),
-            ),
-          ],
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('मोबाइल नंबर – ', style: baseStyle),
+                  valueText(mobile, '……………'),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('खाता संख्या – ', style: baseStyle),
+                  valueText(accNo, '……………'),
+                ],
+              ),
+              SizedBox(height: resolvedFontSize * 1.8),
+              Text('हस्ताक्षर – ……………', style: baseStyle),
+            ],
+          ),
+        ),
+
+        SizedBox(height: resolvedFontSize * 1.8),
+
+        // ── Date (left-aligned) ──
+        RichText(
+          text: TextSpan(
+            style: baseStyle,
+            children: [
+              const TextSpan(text: 'दिनांक – '),
+              TextSpan(
+                text: date.isEmpty ? '……………' : date,
+                style: date.isEmpty ? phStyle : null,
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 }
 
-// ── Text segment: normal or placeholder ──
+// ── Text segment ──
 class _TextSegment {
   final String text;
   final bool isPlaceholder;

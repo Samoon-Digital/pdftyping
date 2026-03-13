@@ -3,6 +3,7 @@ import '../l10n/app_localizations.dart';
 import '../services/ad_service.dart';
 import '../widgets/unlock_sheet.dart';
 import 'application_editor_screen.dart';
+import 'mobile_update_editor_screen.dart';
 
 class HomePage extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -21,6 +22,13 @@ class _HomePageState extends State<HomePage> {
       subtitle: 'बैंक शाखा बीमा हटवाने का आवेदन पत्र',
       icon: Icons.account_balance_rounded,
       color: Color(0xFF1565C0),
+    ),
+    _TemplateItem(
+      id: 'mobile_update',
+      title: 'बैंक मोबाईल नंबर अपडेट आवेदन',
+      subtitle: 'बचत खाते में मोबाइल नंबर परिवर्तन हेतु आवेदन',
+      icon: Icons.phone_android_rounded,
+      color: Color(0xFF00897B),
     ),
   ];
 
@@ -45,7 +53,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _onTemplateTap(_TemplateItem t) async {
     if (_unlocked[t.id] == true) {
       // Already unlocked — open editor
-      _openEditor();
+      _openEditor(t.id);
       return;
     }
 
@@ -73,17 +81,20 @@ class _HomePageState extends State<HomePage> {
             duration: const Duration(seconds: 2),
           ),
         );
-        _openEditor();
+        _openEditor(t.id);
       }
     }
   }
 
-  void _openEditor() {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => ApplicationEditorScreen(onPdfSaved: widget.onPdfSaved),
-      ),
-    );
+  void _openEditor(String templateId) {
+    final Widget screen;
+    switch (templateId) {
+      case 'mobile_update':
+        screen = MobileUpdateEditorScreen(onPdfSaved: widget.onPdfSaved);
+      default:
+        screen = ApplicationEditorScreen(onPdfSaved: widget.onPdfSaved);
+    }
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
 
   @override
