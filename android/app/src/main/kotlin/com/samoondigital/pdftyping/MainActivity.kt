@@ -1,4 +1,4 @@
-package com.example.pdftyping
+package com.samoondigital.pdftyping
 
 import io.flutter.embedding.android.FlutterActivity
 
