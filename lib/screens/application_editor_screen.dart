@@ -8,7 +8,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 class ApplicationEditorScreen extends StatefulWidget {
-  const ApplicationEditorScreen({super.key});
+  final VoidCallback? onPdfSaved;
+  const ApplicationEditorScreen({super.key, this.onPdfSaved});
 
   @override
   State<ApplicationEditorScreen> createState() =>
@@ -187,9 +188,20 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     await file.writeAsBytes(pdfBytes);
 
     if (!mounted) return;
-    await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => pdfBytes,
-      name: fileName,
+    // Notify shell → switch to Saved tab and refresh list
+    widget.onPdfSaved?.call();
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'PDF सेव हो गई! Saved में देखें।',
+          style: TextStyle(fontFamily: 'NotoSansDevanagari'),
+        ),
+        backgroundColor: const Color(0xFF1565C0),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 

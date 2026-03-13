@@ -3,7 +3,8 @@ import '../l10n/app_localizations.dart';
 import 'application_editor_screen.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  final VoidCallback? onPdfSaved;
+  const HomePage({super.key, this.onPdfSaved});
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,8 @@ class HomePage extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const ApplicationEditorScreen(),
+                  builder: (_) =>
+                      ApplicationEditorScreen(onPdfSaved: onPdfSaved),
                 ),
               );
             },

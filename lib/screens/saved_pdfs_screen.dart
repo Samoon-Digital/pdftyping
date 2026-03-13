@@ -2,16 +2,15 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
-import 'package:pdf/pdf.dart';
 
 class SavedPdfsScreen extends StatefulWidget {
   const SavedPdfsScreen({super.key});
 
   @override
-  State<SavedPdfsScreen> createState() => _SavedPdfsScreenState();
+  State<SavedPdfsScreen> createState() => SavedPdfsScreenState();
 }
 
-class _SavedPdfsScreenState extends State<SavedPdfsScreen> {
+class SavedPdfsScreenState extends State<SavedPdfsScreen> {
   List<File> _pdfs = [];
   bool _loading = true;
 
@@ -20,6 +19,9 @@ class _SavedPdfsScreenState extends State<SavedPdfsScreen> {
     super.initState();
     _loadPdfs();
   }
+
+  // Public — called by MainShell after a new PDF is saved
+  void refresh() => _loadPdfs();
 
   Future<void> _loadPdfs() async {
     setState(() => _loading = true);
@@ -74,6 +76,11 @@ class _SavedPdfsScreenState extends State<SavedPdfsScreen> {
     );
   }
 
+  Future<void> _sharePdf(File file) async {
+    final bytes = await file.readAsBytes();
+    await Printing.sharePdf(bytes: bytes, filename: '${_fileName(file)}.pdf');
+  }
+
   String _fileName(File file) =>
       file.path.split(Platform.pathSeparator).last.replaceAll('.pdf', '');
 
@@ -125,6 +132,7 @@ class _SavedPdfsScreenState extends State<SavedPdfsScreen> {
                   date: _formatDate(_pdfs[i]),
                   size: _fileSize(_pdfs[i]),
                   onOpen: () => _openPdf(_pdfs[i]),
+                  onShare: () => _sharePdf(_pdfs[i]),
                   onDelete: () => _deletePdf(_pdfs[i]),
                 ),
               ),
@@ -174,6 +182,7 @@ class _PdfCard extends StatelessWidget {
   final String date;
   final String size;
   final VoidCallback onOpen;
+  final VoidCallback onShare;
   final VoidCallback onDelete;
 
   const _PdfCard({
@@ -182,6 +191,7 @@ class _PdfCard extends StatelessWidget {
     required this.date,
     required this.size,
     required this.onOpen,
+    required this.onShare,
     required this.onDelete,
   });
 
@@ -256,6 +266,12 @@ class _PdfCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              IconButton(
+                onPressed: onShare,
+                icon: const Icon(Icons.share_rounded),
+                color: const Color(0xFF1565C0),
+                tooltip: 'Share',
               ),
               IconButton(
                 onPressed: onDelete,

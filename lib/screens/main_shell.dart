@@ -12,13 +12,14 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+  final _savedKey = GlobalKey<SavedPdfsScreenState>();
 
-  // Keep all screens alive with IndexedStack
-  final List<Widget> _screens = const [
-    HomePage(),
-    SavedPdfsScreen(),
-    GetPdfsScreen(),
-  ];
+  // Called by ApplicationEditorScreen after PDF is saved to disk.
+  // Switches to Saved tab and refreshes the list.
+  void _onPdfSaved() {
+    _savedKey.currentState?.refresh();
+    setState(() => _currentIndex = 1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +27,14 @@ class _MainShellState extends State<MainShell> {
     final primary = theme.colorScheme.primary;
 
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _screens),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          HomePage(onPdfSaved: _onPdfSaved),
+          SavedPdfsScreen(key: _savedKey),
+          const GetPdfsScreen(),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
