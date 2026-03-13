@@ -151,19 +151,30 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     // 5. Remove the overlay immediately after capture.
     overlayEntry.remove();
 
-    // 6. Build a PDF page with A4 width and height proportional to the
-    //    captured image — so pw.BoxFit.fill maps pixels 1:1, no distortion,
-    //    no clipping, full width used.
+    // 6. Standard A4 page — image width-fills the page and is anchored to the
+    //    top. Remaining space below is white (correct A4 letter behaviour).
+    //    SizedBox constrains the image to its natural proportional height so
+    //    BoxFit.fill works without distortion.  pw.Column is top-aligned by
+    //    default, avoiding the vertical-centering that pw.Align would cause.
     final pdf = pw.Document();
     final pdfImage = pw.MemoryImage(pngBytes);
     final a4Width = PdfPageFormat.a4.width;
-    final pageHeight = a4Width * image.height / image.width;
+    final renderHeight = a4Width * image.height / image.width;
 
     pdf.addPage(
       pw.Page(
-        pageFormat: PdfPageFormat(a4Width, pageHeight),
+        pageFormat: PdfPageFormat.a4,
         margin: pw.EdgeInsets.zero,
-        build: (pw.Context ctx) => pw.Image(pdfImage, fit: pw.BoxFit.fill),
+        build: (pw.Context ctx) => pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.stretch,
+          children: [
+            pw.SizedBox(
+              width: a4Width,
+              height: renderHeight,
+              child: pw.Image(pdfImage, fit: pw.BoxFit.fill),
+            ),
+          ],
+        ),
       ),
     );
 
