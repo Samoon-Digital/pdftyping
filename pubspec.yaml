@@ -23,6 +23,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
@@ -35,3 +36,10 @@ flutter:
     - family: NotoSansDevanagari
       fonts:
         - asset: assets/fonts/NotoSansDevanagari-VariableFont.ttf
+
+# Launcher icon configuration (uses the provided 512x512 PNG)
+flutter_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  image_path: assets/play_store_512.png
