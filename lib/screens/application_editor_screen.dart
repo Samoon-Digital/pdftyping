@@ -523,10 +523,7 @@ class _InputField extends StatelessWidget {
           ),
           suffixIcon: suffixIcon == null
               ? null
-              : GestureDetector(
-                  onTap: onTap,
-                  child: suffixIcon,
-                ),
+              : GestureDetector(onTap: onTap, child: suffixIcon),
         ),
         validator: (v) {
           if (v == null || v.trim().isEmpty) {
