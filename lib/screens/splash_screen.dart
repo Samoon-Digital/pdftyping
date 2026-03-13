@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../l10n/app_localizations.dart';
 import 'main_shell.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -10,29 +9,17 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> {
   String _displayedText = '';
   final String _fullText = 'PDF Typing';
   int _charIndex = 0;
   Timer? _typingTimer;
 
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnim;
-
   @override
   void initState() {
     super.initState();
-
-    // Fade-in animation for tagline
-    _fadeController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-    _fadeAnim = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
-
-    // Start typing effect
-    _typingTimer = Timer.periodic(const Duration(milliseconds: 120), (timer) {
+    // Fast typing effect — 70ms per character
+    _typingTimer = Timer.periodic(const Duration(milliseconds: 70), (timer) {
       if (_charIndex < _fullText.length) {
         setState(() {
           _displayedText += _fullText[_charIndex];
@@ -40,9 +27,8 @@ class _SplashScreenState extends State<SplashScreen>
         });
       } else {
         timer.cancel();
-        _fadeController.forward();
-        // Navigate after a pause
-        Future.delayed(const Duration(seconds: 2), _navigateToHome);
+        // Short pause then navigate
+        Future.delayed(const Duration(milliseconds: 900), _navigateToHome);
       }
     });
   }
@@ -62,15 +48,11 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void dispose() {
     _typingTimer?.cancel();
-    _fadeController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    final theme = Theme.of(context);
-
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -100,61 +82,35 @@ class _SplashScreenState extends State<SplashScreen>
             ),
             const SizedBox(height: 32),
 
-            // Typing effect title
-            Text(
-              _displayedText,
-              style: const TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: 2,
-              ),
-            ),
-            // Blinking cursor
-            AnimatedOpacity(
-              opacity: _charIndex < _fullText.length ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 200),
-              child: const Text(
-                '|',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.w300,
-                  color: Colors.white70,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Tagline fades in after typing completes
-            FadeTransition(
-              opacity: _fadeAnim,
-              child: Text(
-                loc.splashTagline,
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.white.withValues(alpha: 0.85),
-                  fontWeight: FontWeight.w400,
-                  letterSpacing: 0.5,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 48),
-
-            // Subtle loading indicator
-            FadeTransition(
-              opacity: _fadeAnim,
-              child: SizedBox(
-                width: 28,
-                height: 28,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.5,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    Colors.white.withValues(alpha: 0.7),
+            // Fast typing effect title
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                Text(
+                  _displayedText,
+                  style: const TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: 2,
                   ),
                 ),
-              ),
+                // Blinking cursor — visible only while typing
+                AnimatedOpacity(
+                  opacity: _charIndex < _fullText.length ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 150),
+                  child: const Text(
+                    '|',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w300,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
