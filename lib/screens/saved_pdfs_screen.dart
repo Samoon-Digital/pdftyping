@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:printing/printing.dart';
+import 'pdf_viewer_screen.dart';
 
 class SavedPdfsScreen extends StatefulWidget {
   const SavedPdfsScreen({super.key});
@@ -69,10 +70,11 @@ class SavedPdfsScreenState extends State<SavedPdfsScreen> {
   }
 
   Future<void> _openPdf(File file) async {
-    final bytes = await file.readAsBytes();
-    await Printing.layoutPdf(
-      onLayout: (_) async => bytes,
-      name: _fileName(file),
+    if (!mounted) return;
+    await Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => PdfViewerScreen(file: file, title: _fileName(file)),
+      ),
     );
   }
 

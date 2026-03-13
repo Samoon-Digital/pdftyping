@@ -16,6 +16,7 @@ dependencies:
   printing: ^5.13.4
   path_provider: ^2.1.5
   google_mobile_ads: ^5.1.0
+  syncfusion_flutter_pdfviewer: ^28.1.33
 
 dev_dependencies:
   flutter_test:
