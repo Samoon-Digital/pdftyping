@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -165,8 +167,29 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     );
 
     if (!mounted) return;
+
+    // Save PDF to app documents directory for Saved tab
+    final docsDir = await getApplicationDocumentsDirectory();
+    final branch = _branchNameCtrl.text.trim();
+    final name = _nameCtrl.text.trim();
+    final now = DateTime.now();
+    final stamp =
+        '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
+        '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
+    final safeName = name.replaceAll(RegExp(r'[^\w\u0900-\u097F ]'), '').trim();
+    final safeBranch = branch
+        .replaceAll(RegExp(r'[^\w\u0900-\u097F ]'), '')
+        .trim();
+    final fileName =
+        '${safeName.isNotEmpty ? safeName : 'आवेदन'}_${safeBranch.isNotEmpty ? safeBranch : 'बैंक'}_$stamp.pdf';
+    final pdfBytes = await pdf.save();
+    final file = File('${docsDir.path}/$fileName');
+    await file.writeAsBytes(pdfBytes);
+
+    if (!mounted) return;
     await Printing.layoutPdf(
-      onLayout: (PdfPageFormat format) async => pdf.save(),
+      onLayout: (PdfPageFormat format) async => pdfBytes,
+      name: fileName,
     );
   }
 
