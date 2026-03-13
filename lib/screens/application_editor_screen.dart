@@ -141,7 +141,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
               width: 560,
               color: Colors.white,
               padding: const EdgeInsets.fromLTRB(45, 50, 45, 50),
-              child: _buildApplicationPreview(),
+              child: _buildApplicationPreview(fontSize: 11.3),
             ),
           ),
         ),
@@ -317,15 +317,18 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
   }
 
   // ── Live preview of the application ──
-  Widget _buildApplicationPreview() {
+  Widget _buildApplicationPreview({double? fontSize}) {
     final segments = _buildApplicationSegments();
+
+    final resolvedFontSize =
+        fontSize ?? Theme.of(context).textTheme.bodyLarge?.fontSize ?? 16.0;
 
     return RichText(
       text: TextSpan(
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: 'NotoSansDevanagari',
-          fontSize: 11.3,
-          color: Color(0xFF212121),
+          fontSize: resolvedFontSize,
+          color: const Color(0xFF212121),
           height: 1.8,
         ),
         children: segments.map((seg) {
@@ -387,7 +390,10 @@ class _InputField extends StatelessWidget {
         onChanged: onChanged,
         readOnly: readOnly,
         onTap: onTap,
-        style: const TextStyle(fontFamily: 'NotoSansDevanagari', fontSize: 11.3),
+        style: const TextStyle(
+          fontFamily: 'NotoSansDevanagari',
+          fontSize: 11.3,
+        ),
         decoration: InputDecoration(
           labelText: label,
           hintText: hint,
