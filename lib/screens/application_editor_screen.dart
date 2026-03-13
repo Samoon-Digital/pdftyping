@@ -149,7 +149,33 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
         pdfCaptureKey.currentContext!.findRenderObject()
             as RenderRepaintBoundary;
     final ui.Image image = await boundary.toImage(pixelRatio: 4.0);
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    // Crop bottom 8px to remove the anti-aliasing artifact line.
+    const cropPx = 8;
+    final cropRecorder = ui.PictureRecorder();
+    final cropCanvas = ui.Canvas(cropRecorder);
+    cropCanvas.drawImageRect(
+      image,
+      ui.Rect.fromLTWH(
+        0,
+        0,
+        image.width.toDouble(),
+        (image.height - cropPx).toDouble(),
+      ),
+      ui.Rect.fromLTWH(
+        0,
+        0,
+        image.width.toDouble(),
+        (image.height - cropPx).toDouble(),
+      ),
+      ui.Paint(),
+    );
+    final croppedImage = await cropRecorder.endRecording().toImage(
+      image.width,
+      image.height - cropPx,
+    );
+    final byteData = await croppedImage.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
     final pngBytes = byteData!.buffer.asUint8List();
 
     // 5. Remove the overlay immediately after capture.
@@ -158,12 +184,12 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     // 6. Standard A4 page — image width-fills the page and is anchored to the
     //    top. Remaining space below is white (correct A4 letter behaviour).
     //    SizedBox constrains the image to its natural proportional height so
-    //    BoxFit.fill works without distortion.  pw.Column is top-aligned by
+    //    BoxFit.fitWidth works without distortion.  pw.Column is top-aligned by
     //    default, avoiding the vertical-centering that pw.Align would cause.
     final pdf = pw.Document();
     final pdfImage = pw.MemoryImage(pngBytes);
     final a4Width = PdfPageFormat.a4.width;
-    final renderHeight = a4Width * image.height / image.width;
+    final renderHeight = a4Width * croppedImage.height / croppedImage.width;
 
     pdf.addPage(
       pw.Page(

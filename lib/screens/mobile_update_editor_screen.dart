@@ -143,7 +143,33 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
         pdfCaptureKey.currentContext!.findRenderObject()
             as RenderRepaintBoundary;
     final ui.Image image = await boundary.toImage(pixelRatio: 4.0);
-    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    // Crop bottom 8px to remove the anti-aliasing artifact line.
+    const cropPx = 8;
+    final cropRecorder = ui.PictureRecorder();
+    final cropCanvas = ui.Canvas(cropRecorder);
+    cropCanvas.drawImageRect(
+      image,
+      ui.Rect.fromLTWH(
+        0,
+        0,
+        image.width.toDouble(),
+        (image.height - cropPx).toDouble(),
+      ),
+      ui.Rect.fromLTWH(
+        0,
+        0,
+        image.width.toDouble(),
+        (image.height - cropPx).toDouble(),
+      ),
+      ui.Paint(),
+    );
+    final croppedImage = await cropRecorder.endRecording().toImage(
+      image.width,
+      image.height - cropPx,
+    );
+    final byteData = await croppedImage.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
     final pngBytes = byteData!.buffer.asUint8List();
 
     overlayEntry.remove();
@@ -151,7 +177,7 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
     final pdf = pw.Document();
     final pdfImage = pw.MemoryImage(pngBytes);
     final a4Width = PdfPageFormat.a4.width;
-    final renderHeight = a4Width * image.height / image.width;
+    final renderHeight = a4Width * croppedImage.height / croppedImage.width;
 
     pdf.addPage(
       pw.Page(
@@ -425,26 +451,30 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
                   valueText(accNo, '……………'),
                 ],
               ),
-              SizedBox(height: resolvedFontSize * 1.8),
-              Text('हस्ताक्षर – ……………', style: baseStyle),
             ],
           ),
         ),
 
-        SizedBox(height: resolvedFontSize * 1.8),
+        SizedBox(height: resolvedFontSize * 1.8 * 2),
 
-        // ── Date (left-aligned) ──
-        RichText(
-          text: TextSpan(
-            style: baseStyle,
-            children: [
-              const TextSpan(text: 'दिनांक – '),
-              TextSpan(
-                text: date.isEmpty ? '……………' : date,
-                style: date.isEmpty ? phStyle : null,
+        // ── Date (left) + Signature (right) same row ──
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            RichText(
+              text: TextSpan(
+                style: baseStyle,
+                children: [
+                  const TextSpan(text: 'दिनांक – '),
+                  TextSpan(
+                    text: date.isEmpty ? '……………' : date,
+                    style: date.isEmpty ? phStyle : null,
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            Text('हस्ताक्षर – ……………', style: baseStyle),
+          ],
         ),
       ],
     );
