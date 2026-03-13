@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../services/ad_service.dart';
 import 'home_page.dart';
 import 'saved_pdfs_screen.dart';
 import 'get_pdfs_screen.dart';
@@ -19,6 +20,18 @@ class _MainShellState extends State<MainShell> {
   void _onPdfSaved() {
     _savedKey.currentState?.refresh();
     setState(() => _currentIndex = 1);
+    AdService.instance.showInterstitialIfNeeded('saved');
+  }
+
+  // Called when user manually taps a bottom nav item.
+  // Shows interstitial for Saved/GetPdfs tabs (once per session each).
+  void _onTabTapped(int i) {
+    setState(() => _currentIndex = i);
+    if (i == 1) {
+      AdService.instance.showInterstitialIfNeeded('saved');
+    } else if (i == 2) {
+      AdService.instance.showInterstitialIfNeeded('get_pdfs');
+    }
   }
 
   @override
@@ -50,7 +63,7 @@ class _MainShellState extends State<MainShell> {
           top: false,
           child: NavigationBar(
             selectedIndex: _currentIndex,
-            onDestinationSelected: (i) => setState(() => _currentIndex = i),
+            onDestinationSelected: _onTabTapped,
             backgroundColor: Colors.white,
             indicatorColor: primary.withValues(alpha: 0.12),
             surfaceTintColor: Colors.transparent,

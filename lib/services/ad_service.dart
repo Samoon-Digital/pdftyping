@@ -1,25 +1,36 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Centralized service for reward ads and template unlock state.
+/// Centralized service for reward ads, interstitial ads, and template unlock state.
 class AdService {
   AdService._();
   static final AdService instance = AdService._();
 
   // ── Ad Unit IDs ──
   static const _rewardAdUnit = 'ca-app-pub-1638673809508848/9816818520';
+  static const _interstitialAdUnit = 'ca-app-pub-1638673809508848/4556898771';
 
   // ── Persistence ──
   static const _unlockPrefix = 'template_unlocked_';
 
+  // ── Reward ad state ──
   RewardedAd? _rewardedAd;
   bool _isLoading = false;
+
+  // ── Interstitial ad state ──
+  InterstitialAd? _interstitialAd;
+  bool _isInterstitialLoading = false;
+
+  /// Screens that have already shown an interstitial this session.
+  /// Keys: 'saved', 'get_pdfs'
+  final Set<String> _sessionShownScreens = {};
 
   // ── Initialize SDK (call once in main) ──
   static Future<void> init() async {
     await MobileAds.instance.initialize();
-    // Pre-load the first reward ad
+    // Pre-load both ad types in background
     AdService.instance._loadRewardAd();
+    AdService.instance._loadInterstitialAd();
   }
 
   // ── Check if a template is unlocked ──
@@ -97,5 +108,71 @@ class AdService {
         onRewarded();
       },
     );
+  }
+
+  // ───────────────────────────────────────────────
+  // ── INTERSTITIAL ADS ──
+  // ───────────────────────────────────────────────
+
+  /// Load one interstitial ad into cache.
+  /// Called only after a previous interstitial is fully dismissed.
+  void _loadInterstitialAd() {
+    if (_isInterstitialLoading || _interstitialAd != null) return;
+    _isInterstitialLoading = true;
+
+    InterstitialAd.load(
+      adUnitId: _interstitialAdUnit,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          _interstitialAd = ad;
+          _isInterstitialLoading = false;
+        },
+        onAdFailedToLoad: (error) {
+          _interstitialAd = null;
+          _isInterstitialLoading = false;
+          // Retry after delay
+          Future.delayed(
+            const Duration(seconds: 5),
+            () => _loadInterstitialAd(),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Show interstitial for [screenKey] if:
+  /// - Not yet shown this session for that screen
+  /// - An ad is cached and ready
+  ///
+  /// After dismiss, automatically queues the NEXT load.
+  /// No new request is made until the current ad is fully dismissed.
+  void showInterstitialIfNeeded(String screenKey) {
+    // Already shown this session for this screen — skip
+    if (_sessionShownScreens.contains(screenKey)) return;
+
+    final ad = _interstitialAd;
+    if (ad == null) {
+      // Ad not ready yet — skip silently (user sees screen normally)
+      return;
+    }
+
+    // Mark as shown for this session immediately to prevent double-shows
+    _sessionShownScreens.add(screenKey);
+    _interstitialAd = null;
+
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (ad) {
+        ad.dispose();
+        // Only after user dismisses do we request the next ad
+        _loadInterstitialAd();
+      },
+      onAdFailedToShowFullScreenContent: (ad, error) {
+        ad.dispose();
+        _loadInterstitialAd();
+      },
+    );
+
+    ad.show();
   }
 }
