@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import '../widgets/suggestible_input_field.dart';
 
 class ApplicationEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -106,6 +107,9 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
         'अत: श्रीमान जी से निवेदन है  मेरे बचत खाते से बीमा हटाने की कृपया करें और कटी हुई धनराशि वापस कराने की कृपा  करें  आपकी महान कृपा होगी |',
         false,
       ),
+      const _TextSegment('
+
+धन्यवाद।', false),
     ];
   }
 
@@ -304,34 +308,39 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
               ),
               const SizedBox(height: 12),
 
-              _InputField(
+              SuggestibleInputField(
                 controller: _branchNameCtrl,
+                fieldKey: 'bima_bank_name',
                 label: 'बैंक का नाम',
                 hint: 'जैसे : बैंक ऑफ बड़ोदा',
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _branchAddressCtrl,
+                fieldKey: 'bima_branch_address',
                 label: 'शाखा का पता',
                 hint: 'जैसे : नगला , लखीमपुर खीरी',
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _accountNumberCtrl,
+                fieldKey: 'bima_account_number',
                 label: 'खाता नंबर',
                 hint: 'जैसे : 1234567890',
                 keyboardType: TextInputType.number,
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _accountHolderCtrl,
+                fieldKey: 'bima_account_holder',
                 label: 'खाताधारक का नाम',
                 hint: 'जैसे : सामून अली पुत्र अब्दुल वहाब',
                 onChanged: (_) => setState(() {}),
               ),
-              // Date field — opens calendar picker on tap
-              _InputField(
+              // Date field — opens calendar picker on tap (no suggestions)
+              SuggestibleInputField(
                 controller: _dateCtrl,
+                fieldKey: 'bima_date',
                 label: 'दिनांक',
                 hint: 'जैसे : 12/03/2026',
                 readOnly: true,
@@ -339,8 +348,9 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
                 suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
               ),
               // Name auto-filled from account holder, remains editable
-              _InputField(
+              SuggestibleInputField(
                 controller: _nameCtrl,
+                fieldKey: 'bima_name',
                 label: 'आपका नाम',
                 hint: 'जैसे : राम प्रसाद',
                 onChanged: (_) {
@@ -348,8 +358,9 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
                   setState(() {});
                 },
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _mobileCtrl,
+                fieldKey: 'bima_mobile',
                 label: 'मोबाइल नंबर',
                 hint: 'जैसे : 9876543210',
                 keyboardType: TextInputType.phone,
@@ -504,60 +515,4 @@ class _TextSegment {
   final String text;
   final bool isPlaceholder;
   const _TextSegment(this.text, this.isPlaceholder);
-}
-
-// ── Reusable input field ──
-class _InputField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final TextInputType keyboardType;
-  final ValueChanged<String>? onChanged;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final Widget? suffixIcon;
-
-  const _InputField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    this.keyboardType = TextInputType.text,
-    this.onChanged,
-    this.readOnly = false,
-    this.onTap,
-    this.suffixIcon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        onChanged: onChanged,
-        readOnly: readOnly,
-        onTap: onTap,
-        style: const TextStyle(fontFamily: 'NotoSansDevanagari', fontSize: 16),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          labelStyle: const TextStyle(fontFamily: 'NotoSansDevanagari'),
-          hintStyle: TextStyle(
-            fontFamily: 'NotoSansDevanagari',
-            color: Colors.grey.shade400,
-          ),
-          suffixIcon: suffixIcon == null
-              ? null
-              : GestureDetector(onTap: onTap, child: suffixIcon),
-        ),
-        validator: (v) {
-          if (v == null || v.trim().isEmpty) {
-            return 'कृपया सभी फ़ील्ड भरें';
-          }
-          return null;
-        },
-      ),
-    );
-  }
 }

@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import '../widgets/suggestible_input_field.dart';
 
 class MobileUpdateEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -67,10 +68,7 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
       const _TextSegment('सेवा में,', false),
       const _TextSegment('\nशाखा प्रबंधक महोदय,', false),
       const _TextSegment('\n', false),
-      _TextSegment(
-        bankName.isEmpty ? '………… बैंक' : '$bankName बैंक',
-        bankName.isEmpty,
-      ),
+      _TextSegment(bankName.isEmpty ? '…………' : bankName, bankName.isEmpty),
       const _TextSegment('\nशाखा – ', false),
       _TextSegment(
         branchName.isEmpty ? '…………' : branchName,
@@ -288,53 +286,61 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
               ),
               const SizedBox(height: 12),
 
-              _InputField(
+              SuggestibleInputField(
                 controller: _bankNameCtrl,
+                fieldKey: 'mob_bank_name',
                 label: 'बैंक का नाम',
                 hint: 'जैसे : बैंक ऑफ बड़ोदा',
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _branchNameCtrl,
+                fieldKey: 'mob_branch_name',
                 label: 'शाखा का नाम',
                 hint: 'जैसे : नगला , लखीमपुर खीरी',
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _nameCtrl,
+                fieldKey: 'mob_name',
                 label: 'आपका नाम',
                 hint: 'जैसे : राम प्रसाद',
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _accountNumberCtrl,
+                fieldKey: 'mob_account_number',
                 label: 'खाता संख्या',
                 hint: 'जैसे : 1234567890',
                 keyboardType: TextInputType.number,
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _oldMobileCtrl,
+                fieldKey: 'mob_old_mobile',
                 label: 'पुराना मोबाइल नंबर',
                 hint: 'जैसे : 9876543210',
                 keyboardType: TextInputType.phone,
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _newMobileCtrl,
+                fieldKey: 'mob_new_mobile',
                 label: 'नया मोबाइल नंबर',
                 hint: 'जैसे : 9123456789',
                 keyboardType: TextInputType.phone,
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _addressCtrl,
+                fieldKey: 'mob_address',
                 label: 'पता',
                 hint: 'जैसे : ग्राम – नगला, जिला – लखीमपुर खीरी',
                 onChanged: (_) => setState(() {}),
               ),
-              _InputField(
+              SuggestibleInputField(
                 controller: _dateCtrl,
+                fieldKey: 'mob_date',
                 label: 'दिनांक',
                 hint: 'जैसे : 13/03/2026',
                 readOnly: true,
@@ -415,52 +421,13 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
 
         SizedBox(height: resolvedFontSize * 1.8 * 2),
 
-        // ── Footer: right-aligned भवदीय block ──
-        Align(
-          alignment: Alignment.centerRight,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('भवदीय,', style: baseStyle),
-              SizedBox(height: resolvedFontSize * 0.5),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('नाम – ', style: baseStyle),
-                  valueText(name, '……………'),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('पता – ', style: baseStyle),
-                  valueText(address, '……………'),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('मोबाइल नंबर – ', style: baseStyle),
-                  valueText(mobile, '……………'),
-                ],
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('खाता संख्या – ', style: baseStyle),
-                  valueText(accNo, '……………'),
-                ],
-              ),
-            ],
-          ),
-        ),
-
-        SizedBox(height: resolvedFontSize * 1.8 * 2),
-
-        // ── Date (left) + Signature (right) same row ──
+        // ── Footer: date bottom-left, भवदीय+signature bottom-right ──
+        // crossAxisAlignment.end ensures date and हस्ताक्षर are on the same
+        // horizontal line; signature naturally aligns with भवदीय block above it.
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            // Date — bottom-left
             RichText(
               text: TextSpan(
                 style: baseStyle,
@@ -473,7 +440,46 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
                 ],
               ),
             ),
-            Text('हस्ताक्षर – ……………', style: baseStyle),
+            // Spacer pushes right block to right edge
+            const Spacer(),
+            // भवदीय block + signature (same column → perfect alignment)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('भवदीय,', style: baseStyle),
+                SizedBox(height: resolvedFontSize * 0.5),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('नाम – ', style: baseStyle),
+                    valueText(name, '……………'),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('पता – ', style: baseStyle),
+                    valueText(address, '……………'),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('मोबाइल नंबर – ', style: baseStyle),
+                    valueText(mobile, '……………'),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('खाता संख्या – ', style: baseStyle),
+                    valueText(accNo, '……………'),
+                  ],
+                ),
+                SizedBox(height: resolvedFontSize * 1.8),
+                Text('हस्ताक्षर – ………………………………………', style: baseStyle),
+              ],
+            ),
           ],
         ),
       ],
@@ -486,60 +492,4 @@ class _TextSegment {
   final String text;
   final bool isPlaceholder;
   const _TextSegment(this.text, this.isPlaceholder);
-}
-
-// ── Reusable input field ──
-class _InputField extends StatelessWidget {
-  final TextEditingController controller;
-  final String label;
-  final String hint;
-  final TextInputType keyboardType;
-  final ValueChanged<String>? onChanged;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final Widget? suffixIcon;
-
-  const _InputField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    this.keyboardType = TextInputType.text,
-    this.onChanged,
-    this.readOnly = false,
-    this.onTap,
-    this.suffixIcon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        onChanged: onChanged,
-        readOnly: readOnly,
-        onTap: onTap,
-        style: const TextStyle(fontFamily: 'NotoSansDevanagari', fontSize: 16),
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          labelStyle: const TextStyle(fontFamily: 'NotoSansDevanagari'),
-          hintStyle: TextStyle(
-            fontFamily: 'NotoSansDevanagari',
-            color: Colors.grey.shade400,
-          ),
-          suffixIcon: suffixIcon == null
-              ? null
-              : GestureDetector(onTap: onTap, child: suffixIcon),
-        ),
-        validator: (v) {
-          if (v == null || v.trim().isEmpty) {
-            return 'कृपया सभी फ़ील्ड भरें';
-          }
-          return null;
-        },
-      ),
-    );
-  }
 }
