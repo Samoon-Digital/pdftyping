@@ -43,6 +43,10 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
         }
       }
     });
+    // Auto-fill date field with today's date on open
+    final now = DateTime.now();
+    _dateCtrl.text =
+        '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
   }
 
   // ── Date picker ──
@@ -517,7 +521,12 @@ class _InputField extends StatelessWidget {
             fontFamily: 'NotoSansDevanagari',
             color: Colors.grey.shade400,
           ),
-          suffixIcon: suffixIcon,
+          suffixIcon: suffixIcon == null
+              ? null
+              : GestureDetector(
+                  onTap: onTap,
+                  child: suffixIcon,
+                ),
         ),
         validator: (v) {
           if (v == null || v.trim().isEmpty) {
