@@ -4,6 +4,7 @@ import '../services/ad_service.dart';
 import '../widgets/unlock_sheet.dart';
 import 'application_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
+import 'profile_screen.dart';
 
 class HomePage extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -102,7 +103,18 @@ class _HomePageState extends State<HomePage> {
     final loc = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: Text(loc.appTitle)),
+      appBar: AppBar(
+        title: Text(loc.appTitle),
+        actions: [
+          IconButton(
+            tooltip: 'प्रोफाइल',
+            icon: const Icon(Icons.account_circle_rounded),
+            onPressed: () => Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const ProfileScreen())),
+          ),
+        ],
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : ListView.separated(
