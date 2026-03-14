@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import '../widgets/suggestible_input_field.dart';
+import '../widgets/pdf_generation_widgets.dart';
 
 class MobileUpdateEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -113,6 +114,22 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
   Future<void> _generatePdf() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Show loading dialog while rendering
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black45,
+      builder: (_) => const PdfGeneratingDialog(),
+    );
+
+    try {
+      await _doGeneratePdf();
+    } catch (_) {
+      if (mounted) Navigator.of(context).pop(); // dismiss loading dialog
+    }
+  }
+
+  Future<void> _doGeneratePdf() async {
     final pdfCaptureKey = GlobalKey();
 
     final overlayEntry = OverlayEntry(
@@ -212,18 +229,32 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
     await file.writeAsBytes(pdfBytes);
 
     if (!mounted) return;
-    widget.onPdfSaved?.call();
+
+    // Dismiss loading dialog
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text(
-          'PDF सेव हो गई! Saved में देखें।',
-          style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-        ),
-        backgroundColor: const Color(0xFF1565C0),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 3),
+
+    if (!mounted) return;
+
+    // Show success sheet — user explicitly chooses what to do next
+    showModalBottomSheet(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (_) => PdfSuccessSheet(
+        fileName: fileName,
+        onViewSaved: () {
+          final nav = Navigator.of(context);
+          nav.pop(); // dismiss sheet
+          nav.pop(); // pop editor → back to shell
+          widget.onPdfSaved?.call(); // switch to Saved tab + trigger ad
+        },
+        onMakeAnother: () {
+          Navigator.of(context).pop(); // dismiss sheet, stay on editor
+        },
       ),
     );
   }
