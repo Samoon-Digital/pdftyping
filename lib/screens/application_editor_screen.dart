@@ -107,9 +107,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
         'अत: श्रीमान जी से निवेदन है  मेरे बचत खाते से बीमा हटाने की कृपया करें और कटी हुई धनराशि वापस कराने की कृपा  करें  आपकी महान कृपा होगी |',
         false,
       ),
-      const _TextSegment('
-
-धन्यवाद।', false),
+      const _TextSegment('\n\nधन्यवाद।', false),
     ];
   }
 
