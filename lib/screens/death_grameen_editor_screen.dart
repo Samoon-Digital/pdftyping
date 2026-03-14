@@ -160,7 +160,8 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
             child: Container(
               width: 560,
               color: Colors.white,
-              padding: const EdgeInsets.fromLTRB(45, 50, 45, 50),
+              // Left = 136dp ≈ 2 inches on A4 (560dp maps to 210mm → 1dp ≈ 0.375mm)
+              padding: const EdgeInsets.fromLTRB(136, 50, 45, 50),
               child: _buildDocumentPreview(fontSize: 11.3),
             ),
           ),
@@ -316,7 +317,8 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
                   child: Container(
                     width: double.infinity,
                     color: Colors.white,
-                    padding: const EdgeInsets.all(20),
+                    // Left indent mirrors the 2-inch PDF margin (proportionally)
+                    padding: const EdgeInsets.fromLTRB(52, 20, 20, 20),
                     child: _buildDocumentPreview(),
                   ),
                 ),
