@@ -25,6 +25,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
   final _dateCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
   final _mobileCtrl = TextEditingController();
+  final _addressCtrl = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -256,6 +257,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     _dateCtrl.dispose();
     _nameCtrl.dispose();
     _mobileCtrl.dispose();
+    _addressCtrl.dispose();
     super.dispose();
   }
 
@@ -363,6 +365,13 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
                 keyboardType: TextInputType.phone,
                 onChanged: (_) => setState(() {}),
               ),
+              SuggestibleInputField(
+                controller: _addressCtrl,
+                fieldKey: 'bima_address',
+                label: 'पता',
+                hint: 'जैसे : ग्राम – नगला, जिला – लखीमपुर खीरी',
+                onChanged: (_) => setState(() {}),
+              ),
 
               const SizedBox(height: 20),
 
@@ -393,7 +402,9 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     final date = _dateCtrl.text.trim();
     final name = _nameCtrl.text.trim();
     final mobile = _mobileCtrl.text.trim();
+    final address = _addressCtrl.text.trim();
     final branch = _branchNameCtrl.text.trim();
+    final accNo = _accountNumberCtrl.text.trim();
     final isPdf = fontSize != null;
 
     final baseStyle = TextStyle(
@@ -450,55 +461,65 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
           ),
         ),
 
-        // Spacing before footer (≈ 3 blank lines)
-        SizedBox(height: resolvedFontSize * 1.8 * 3),
+        // Spacing before footer (≈ 2 blank lines)
+        SizedBox(height: resolvedFontSize * 1.8 * 2),
 
-        // ── Footer: date left, name+mobile right with aligned values ──
+        // ── Footer: date bottom-left, भवदीय+signature bottom-right ──
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Date (left side — takes its natural width)
+            // Date — bottom-left
             RichText(
               text: TextSpan(
                 style: baseStyle,
                 children: [
-                  const TextSpan(text: 'दिनांक : '),
+                  const TextSpan(text: 'दिनांक – '),
                   TextSpan(
-                    text: date.isEmpty ? 'दिनांक' : date,
+                    text: date.isEmpty ? '……………' : date,
                     style: date.isEmpty ? phStyle : null,
                   ),
                 ],
               ),
             ),
-
-            // Name + Mobile — right-aligned, values can wrap on long names.
-            // Expanded gives bounded width; inner Row pushes content to end;
-            // Flexible value-Column allows text to wrap without overflow.
-            Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Labels column — intrinsic (never wraps)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('नाम : ', style: baseStyle),
-                      Text('मोबाईल : ', style: baseStyle),
-                    ],
-                  ),
-                  // Values column — Flexible so long names wrap, no overflow
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        valueText(name, 'आपका नाम'),
-                        valueText(mobile, 'मोबाइल नंबर'),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            // Spacer pushes right block to right edge
+            const Spacer(),
+            // भवदीय block + signature (same column → perfect alignment)
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('भवदीय,', style: baseStyle),
+                SizedBox(height: resolvedFontSize * 0.5),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('नाम – ', style: baseStyle),
+                    valueText(name, '……………'),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('पता – ', style: baseStyle),
+                    valueText(address, '……………'),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('मोबाइल नंबर – ', style: baseStyle),
+                    valueText(mobile, '……………'),
+                  ],
+                ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('खाता संख्या – ', style: baseStyle),
+                    valueText(accNo, '……………'),
+                  ],
+                ),
+                SizedBox(height: resolvedFontSize * 1.8),
+                Text('हस्ताक्षर – ………………………………………', style: baseStyle),
+              ],
             ),
           ],
         ),
