@@ -77,7 +77,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
     return [
       const _TextSegment('सेवा मैं', false),
-      const _TextSegment('\nश्रीमान ,', false),
+      const _TextSegment('\nशाखा प्रबंधक महोदय,', false),
       const _TextSegment('\nशाखा प्रबंधक , ', false),
       _TextSegment(branch.isEmpty ? 'शाखा का नाम' : branch, branch.isEmpty),
       const _TextSegment('\n', false),
@@ -104,10 +104,9 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
       ),
       const _TextSegment('\n\n', false),
       const _TextSegment(
-        'अत: श्रीमान जी से निवेदन है  मेरे बचत खाते से बीमा हटाने की कृपया करें और कटी हुई धनराशि वापस कराने की कृपा  करें  आपकी महान कृपा होगी |',
+        'अत: श्रीमान जी से निवेदन है  मेरे बचत खाते से बीमा हटाने की कृपया करें और कटी हुई धनराशि वापस कराने की कृपा  करें  आपकी महान कृपा होगी | धन्यवाद।',
         false,
       ),
-      const _TextSegment('\n\nधन्यवाद।', false),
     ];
   }
 
