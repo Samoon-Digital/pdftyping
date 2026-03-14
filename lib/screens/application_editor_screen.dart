@@ -484,42 +484,44 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
             // Spacer pushes right block to right edge
             const Spacer(),
             // भवदीय block + signature (same column → perfect alignment)
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('भवदीय,', style: baseStyle),
-                SizedBox(height: resolvedFontSize * 0.5),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('नाम – ', style: baseStyle),
-                    valueText(name, '……………'),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('पता – ', style: baseStyle),
-                    valueText(address, '……………'),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('मोबाइल नंबर – ', style: baseStyle),
-                    valueText(mobile, '……………'),
-                  ],
-                ),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('खाता संख्या – ', style: baseStyle),
-                    valueText(accNo, '……………'),
-                  ],
-                ),
-                SizedBox(height: resolvedFontSize * 1.8),
-                Text('हस्ताक्षर – ………………………………………', style: baseStyle),
-              ],
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('भवदीय,', style: baseStyle),
+                  SizedBox(height: resolvedFontSize * 0.5),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('नाम – ', style: baseStyle),
+                      Flexible(child: valueText(name, '……………')),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('पता – ', style: baseStyle),
+                      Flexible(child: valueText(address, '……………')),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('मोबाइल नंबर – ', style: baseStyle),
+                      Flexible(child: valueText(mobile, '……………')),
+                    ],
+                  ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('खाता संख्या – ', style: baseStyle),
+                      Flexible(child: valueText(accNo, '……………')),
+                    ],
+                  ),
+                  SizedBox(height: resolvedFontSize * 1.8),
+                  Text('हस्ताक्षर – ………………………………………', style: baseStyle),
+                ],
+              ),
             ),
           ],
         ),
