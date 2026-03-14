@@ -160,8 +160,8 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
             child: Container(
               width: 560,
               color: Colors.white,
-              // Left=136dp≈2 inch, Right=68dp≈1 inch on A4 (560dp=210mm → 1dp≈0.375mm)
-              padding: const EdgeInsets.fromLTRB(136, 50, 68, 50),
+              // Left=136dp≈2 inch, Right=45dp on A4 (560dp=210mm → 1dp≈0.375mm)
+              padding: const EdgeInsets.fromLTRB(136, 50, 45, 50),
               child: _buildDocumentPreview(fontSize: 15.0),
             ),
           ),
@@ -494,7 +494,11 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
                 ],
               ),
             ),
-            Text('हस्ताक्षर व मोहर', style: baseStyle),
+            Padding(
+              // 23dp ≈ (68−45)dp so the text ends 1 inch from A4 right edge
+              padding: const EdgeInsets.only(right: 23),
+              child: Text('हस्ताक्षर व मोहर', style: baseStyle),
+            ),
           ],
         ),
       ],
