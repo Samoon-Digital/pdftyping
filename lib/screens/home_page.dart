@@ -3,6 +3,7 @@ import '../l10n/app_localizations.dart';
 import '../services/ad_service.dart';
 import '../widgets/unlock_sheet.dart';
 import 'application_editor_screen.dart';
+import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
 import 'profile_screen.dart';
 
@@ -30,6 +31,13 @@ class _HomePageState extends State<HomePage> {
       subtitle: 'बचत खाते में मोबाइल नंबर परिवर्तन हेतु आवेदन',
       icon: Icons.phone_android_rounded,
       color: Color(0xFF00897B),
+    ),
+    _TemplateItem(
+      id: 'death_grameen',
+      title: 'ग्राम प्रधान द्वारा प्रमाणित मृत्यु प्रमाण पत्र',
+      subtitle: 'ग्रामीण क्षेत्र का मृत्यु प्रमाण पत्र',
+      icon: Icons.description_rounded,
+      color: Color(0xFF6A1B9A),
     ),
   ];
 
@@ -92,6 +100,8 @@ class _HomePageState extends State<HomePage> {
     switch (templateId) {
       case 'mobile_update':
         screen = MobileUpdateEditorScreen(onPdfSaved: widget.onPdfSaved);
+      case 'death_grameen':
+        screen = DeathGrameenEditorScreen(onPdfSaved: widget.onPdfSaved);
       default:
         screen = ApplicationEditorScreen(onPdfSaved: widget.onPdfSaved);
     }
