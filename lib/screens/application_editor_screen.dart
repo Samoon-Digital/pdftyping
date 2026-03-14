@@ -464,11 +464,52 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
         // Spacing before footer (≈ 2 blank lines)
         SizedBox(height: resolvedFontSize * 1.8 * 2),
 
-        // ── Footer: date bottom-left, भवदीय+signature bottom-right ──
+        // ── Footer: भवदीय block right-aligned, then date + हस्ताक्षर row ──
+        Align(
+          alignment: Alignment.centerRight,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('भवदीय,', style: baseStyle),
+              SizedBox(height: resolvedFontSize * 0.5),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('नाम – ', style: baseStyle),
+                  valueText(name, '……………'),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('पता – ', style: baseStyle),
+                  valueText(address, '……………'),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('मोबाइल नंबर – ', style: baseStyle),
+                  valueText(mobile, '……………'),
+                ],
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('खाता संख्या – ', style: baseStyle),
+                  valueText(accNo, '……………'),
+                ],
+              ),
+            ],
+          ),
+        ),
+
+        SizedBox(height: resolvedFontSize * 1.8),
+
+        // ── Date left, हस्ताक्षर right ──
         Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Date — bottom-left
             RichText(
               text: TextSpan(
                 style: baseStyle,
@@ -481,48 +522,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
                 ],
               ),
             ),
-            // Spacer pushes right block to right edge
-            const Spacer(),
-            // भवदीय block + signature (same column → perfect alignment)
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('भवदीय,', style: baseStyle),
-                  SizedBox(height: resolvedFontSize * 0.5),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('नाम – ', style: baseStyle),
-                      Flexible(child: valueText(name, '……………')),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('पता – ', style: baseStyle),
-                      Flexible(child: valueText(address, '……………')),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('मोबाइल नंबर – ', style: baseStyle),
-                      Flexible(child: valueText(mobile, '……………')),
-                    ],
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('खाता संख्या – ', style: baseStyle),
-                      Flexible(child: valueText(accNo, '……………')),
-                    ],
-                  ),
-                  SizedBox(height: resolvedFontSize * 1.8),
-                  Text('हस्ताक्षर – ………………………………………', style: baseStyle),
-                ],
-              ),
-            ),
+            Flexible(child: Text('हस्ताक्षर – ………………………', style: baseStyle)),
           ],
         ),
       ],
