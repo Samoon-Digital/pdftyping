@@ -22,6 +22,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
   final _gramCtrl = TextEditingController();
   final _postCtrl = TextEditingController();
   final _vikasKhandCtrl = TextEditingController();
+  final _tehsilCtrl = TextEditingController();
   final _jilaCtrl = TextEditingController(text: 'लखीमपुर खीरी');
   final _deathDateCtrl = TextEditingController();
   final _deathGramCtrl = TextEditingController();
@@ -87,6 +88,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
     final gram = _gramCtrl.text.trim();
     final post = _postCtrl.text.trim();
     final vikasKhand = _vikasKhandCtrl.text.trim();
+    final tehsil = _tehsilCtrl.text.trim();
     final jila = _jilaCtrl.text.trim();
     final deathDate = _deathDateCtrl.text.trim();
     final deathGram = _deathGramCtrl.text.trim();
@@ -101,11 +103,13 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
       _TextSegment(gram.isEmpty ? 'ग्राम का नाम' : gram, gram.isEmpty),
       const _TextSegment(' पोस्ट ', false),
       _TextSegment(post.isEmpty ? 'पोस्ट' : post, post.isEmpty),
-      const _TextSegment(' विकास खण्ड  व तहसील ', false),
+      const _TextSegment(' विकास खण्ड ', false),
       _TextSegment(
-        vikasKhand.isEmpty ? 'विकास खण्ड व तहसील' : vikasKhand,
+        vikasKhand.isEmpty ? 'विकास खण्ड' : vikasKhand,
         vikasKhand.isEmpty,
       ),
+      const _TextSegment(' व तहसील ', false),
+      _TextSegment(tehsil.isEmpty ? 'तहसील' : tehsil, tehsil.isEmpty),
       const _TextSegment(' जिला ', false),
       _TextSegment(jila.isEmpty ? 'जिला' : jila, false),
       const _TextSegment(
@@ -281,6 +285,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
     _gramCtrl.dispose();
     _postCtrl.dispose();
     _vikasKhandCtrl.dispose();
+    _tehsilCtrl.dispose();
     _jilaCtrl.dispose();
     _deathDateCtrl.dispose();
     _deathGramCtrl.dispose();
@@ -339,28 +344,35 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
                 controller: _deceasedNameCtrl,
                 fieldKey: 'death_deceased_name',
                 label: 'मृतक / मृतका का नाम',
-                hint: 'जैसे : राम प्रसाद',
+                hint: 'जैसे : राम प्रसाद पुत्र शिवदयाल',
                 onChanged: (_) => setState(() {}),
               ),
               SuggestibleInputField(
                 controller: _gramCtrl,
                 fieldKey: 'death_gram',
                 label: 'निवासी ग्राम',
-                hint: 'जैसे : नगला',
+                hint: 'जैसे : गड़निया',
                 onChanged: (_) => setState(() {}),
               ),
               SuggestibleInputField(
                 controller: _postCtrl,
                 fieldKey: 'death_post',
                 label: 'पोस्ट',
-                hint: 'जैसे : मोहम्मदी',
+                hint: 'जैसे : त्रिकोलिया',
                 onChanged: (_) => setState(() {}),
               ),
               SuggestibleInputField(
                 controller: _vikasKhandCtrl,
                 fieldKey: 'death_vikas_khand',
-                label: 'विकास खण्ड व तहसील',
-                hint: 'जैसे : मोहम्मदी',
+                label: 'विकास खण्ड (ब्लॉक)',
+                hint: 'जैसे : पलिया कलाँ',
+                onChanged: (_) => setState(() {}),
+              ),
+              SuggestibleInputField(
+                controller: _tehsilCtrl,
+                fieldKey: 'death_tehsil',
+                label: 'तहसील',
+                hint: 'जैसे : पलिया कलाँ',
                 onChanged: (_) => setState(() {}),
               ),
               SuggestibleInputField(
@@ -383,7 +395,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
                 controller: _deathGramCtrl,
                 fieldKey: 'death_death_gram',
                 label: 'मृत्यु का ग्राम',
-                hint: 'जैसे : नगला (स्वतः भर जाता है)',
+                hint: 'जैसे : गड़निया (स्वतः भर जाता है)',
                 onChanged: (_) {
                   _deathGramManuallyEdited = true;
                   setState(() {});
