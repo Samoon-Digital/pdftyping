@@ -160,9 +160,9 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
             child: Container(
               width: 560,
               color: Colors.white,
-              // Left = 136dp ≈ 2 inches on A4 (560dp maps to 210mm → 1dp ≈ 0.375mm)
-              padding: const EdgeInsets.fromLTRB(136, 50, 45, 50),
-              child: _buildDocumentPreview(fontSize: 11.3),
+              // Left=136dp≈2 inch, Right=68dp≈1 inch on A4 (560dp=210mm → 1dp≈0.375mm)
+              padding: const EdgeInsets.fromLTRB(136, 50, 68, 50),
+              child: _buildDocumentPreview(fontSize: 15.0),
             ),
           ),
         ),
@@ -436,7 +436,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
 
     final headingStyle = baseStyle.copyWith(
       fontSize: resolvedFontSize + 2.0,
-      fontWeight: FontWeight.bold,
+      fontWeight: FontWeight.normal,
       height: 1.4,
     );
 
@@ -451,7 +451,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Heading — centered, bold, 2pt larger ──
+        // ── Heading — centered, regular weight, 2pt larger ──
         Align(
           alignment: Alignment.center,
           child: Text(
