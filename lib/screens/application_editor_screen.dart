@@ -117,8 +117,6 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
   // Avoids the "zoomed / content clipped" problem caused by capturing the
   // narrow phone-screen widget and scaling it to fill A4.
   Future<void> _generatePdf() async {
-    if (!_formKey.currentState!.validate()) return;
-
     // Show loading dialog while rendering
     showDialog(
       context: context,
@@ -564,28 +562,28 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('नाम – ', style: baseStyle),
-                  valueText(name, '……………'),
+                  Flexible(child: valueText(name, '……………')),
                 ],
               ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('पता – ', style: baseStyle),
-                  valueText(address, '……………'),
+                  Flexible(child: valueText(address, '……………')),
                 ],
               ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('मोबाइल नंबर – ', style: baseStyle),
-                  valueText(mobile, '……………'),
+                  Flexible(child: valueText(mobile, '……………')),
                 ],
               ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text('खाता संख्या – ', style: baseStyle),
-                  valueText(accNo, '……………'),
+                  Flexible(child: valueText(accNo, '……………')),
                 ],
               ),
             ],

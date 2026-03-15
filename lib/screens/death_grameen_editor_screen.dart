@@ -135,8 +135,6 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
 
   // ── Trigger PDF generation ──
   Future<void> _generatePdf() async {
-    if (!_formKey.currentState!.validate()) return;
-
     showDialog(
       context: context,
       barrierDismissible: false,
