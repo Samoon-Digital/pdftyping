@@ -141,7 +141,7 @@ class _HomePageState extends State<HomePage> {
           : ListView.separated(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               itemCount: _templates.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 10),
+              separatorBuilder: (_, _) => const SizedBox(height: 10),
               itemBuilder: (context, index) {
                 final t = _templates[index];
                 final isUnlocked = _unlocked[t.id] == true;

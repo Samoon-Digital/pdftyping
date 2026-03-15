@@ -15,7 +15,7 @@ class PdfViewerScreen extends StatefulWidget {
 
 class _PdfViewerScreenState extends State<PdfViewerScreen> {
   final _viewerKey = GlobalKey<SfPdfViewerState>();
-  bool _isToolbarVisible = true;
+  final bool _isToolbarVisible = true;
 
   Future<void> _share() async {
     final bytes = await widget.file.readAsBytes();
