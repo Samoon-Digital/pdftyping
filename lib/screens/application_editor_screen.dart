@@ -296,7 +296,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('आवेदन एडिटर')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
         child: Form(
           key: _formKey,
           child: Column(

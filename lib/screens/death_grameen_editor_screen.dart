@@ -298,7 +298,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('मृत्यु प्रमाण पत्र')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
         child: Form(
           key: _formKey,
           child: Column(

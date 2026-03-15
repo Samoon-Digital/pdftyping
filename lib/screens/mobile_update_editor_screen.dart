@@ -277,7 +277,7 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('मोबाइल नंबर अपडेट आवेदन')),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
         child: Form(
           key: _formKey,
           child: Column(
