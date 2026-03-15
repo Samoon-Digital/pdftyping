@@ -23,7 +23,7 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
   final _postCtrl = TextEditingController();
   final _vikasKhandCtrl = TextEditingController();
   final _tehsilCtrl = TextEditingController();
-  final _jilaCtrl = TextEditingController(text: 'लखीमपुर खीरी');
+  final _jilaCtrl = TextEditingController();
   final _birthDateCtrl = TextEditingController();
   final _janmGramCtrl = TextEditingController();
   final _dateCtrl = TextEditingController();
@@ -104,7 +104,7 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
       _TextSegment(gram.isEmpty ? 'गदनिया' : gram, gram.isEmpty),
       const _TextSegment(' पोस्ट ', false),
       _TextSegment(post.isEmpty ? 'त्रिकौलिया' : post, post.isEmpty),
-      const _TextSegment(' विकास ', false),
+      const _TextSegment(' विकास खण्ड ', false),
       _TextSegment(
         vikasKhand.isEmpty ? 'पलिया कलां' : vikasKhand,
         vikasKhand.isEmpty,
@@ -112,7 +112,7 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
       const _TextSegment(' तहसील ', false),
       _TextSegment(tehsil.isEmpty ? 'पलिया कलां' : tehsil, tehsil.isEmpty),
       const _TextSegment(' जिला ', false),
-      _TextSegment(jila.isEmpty ? 'जिला' : jila, false),
+      _TextSegment(jila.isEmpty ? 'लखीमपुर खीरी' : jila, jila.isEmpty),
       const _TextSegment(
         '  की / के मूल निवासी / निवासनी हैं  इनका जन्म दिनांक ',
         false,
