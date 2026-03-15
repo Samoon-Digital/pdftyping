@@ -30,6 +30,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
 
   final _formKey = GlobalKey<FormState>();
   bool _deathGramManuallyEdited = false;
+  int _step = 0;
 
   @override
   void initState() {
@@ -295,138 +296,175 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('मृत्यु प्रमाण पत्र')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Document Preview ──
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE0E0E0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    width: double.infinity,
-                    color: Colors.white,
-                    // Left indent mirrors the 2-inch PDF margin (proportionally)
-                    padding: const EdgeInsets.fromLTRB(52, 20, 20, 20),
-                    child: _buildDocumentPreview(),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // ── Input Fields ──
-              Text(
-                'विवरण भरें',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontFamily: 'NotoSansDevanagari',
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              SuggestibleInputField(
-                controller: _deceasedNameCtrl,
-                fieldKey: 'death_deceased_name',
-                label: 'मृतक / मृतका का नाम',
-                hint: 'जैसे : राम प्रसाद पुत्र शिवदयाल',
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _gramCtrl,
-                fieldKey: 'death_gram',
-                label: 'निवासी ग्राम',
-                hint: 'जैसे : गड़निया',
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _postCtrl,
-                fieldKey: 'death_post',
-                label: 'पोस्ट',
-                hint: 'जैसे : त्रिकोलिया',
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _vikasKhandCtrl,
-                fieldKey: 'death_vikas_khand',
-                label: 'विकास खण्ड (ब्लॉक)',
-                hint: 'जैसे : पलिया कलाँ',
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _tehsilCtrl,
-                fieldKey: 'death_tehsil',
-                label: 'तहसील',
-                hint: 'जैसे : पलिया कलाँ',
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _jilaCtrl,
-                fieldKey: 'death_jila',
-                label: 'जिला',
-                hint: 'जैसे : लखीमपुर खीरी',
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _deathDateCtrl,
-                fieldKey: 'death_death_date',
-                label: 'मृत्यु दिनांक',
-                hint: 'जैसे : 10/03/2026',
-                readOnly: true,
-                onTap: _pickDeathDate,
-                suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
-              ),
-              SuggestibleInputField(
-                controller: _deathGramCtrl,
-                fieldKey: 'death_death_gram',
-                label: 'मृत्यु का ग्राम',
-                hint: 'जैसे : गड़निया (स्वतः भर जाता है)',
-                onChanged: (_) {
-                  _deathGramManuallyEdited = true;
-                  setState(() {});
-                },
-              ),
-              SuggestibleInputField(
-                controller: _dateCtrl,
-                fieldKey: 'death_cert_date',
-                label: 'प्रमाण पत्र दिनांक',
-                hint: 'जैसे : 14/03/2026',
-                readOnly: true,
-                onTap: _pickDate,
-                suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
-              ),
-
-              const SizedBox(height: 20),
-
-              // ── Generate PDF Button ──
-              SizedBox(
-                height: 52,
-                child: ElevatedButton.icon(
-                  onPressed: _generatePdf,
-                  icon: const Icon(Icons.picture_as_pdf_rounded),
-                  label: const Text('पीडीएफ बनाएं'),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-            ],
+    return PopScope(
+      canPop: _step == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) setState(() => _step = 0);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            _step == 0 ? 'मृत्यु प्रमाण पत्र' : 'प्रमाण पत्र प्रीव्यू',
           ),
+          leading: _step == 1
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => setState(() => _step = 0),
+                )
+              : null,
         ),
+        body: _step == 0 ? _buildInputStep() : _buildReviewStep(),
+      ),
+    );
+  }
+
+  Widget _buildInputStep() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              'विवरण भरें',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontFamily: 'NotoSansDevanagari',
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            SuggestibleInputField(
+              controller: _deceasedNameCtrl,
+              fieldKey: 'death_deceased_name',
+              label: 'मृतक / मृतका का नाम',
+              hint: 'जैसे : राम प्रसाद पुत्र शिवदयाल',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _gramCtrl,
+              fieldKey: 'death_gram',
+              label: 'निवासी ग्राम',
+              hint: 'जैसे : गड़निया',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _postCtrl,
+              fieldKey: 'death_post',
+              label: 'पोस्ट',
+              hint: 'जैसे : त्रिकोलिया',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _vikasKhandCtrl,
+              fieldKey: 'death_vikas_khand',
+              label: 'विकास खण्ड (ब्लॉक)',
+              hint: 'जैसे : पलिया कलाँ',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _tehsilCtrl,
+              fieldKey: 'death_tehsil',
+              label: 'तहसील',
+              hint: 'जैसे : पलिया कलाँ',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _jilaCtrl,
+              fieldKey: 'death_jila',
+              label: 'जिला',
+              hint: 'जैसे : लखीमपुर खीरी',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _deathDateCtrl,
+              fieldKey: 'death_death_date',
+              label: 'मृत्यु दिनांक',
+              hint: 'जैसे : 10/03/2026',
+              readOnly: true,
+              onTap: _pickDeathDate,
+              suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
+            ),
+            SuggestibleInputField(
+              controller: _deathGramCtrl,
+              fieldKey: 'death_death_gram',
+              label: 'मृत्यु का ग्राम',
+              hint: 'जैसे : गड़निया (स्वतः भर जाता है)',
+              onChanged: (_) {
+                _deathGramManuallyEdited = true;
+                setState(() {});
+              },
+            ),
+            SuggestibleInputField(
+              controller: _dateCtrl,
+              fieldKey: 'death_cert_date',
+              label: 'प्रमाण पत्र दिनांक',
+              hint: 'जैसे : 14/03/2026',
+              readOnly: true,
+              onTap: _pickDate,
+              suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: () => setState(() => _step = 1),
+                icon: const Icon(Icons.visibility_rounded),
+                label: const Text('प्रमाण पत्र देखें'),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReviewStep() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE0E0E0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding: const EdgeInsets.fromLTRB(52, 20, 20, 20),
+                child: _buildDocumentPreview(),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          SizedBox(
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: _generatePdf,
+              icon: const Icon(Icons.picture_as_pdf_rounded),
+              label: const Text('पीडीएफ बनाएं'),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }

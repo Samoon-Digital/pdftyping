@@ -32,6 +32,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
   // Track if user has manually edited the name field
   bool _nameManuallyEdited = false;
+  int _step = 0;
 
   @override
   void initState() {
@@ -293,132 +294,189 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('आवेदन एडिटर')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // ── Application Preview (on-screen display only) ──
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE0E0E0)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    width: double.infinity,
-                    color: Colors.white,
-                    padding: const EdgeInsets.all(20),
-                    child: _buildApplicationPreview(),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // ── Input Fields ──
-              Text(
-                'विवरण भरें',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontFamily: 'NotoSansDevanagari',
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              SuggestibleInputField(
-                controller: _branchNameCtrl,
-                fieldKey: 'bima_bank_name',
-                label: 'बैंक का नाम',
-                hint: 'जैसे : बैंक ऑफ बड़ोदा',
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _branchAddressCtrl,
-                fieldKey: 'bima_branch_address',
-                label: 'शाखा का पता',
-                hint: 'जैसे : नगला , लखीमपुर खीरी',
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _accountNumberCtrl,
-                fieldKey: 'bima_account_number',
-                label: 'खाता नंबर',
-                hint: 'जैसे : 1234567890',
-                keyboardType: TextInputType.number,
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _accountHolderCtrl,
-                fieldKey: 'bima_account_holder',
-                label: 'खाताधारक का नाम',
-                hint: 'जैसे : सामून अली पुत्र अब्दुल वहाब',
-                onChanged: (_) => setState(() {}),
-              ),
-              // Date field — opens calendar picker on tap (no suggestions)
-              SuggestibleInputField(
-                controller: _dateCtrl,
-                fieldKey: 'bima_date',
-                label: 'दिनांक',
-                hint: 'जैसे : 12/03/2026',
-                readOnly: true,
-                onTap: _pickDate,
-                suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
-              ),
-              // Name auto-filled from account holder, remains editable
-              SuggestibleInputField(
-                controller: _nameCtrl,
-                fieldKey: 'bima_name',
-                label: 'आपका नाम',
-                hint: 'जैसे : राम प्रसाद',
-                onChanged: (_) {
-                  _nameManuallyEdited = true;
-                  setState(() {});
-                },
-              ),
-              SuggestibleInputField(
-                controller: _mobileCtrl,
-                fieldKey: 'bima_mobile',
-                label: 'मोबाइल नंबर',
-                hint: 'जैसे : 9876543210',
-                keyboardType: TextInputType.phone,
-                onChanged: (_) => setState(() {}),
-              ),
-              SuggestibleInputField(
-                controller: _addressCtrl,
-                fieldKey: 'bima_address',
-                label: 'पता',
-                hint: 'जैसे : ग्राम – नगला, जिला – लखीमपुर खीरी',
-                onChanged: (_) => setState(() {}),
-              ),
-
-              const SizedBox(height: 20),
-
-              // ── Generate PDF Button ──
-              SizedBox(
-                height: 52,
-                child: ElevatedButton.icon(
-                  onPressed: _generatePdf,
-                  icon: const Icon(Icons.picture_as_pdf_rounded),
-                  label: const Text('पीडीएफ बनाएं'),
-                ),
-              ),
-
-              const SizedBox(height: 24),
-            ],
-          ),
+    return PopScope(
+      canPop: _step == 0,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) setState(() => _step = 0);
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_step == 0 ? 'आवेदन एडिटर' : 'आवेदन प्रीव्यू'),
+          leading: _step == 1
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => setState(() => _step = 0),
+                )
+              : null,
         ),
+        body: _step == 0 ? _buildInputStep() : _buildReviewStep(),
+      ),
+    );
+  }
+
+  Widget _buildInputStep() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE3F2FD),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFF90CAF9)),
+              ),
+              child: const Row(
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    size: 20,
+                    color: Color(0xFF1565C0),
+                  ),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'खाताधारक या जिसके लिए आवेदन किया जा रहा है उनकी details भरें',
+                      style: TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
+                        fontSize: 13,
+                        color: Color(0xFF1565C0),
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            SuggestibleInputField(
+              controller: _branchNameCtrl,
+              fieldKey: 'bima_bank_name',
+              label: 'बैंक का नाम',
+              hint: 'जैसे : बैंक ऑफ बड़ोदा',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _branchAddressCtrl,
+              fieldKey: 'bima_branch_address',
+              label: 'शाखा का पता',
+              hint: 'जैसे : नगला , लखीमपुर खीरी',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _accountNumberCtrl,
+              fieldKey: 'bima_account_number',
+              label: 'खाता नंबर',
+              hint: 'जैसे : 1234567890',
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _accountHolderCtrl,
+              fieldKey: 'bima_account_holder',
+              label: 'खाताधारक का नाम',
+              hint: 'जैसे : सामून अली पुत्र अब्दुल वहाब',
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _dateCtrl,
+              fieldKey: 'bima_date',
+              label: 'दिनांक',
+              hint: 'जैसे : 12/03/2026',
+              readOnly: true,
+              onTap: _pickDate,
+              suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
+            ),
+            SuggestibleInputField(
+              controller: _nameCtrl,
+              fieldKey: 'bima_name',
+              label: 'आपका नाम',
+              hint: 'जैसे : राम प्रसाद',
+              onChanged: (_) {
+                _nameManuallyEdited = true;
+                setState(() {});
+              },
+            ),
+            SuggestibleInputField(
+              controller: _mobileCtrl,
+              fieldKey: 'bima_mobile',
+              label: 'मोबाइल नंबर',
+              hint: 'जैसे : 9876543210',
+              keyboardType: TextInputType.phone,
+              onChanged: (_) => setState(() {}),
+            ),
+            SuggestibleInputField(
+              controller: _addressCtrl,
+              fieldKey: 'bima_address',
+              label: 'पता',
+              hint: 'जैसे : ग्राम – नगला, जिला – लखीमपुर खीरी',
+              onChanged: (_) => setState(() {}),
+            ),
+
+            const SizedBox(height: 20),
+
+            SizedBox(
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: () => setState(() => _step = 1),
+                icon: const Icon(Icons.visibility_rounded),
+                label: const Text('आवेदन देखें'),
+              ),
+            ),
+
+            const SizedBox(height: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildReviewStep() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE0E0E0)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: double.infinity,
+                color: Colors.white,
+                padding: const EdgeInsets.all(20),
+                child: _buildApplicationPreview(),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          SizedBox(
+            height: 52,
+            child: ElevatedButton.icon(
+              onPressed: _generatePdf,
+              icon: const Icon(Icons.picture_as_pdf_rounded),
+              label: const Text('पीडीएफ बनाएं'),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+        ],
       ),
     );
   }
