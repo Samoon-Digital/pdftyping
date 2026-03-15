@@ -4,6 +4,7 @@ import '../l10n/app_localizations.dart';
 import '../services/ad_service.dart';
 import '../widgets/unlock_sheet.dart';
 import 'application_editor_screen.dart';
+import 'asha_editor_screen.dart';
 import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
 import 'profile_screen.dart';
@@ -39,6 +40,13 @@ class _HomePageState extends State<HomePage> {
       subtitle: 'ग्रामीण क्षेत्र का मृत्यु प्रमाण पत्र',
       icon: Icons.description_rounded,
       color: Color(0xFF6A1B9A),
+    ),
+    _TemplateItem(
+      id: 'asha_janm',
+      title: 'ग्राम पंचायत आशा द्वारा प्रमाणित जन्म प्रमाण पत्र',
+      subtitle: 'आशा द्वारा प्रमाणित ग्रामीण जन्म प्रमाण पत्र',
+      icon: Icons.child_care_rounded,
+      color: Color(0xFF00838F),
     ),
   ];
 
@@ -103,6 +111,8 @@ class _HomePageState extends State<HomePage> {
         screen = MobileUpdateEditorScreen(onPdfSaved: widget.onPdfSaved);
       case 'death_grameen':
         screen = DeathGrameenEditorScreen(onPdfSaved: widget.onPdfSaved);
+      case 'asha_janm':
+        screen = AshaEditorScreen(onPdfSaved: widget.onPdfSaved);
       default:
         screen = ApplicationEditorScreen(onPdfSaved: widget.onPdfSaved);
     }
