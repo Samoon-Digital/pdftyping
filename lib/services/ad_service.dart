@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,6 +28,7 @@ class AdService {
 
   // ── Initialize SDK (call once in main) ──
   static Future<void> init() async {
+    if (kIsWeb) return; // Ads not supported on web
     await MobileAds.instance.initialize();
     // Pre-load both ad types in background
     AdService.instance._loadRewardAd();
@@ -35,6 +37,7 @@ class AdService {
 
   // ── Check if a template is unlocked ──
   Future<bool> isUnlocked(String templateId) async {
+    if (kIsWeb) return true; // All templates free on web
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('$_unlockPrefix$templateId') ?? false;
   }
@@ -80,6 +83,10 @@ class AdService {
     required void Function() onRewarded,
     required void Function() onAdNotReady,
   }) {
+    if (kIsWeb) {
+      onRewarded();
+      return;
+    }
     final ad = _rewardedAd;
     if (ad == null) {
       _loadRewardAd(); // retry loading
@@ -148,6 +155,7 @@ class AdService {
   /// After dismiss, automatically queues the NEXT load.
   /// No new request is made until the current ad is fully dismissed.
   void showInterstitialIfNeeded(String screenKey) {
+    if (kIsWeb) return; // No interstitials on web
     // Already shown this session for this screen — skip
     if (_sessionShownScreens.contains(screenKey)) return;
 

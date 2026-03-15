@@ -1,10 +1,11 @@
-import 'dart:io';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import '../services/pdf_saver.dart';
 import '../widgets/suggestible_input_field.dart';
 import '../widgets/pdf_generation_widgets.dart';
 
@@ -212,7 +213,7 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
 
     if (!mounted) return;
 
-    final docsDir = await getApplicationDocumentsDirectory();
+    // Construct file name
     final name = _nameCtrl.text.trim();
     final bank = _bankNameCtrl.text.trim();
     final now = DateTime.now();
@@ -224,8 +225,31 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
     final fileName =
         'मोबाइल_${safeName.isNotEmpty ? safeName : 'आवेदन'}_${safeBank.isNotEmpty ? safeBank : 'बैंक'}_$stamp.pdf';
     final pdfBytes = await pdf.save();
-    final file = File('${docsDir.path}/$fileName');
-    await file.writeAsBytes(pdfBytes);
+
+    if (kIsWeb) {
+      // Web: trigger browser download
+      await Printing.sharePdf(bytes: pdfBytes, filename: fileName);
+      if (!mounted) return;
+      Navigator.of(context).pop(); // dismiss loading dialog
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            '✅ PDF डाउनलोड हो गई!',
+            style: TextStyle(fontFamily: 'NotoSansDevanagari'),
+          ),
+          backgroundColor: const Color(0xFF2E7D32),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Mobile: save to app documents directory
+    await savePdfToDocuments(bytes: pdfBytes, fileName: fileName);
 
     if (!mounted) return;
 

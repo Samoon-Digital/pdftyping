@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../services/ad_service.dart';
 import 'home_page.dart';
-import 'saved_pdfs_screen.dart';
+import 'saved_pdfs_screen.dart'
+    if (dart.library.html) 'saved_pdfs_screen_web.dart';
 import 'get_pdfs_screen.dart';
 
 class MainShell extends StatefulWidget {

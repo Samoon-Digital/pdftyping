@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../services/ad_service.dart';
@@ -60,8 +61,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _onTemplateTap(_TemplateItem t) async {
-    if (_unlocked[t.id] == true) {
-      // Already unlocked — open editor
+    if (kIsWeb || _unlocked[t.id] == true) {
+      // Web: all templates free | Mobile: already unlocked
       _openEditor(t.id);
       return;
     }
