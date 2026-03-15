@@ -543,20 +543,22 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            RichText(
-              text: TextSpan(
-                style: baseStyle,
-                children: [
-                  const TextSpan(text: 'दिनांक :- '),
-                  TextSpan(
-                    text: date.isEmpty ? '……………' : date,
-                    style: date.isEmpty ? phStyle : null,
-                  ),
-                ],
+            Flexible(
+              child: RichText(
+                text: TextSpan(
+                  style: baseStyle,
+                  children: [
+                    const TextSpan(text: 'दिनांक :- '),
+                    TextSpan(
+                      text: date.isEmpty ? '……………' : date,
+                      style: date.isEmpty ? phStyle : null,
+                    ),
+                  ],
+                ),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(right: 23),
+              padding: EdgeInsets.only(right: fontSize != null ? 23 : 0),
               child: Text('आशा हस्ताक्षर/ मोहर', style: baseStyle),
             ),
           ],
