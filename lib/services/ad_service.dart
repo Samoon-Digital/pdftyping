@@ -156,6 +156,8 @@ class AdService {
   /// No new request is made until the current ad is fully dismissed.
   void showInterstitialIfNeeded(String screenKey) {
     if (kIsWeb) return; // No interstitials on web
+    return; // interstitial ads temporarily disabled
+    // ignore: dead_code
     // Already shown this session for this screen — skip
     if (_sessionShownScreens.contains(screenKey)) return;
 

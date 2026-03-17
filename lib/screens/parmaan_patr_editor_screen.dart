@@ -917,7 +917,8 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
   Widget _buildDocumentWidget({double? fontSize, Uint8List? photoBytes}) {
     final fs =
         fontSize ?? Theme.of(context).textTheme.bodyMedium?.fontSize ?? 14.0;
-    // heading = 16pt, body = 14pt → ratio 16/14
+    // title heading = 18pt, cert chips = 16pt, body = 14pt
+    final titleFs = fs * (18.0 / 14.0);
     final headingFs = fs * (16.0 / 14.0);
 
     final baseStyle = TextStyle(
@@ -984,14 +985,17 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                       'प्रधान द्वारा प्रमाणित प्रमाण पत्र',
                       style: TextStyle(
                         fontFamily: 'NotoSansDevanagari',
-                        fontSize: headingFs,
-                        fontWeight: FontWeight.bold,
+                        fontSize: titleFs,
+                        fontWeight: FontWeight.w500,
                         color: const Color(0xFF212121),
-                        decoration: TextDecoration.underline,
-                        decorationColor: const Color(0xFF212121),
-                        decorationThickness: 1.5,
                       ),
                       textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 10), // underline offset: 10px gap
+                    Container(
+                      height: 1.5,
+                      width: double.infinity,
+                      color: const Color(0xFF212121),
                     ),
                     SizedBox(
                       height: fs * 3.0,
