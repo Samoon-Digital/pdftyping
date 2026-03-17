@@ -56,8 +56,8 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
 
   // ── Photo box size: 1.2" × 1.5" at the document render scale ──
   // Off-screen render is 560dp wide → inner content ~512dp → 512/8.5 ≈ 60dp/"
-  static const _photoBoxW = 72.0; // ≈ 1.2"
-  static const _photoBoxH = 90.0; // ≈ 1.5"
+  static const _photoBoxW = 90.0; // slightly larger photo box
+  static const _photoBoxH = 112.0; // 4:5 ratio
 
   @override
   void initState() {
@@ -289,9 +289,10 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             child: Container(
               width: 560,
               color: Colors.white,
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+              // 0.80" L/R, 1.0" top  (560dp ≈ A4 width 8.27")
+              padding: const EdgeInsets.fromLTRB(54, 68, 54, 54),
               child: _buildDocumentWidget(
-                fontSize: 10.2,
+                fontSize: 13.2, // 14pt body at A4 render scale
                 photoBytes: _photoBytes,
               ),
             ),
@@ -916,10 +917,20 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
   Widget _buildDocumentWidget({double? fontSize, Uint8List? photoBytes}) {
     final fs =
         fontSize ?? Theme.of(context).textTheme.bodyMedium?.fontSize ?? 14.0;
+    // heading = 16pt, body = 14pt → ratio 16/14
+    final headingFs = fs * (16.0 / 14.0);
 
     final baseStyle = TextStyle(
       fontFamily: 'NotoSansDevanagari',
       fontSize: fs,
+      color: const Color(0xFF212121),
+      height: 1.85,
+    );
+    final boldBase = baseStyle.copyWith(fontWeight: FontWeight.bold);
+    // Cert-type labels: same 16pt as heading, regular weight (no bold)
+    final certStyle = TextStyle(
+      fontFamily: 'NotoSansDevanagari',
+      fontSize: headingFs,
       color: const Color(0xFF212121),
       height: 1.85,
     );
@@ -953,49 +964,56 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0xFF212121), width: 0.9),
       ),
-      padding: EdgeInsets.fromLTRB(fs * 1.1, fs * 1.2, fs * 1.1, fs * 1.2),
+      padding: EdgeInsets.fromLTRB(fs * 1.1, fs * 1.2, fs * 1.1, fs * 3.5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Title ──
-          Center(
-            child: Text(
-              'प्रधान द्वारा प्रमाणित प्रमाण पत्र',
-              style: TextStyle(
-                fontFamily: 'NotoSansDevanagari',
-                fontSize: fs * 1.25,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF212121),
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ),
-          SizedBox(height: fs * 0.3),
-          const Divider(color: Color(0xFF212121), thickness: 0.8),
-          SizedBox(height: fs * 0.4),
-
-          // ── Cert-type checkboxes (left) + photo box (right) ──
+          // ── Top row: heading + cert chips (left column) / photo box (right) ──
+          SizedBox(height: fs * 2.0), // shift heading+photo 2 lines down
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Left area — heading centered within it, chips left-aligned below
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Row(
-                      children: [
-                        _docCertChip('आय', _certAay, baseStyle, phStyle),
-                        SizedBox(width: fs * 1.0),
-                        _docCertChip('जाति', _certJaati, baseStyle, phStyle),
-                        SizedBox(width: fs * 1.0),
-                        _docCertChip('निवास', _certNiwas, baseStyle, phStyle),
-                      ],
+                    Text(
+                      'प्रधान द्वारा प्रमाणित प्रमाण पत्र',
+                      style: TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
+                        fontSize: headingFs,
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF212121),
+                        decoration: TextDecoration.underline,
+                        decorationColor: const Color(0xFF212121),
+                        decorationThickness: 1.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      height: fs * 3.0,
+                    ), // cert chips 2 extra lines below heading
+                    // Cert chips — 16pt regular, centered
+                    Center(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _docCertChip('आय', _certAay, certStyle, phStyle),
+                          SizedBox(width: fs * 1.5),
+                          _docCertChip('जाति', _certJaati, certStyle, phStyle),
+                          SizedBox(width: fs * 1.5),
+                          _docCertChip('निवास', _certNiwas, certStyle, phStyle),
+                        ],
+                      ),
                     ),
                   ],
                 ),
               ),
-              // Photo box — fixed 1.2" × 1.5" (scaled to render width)
+              SizedBox(width: fs * 0.6),
+              // Photo box — slightly larger, with placeholder text
               Container(
                 width: _photoBoxW,
                 height: _photoBoxH,
@@ -1014,15 +1032,18 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                           children: [
                             Icon(
                               Icons.person_rounded,
-                              size: fs * 2.0,
-                              color: Colors.grey[400],
+                              size: fs * 1.6,
+                              color: Colors.grey[350],
                             ),
+                            SizedBox(height: fs * 0.25),
                             Text(
-                              'फोटो',
+                              'यहाँ अपना\nफोटो चिपकाएँ',
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: 'NotoSansDevanagari',
-                                fontSize: fs * 0.75,
+                                fontSize: fs * 0.62,
                                 color: Colors.grey[500],
+                                height: 1.35,
                               ),
                             ),
                           ],
@@ -1032,51 +1053,54 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             ],
           ),
 
-          SizedBox(height: fs * 0.8),
-
-          // ── Main body ──
-          RichText(
-            text: TextSpan(
-              style: baseStyle,
-              children: [
-                const TextSpan(
-                  text: 'प्रमाणित किया जाता है कि श्री/श्रीमती/कु0 ',
-                ),
-                val(name, 'व्यक्ति का नाम'),
-                TextSpan(text: ' $_relationType '),
-                val(relName, 'पिता/पति का नाम'),
-                const TextSpan(text: '\nग्राम '),
-                val(gram, 'ग्राम'),
-                if (majra.isNotEmpty) ...[
-                  const TextSpan(text: ' मजरा '),
-                  TextSpan(text: majra),
+          SizedBox(height: fs * 2.9), // body 2 extra lines below cert row
+          // ── Main body — SizedBox forces full content width ──
+          SizedBox(
+            width: double.infinity,
+            child: RichText(
+              textWidthBasis: TextWidthBasis.parent,
+              text: TextSpan(
+                style: baseStyle,
+                children: [
+                  const TextSpan(
+                    text: 'प्रमाणित किया जाता है कि श्री/श्रीमती/कु0 ',
+                  ),
+                  val(name, 'व्यक्ति का नाम'),
+                  TextSpan(text: ' $_relationType '),
+                  val(relName, 'पिता/पति का नाम'),
+                  const TextSpan(text: '\nग्राम '),
+                  val(gram, 'ग्राम'),
+                  if (majra.isNotEmpty) ...[
+                    const TextSpan(text: ' मजरा '),
+                    TextSpan(text: majra),
+                  ],
+                  const TextSpan(text: ' पोस्ट '),
+                  val(post, 'पोस्ट'),
+                  const TextSpan(text: ' थाना '),
+                  val(thana, 'थाना'),
+                  const TextSpan(text: '\nजिला '),
+                  val(jila, 'जिला'),
+                  const TextSpan(
+                    text:
+                        ' के मूल निवासी/निवासिनी हैं। मैं इनको भली भांति जानता/जानती पहचानता/पहचानती हूं '
+                        'तथा इनकी जाति ',
+                  ),
+                  val(jaati, 'जाति'),
+                  const TextSpan(text: ' उपजाति '),
+                  val(upjaati, 'उपजाति'),
+                  const TextSpan(
+                    text:
+                        ' है। तथा इनके पिता/पति की समस्त श्रोतों से होने वाली कुल\n'
+                        'मासिक आय मु0 ',
+                  ),
+                  val(maasik, '…………………'),
+                  const TextSpan(text: ' तथा वार्षिक आय मु0 '),
+                  val(varsik, '…………………'),
+                  const TextSpan(text: ' है।'),
                 ],
-                const TextSpan(text: ' पोस्ट '),
-                val(post, 'पोस्ट'),
-                const TextSpan(text: ' थाना '),
-                val(thana, 'थाना'),
-                const TextSpan(text: '\nजिला '),
-                val(jila, 'जिला'),
-                const TextSpan(
-                  text:
-                      ' के मूल निवासी/निवासिनी हैं। मैं इनको भली भांति जानता/जानती पहचानता/पहचानती हूं '
-                      'तथा इनकी जाति ',
-                ),
-                val(jaati, 'जाति'),
-                const TextSpan(text: ' उपजाति '),
-                val(upjaati, 'उपजाति'),
-                const TextSpan(
-                  text:
-                      ' है। तथा इनके पिता/पति की समस्त श्रोतों से होने वाली कुल\n'
-                      'मासिक आय मु0 ',
-                ),
-                val(maasik, '…………………'),
-                const TextSpan(text: ' तथा वार्षिक आय मु0 '),
-                val(varsik, '…………………'),
-                const TextSpan(text: ' है।'),
-              ],
+              ),
             ),
-          ),
+          ), // end SizedBox full-width
 
           SizedBox(height: fs * 2.5),
 
@@ -1100,8 +1124,8 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('प्रधान', style: baseStyle),
-                  Text('हस्ताक्षर व मुहर', style: baseStyle),
+                  Text('प्रधान', style: boldBase),
+                  Text('हस्ताक्षर व मुहर', style: boldBase),
                 ],
               ),
             ],
