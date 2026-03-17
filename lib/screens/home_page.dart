@@ -7,6 +7,7 @@ import 'application_editor_screen.dart';
 import 'asha_editor_screen.dart';
 import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
+import 'parmaan_patr_editor_screen.dart';
 import 'profile_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -47,6 +48,13 @@ class _HomePageState extends State<HomePage> {
       subtitle: 'आशा द्वारा प्रमाणित ग्रामीण जन्म प्रमाण पत्र',
       icon: Icons.child_care_rounded,
       color: Color(0xFF00838F),
+    ),
+    _TemplateItem(
+      id: 'parmaan_patr',
+      title: 'प्रधान द्वारा प्रमाणित प्रमाण पत्र',
+      subtitle: 'आय / जाति / निवास प्रमाण पत्र (फोटो सहित)',
+      icon: Icons.verified_user_rounded,
+      color: Color(0xFFC62828),
     ),
   ];
 
@@ -113,6 +121,8 @@ class _HomePageState extends State<HomePage> {
         screen = DeathGrameenEditorScreen(onPdfSaved: widget.onPdfSaved);
       case 'asha_janm':
         screen = AshaEditorScreen(onPdfSaved: widget.onPdfSaved);
+      case 'parmaan_patr':
+        screen = ParmaanPatrEditorScreen(onPdfSaved: widget.onPdfSaved);
       default:
         screen = ApplicationEditorScreen(onPdfSaved: widget.onPdfSaved);
     }
