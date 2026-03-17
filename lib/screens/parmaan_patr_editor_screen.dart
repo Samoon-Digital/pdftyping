@@ -981,21 +981,30 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      'प्रधान द्वारा प्रमाणित प्रमाण पत्र',
-                      style: TextStyle(
-                        fontFamily: 'NotoSansDevanagari',
-                        fontSize: titleFs,
-                        fontWeight: FontWeight.w500,
-                        color: const Color(0xFF212121),
+                    // IntrinsicWidth clamps underline to exact text width
+                    IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            'प्रधान द्वारा प्रमाणित प्रमाण पत्र',
+                            style: TextStyle(
+                              fontFamily: 'NotoSansDevanagari',
+                              fontSize: titleFs,
+                              fontWeight: FontWeight.w500,
+                              color: const Color(0xFF212121),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ), // underline offset: 5px gap
+                          Container(
+                            height: 1.5,
+                            color: const Color(0xFF212121),
+                          ),
+                        ],
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 10), // underline offset: 10px gap
-                    Container(
-                      height: 1.5,
-                      width: double.infinity,
-                      color: const Color(0xFF212121),
                     ),
                     SizedBox(
                       height: fs * 3.0,
@@ -1125,15 +1134,19 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                   ],
                 ),
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text('प्रधान', style: boldBase),
-                  Text('हस्ताक्षर व मुहर', style: boldBase),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(right: 68), // shift 1" left
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text('प्रधान', style: boldBase),
+                    Text('हस्ताक्षर व मुहर', style: boldBase),
+                  ],
+                ),
               ),
             ],
           ),
+          const SizedBox(height: 68), // 1 inch blank space for stamp/sign
         ],
       ),
     );
