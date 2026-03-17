@@ -289,8 +289,8 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             child: Container(
               width: 560,
               color: Colors.white,
-              // 0.80" L/R, 1.0" top  (560dp ≈ A4 width 8.27")
-              padding: const EdgeInsets.fromLTRB(54, 68, 54, 54),
+              // 0.70" L/R, 0.80" top  (560dp ÷ 8.27" = 67.7dp/inch)
+              padding: const EdgeInsets.fromLTRB(47, 54, 47, 54),
               child: _buildDocumentWidget(
                 fontSize: 13.2, // 14pt body at A4 render scale
                 photoBytes: _photoBytes,
