@@ -29,7 +29,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     'सामान्य',
   ];
 
-  // ── Form controllers ──
   final _nameCtrl = TextEditingController();
   final _relationNameCtrl = TextEditingController();
   final _gramCtrl = TextEditingController();
@@ -815,33 +814,41 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                     text: 'प्रमाणित किया जाता है कि श्री/श्रीमती/कु0 ',
                   ),
                   val(name, 'व्यक्ति का नाम'),
-                  TextSpan(text: ' $_relationType '),
+                  const TextSpan(text: ' '),
+                  TextSpan(text: '$_relationType '),
                   val(relName, 'पिता/पति का नाम'),
-                  const TextSpan(text: '\nग्राम '),
+                  const TextSpan(text: ' ग्राम '),
                   val(gram, 'ग्राम'),
-                  const TextSpan(text: ' पोस्ट '),
+                  const TextSpan(text: ' '),
+                  const TextSpan(text: 'पोस्ट '),
                   val(post, 'पोस्ट'),
-                  const TextSpan(text: ' थाना '),
+                  const TextSpan(text: ' '),
+                  const TextSpan(text: 'थाना '),
                   val(thana, 'थाना'),
-                  const TextSpan(text: '\nजिला '),
+                  const TextSpan(text: ' जिला '),
                   val(jila, 'जिला'),
+                  const TextSpan(text: ' '),
                   const TextSpan(
                     text:
-                        ' के मूल निवासी/निवासिनी हैं। मैं इनको भली भांति जानता/जानती पहचानता/पहचानती हूं '
+                        'के मूल निवासी/निवासिनी हैं। मैं इनको भली भांति जानता/जानती पहचानता/पहचानती हूं '
                         'तथा इनकी जाति ',
                   ),
                   val(jaati, 'जाति'),
-                  const TextSpan(text: ' उपजाति '),
+                  const TextSpan(text: ' '),
+                  const TextSpan(text: 'उपजाति '),
                   val(upjaati, 'उपजाति'),
+                  const TextSpan(text: ' '),
                   const TextSpan(
                     text:
-                        ' है। तथा इनके पिता/पति की समस्त श्रोतों से होने वाली कुल\n'
+                        'है। तथा इनके पिता/पति की समस्त श्रोतों से होने वाली कुल '
                         'मासिक आय मु0 ',
                   ),
                   val(maasik, '…………………'),
-                  const TextSpan(text: ' तथा वार्षिक आय मु0 '),
+                  const TextSpan(text: ' '),
+                  const TextSpan(text: 'तथा वार्षिक आय मु0 '),
                   val(varsik, '…………………'),
-                  const TextSpan(text: ' है।'),
+                  const TextSpan(text: ' '),
+                  const TextSpan(text: 'है।'),
                 ],
               ),
             ),
