@@ -1,10 +1,7 @@
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -13,7 +10,7 @@ import '../widgets/pdf_generation_widgets.dart';
 import '../widgets/suggestible_input_field.dart';
 
 /// Two-step editor for "प्रधान द्वारा प्रमाणित प्रमाण पत्र".
-/// Step 0 → input form (with optional photo picker + crop)
+/// Step 0 → input form
 /// Step 1 → preview → generate PDF
 class ParmaanPatrEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -25,10 +22,6 @@ class ParmaanPatrEditorScreen extends StatefulWidget {
 }
 
 class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
-  // ── Photo ──
-  Uint8List? _photoBytes;
-  final _picker = ImagePicker();
-
   // ── Form controllers ──
   final _nameCtrl = TextEditingController();
   final _relationNameCtrl = TextEditingController();
@@ -53,11 +46,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
 
   // ── Step ──
   int _step = 0;
-
-  // ── Photo box size: 1.2" × 1.5" at the document render scale ──
-  // Off-screen render is 560dp wide → inner content ~512dp → 512/8.5 ≈ 60dp/"
-  static const _photoBoxW = 90.0; // slightly larger photo box
-  static const _photoBoxH = 112.0; // 4:5 ratio
 
   @override
   void initState() {
@@ -101,165 +89,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     }
   }
 
-  // ── Photo options bottom sheet ──
-  Future<void> _showPhotoOptions() async {
-    await showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 14),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const Text(
-                'फोटो विकल्प',
-                style: TextStyle(
-                  fontFamily: 'NotoSansDevanagari',
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 2),
-              const Text(
-                'केवल सिर का हिस्सा – 1.2" × 1.5" (300 DPI)',
-                style: TextStyle(
-                  fontFamily: 'NotoSansDevanagari',
-                  fontSize: 12,
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Camera — only on non-web platforms
-              if (!kIsWeb)
-                ListTile(
-                  leading: const Icon(
-                    Icons.camera_alt_rounded,
-                    color: Color(0xFF1565C0),
-                  ),
-                  title: const Text(
-                    'कैमरे से लें',
-                    style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-                  ),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    _pickPhoto(ImageSource.camera);
-                  },
-                ),
-              // Gallery
-              ListTile(
-                leading: const Icon(
-                  Icons.photo_library_rounded,
-                  color: Color(0xFF00838F),
-                ),
-                title: const Text(
-                  'गैलरी से चुनें',
-                  style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-                ),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _pickPhoto(ImageSource.gallery);
-                },
-              ),
-              // Remove photo (shown only if already set)
-              if (_photoBytes != null)
-                ListTile(
-                  leading: const Icon(
-                    Icons.delete_outline_rounded,
-                    color: Colors.red,
-                  ),
-                  title: const Text(
-                    'फोटो हटाएं',
-                    style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-                  ),
-                  onTap: () {
-                    Navigator.pop(ctx);
-                    setState(() => _photoBytes = null);
-                  },
-                ),
-              // Skip / no photo
-              ListTile(
-                leading: const Icon(
-                  Icons.not_interested_rounded,
-                  color: Colors.grey,
-                ),
-                title: const Text(
-                  'बिना फोटो के बनाएं',
-                  style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-                ),
-                onTap: () => Navigator.pop(ctx),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  // ── Pick and crop photo ──
-  Future<void> _pickPhoto(ImageSource source) async {
-    try {
-      final XFile? picked = await _picker.pickImage(
-        source: source,
-        maxWidth: 1080,
-        maxHeight: 1350,
-        imageQuality: 95,
-      );
-      if (picked == null || !mounted) return;
-
-      // Crop to 4:5 aspect ratio (= 1.2" : 1.5")
-      final cropped = await ImageCropper().cropImage(
-        sourcePath: picked.path,
-        aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 5),
-        compressFormat: ImageCompressFormat.jpg,
-        compressQuality: 95,
-        uiSettings: [
-          AndroidUiSettings(
-            toolbarTitle: 'फोटो क्रॉप करें',
-            toolbarColor: const Color(0xFF1565C0),
-            toolbarWidgetColor: Colors.white,
-            lockAspectRatio: true,
-            hideBottomControls: false,
-            showCropGrid: true,
-          ),
-          IOSUiSettings(
-            title: 'फोटो क्रॉप करें',
-            aspectRatioLockEnabled: true,
-            resetAspectRatioEnabled: false,
-          ),
-          WebUiSettings(context: context),
-        ],
-      );
-
-      if (cropped == null || !mounted) return;
-      final bytes = await cropped.readAsBytes();
-      setState(() => _photoBytes = bytes);
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'फोटो लोड करने में त्रुटि हुई।',
-              style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-            ),
-          ),
-        );
-      }
-    }
-  }
-
   // ── Generate PDF (off-screen capture → A4) ──
   Future<void> _generatePdf() async {
     showDialog(
@@ -291,10 +120,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
               color: Colors.white,
               // 0.70" L/R, 0.80" top  (560dp ÷ 8.27" = 67.7dp/inch)
               padding: const EdgeInsets.fromLTRB(47, 54, 47, 54),
-              child: _buildDocumentWidget(
-                fontSize: 13.2, // 14pt body at A4 render scale
-                photoBytes: _photoBytes,
-              ),
+              child: _buildDocumentWidget(fontSize: 13.2),
             ),
           ),
         ),
@@ -494,10 +320,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
           _buildCertTypeCard(),
           const SizedBox(height: 14),
 
-          // ── Photo picker ──
-          _buildPhotoCard(),
-          const SizedBox(height: 14),
-
           // ── Person info ──
           _sectionLabel('व्यक्ति की जानकारी'),
           SuggestibleInputField(
@@ -522,7 +344,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             controller: _gramCtrl,
             fieldKey: 'parmaan_gram',
             label: 'ग्राम',
-            hint: 'जैसे : नगला',
+            hint: 'जैसे : ग्राम गदनिया',
             onChanged: (_) => setState(() {}),
           ),
           SuggestibleInputField(
@@ -536,14 +358,14 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             controller: _postCtrl,
             fieldKey: 'parmaan_post',
             label: 'पोस्ट',
-            hint: 'जैसे : लखीमपुर',
+            hint: 'जैसे : त्रिकौलिया',
             onChanged: (_) => setState(() {}),
           ),
           SuggestibleInputField(
             controller: _thanaCtrl,
             fieldKey: 'parmaan_thana',
             label: 'थाना',
-            hint: 'जैसे : कोतवाली',
+            hint: 'जैसे : सम्पूर्णानगर',
             onChanged: (_) => setState(() {}),
           ),
           SuggestibleInputField(
@@ -560,14 +382,14 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             controller: _jaatiCtrl,
             fieldKey: 'parmaan_jaati',
             label: 'जाति',
-            hint: 'जैसे : ओबीसी',
+            hint: 'जैसे : अन्य पिछड़ा वर्ग , अनुसूचित जाति , जनजाति आदि',
             onChanged: (_) => setState(() {}),
           ),
           SuggestibleInputField(
             controller: _upjaatiCtrl,
             fieldKey: 'parmaan_upjaati',
             label: 'उपजाति',
-            hint: 'जैसे : कुर्मी',
+            hint: 'जैसे : मोमिन / अंसार',
             onChanged: (_) => setState(() {}),
           ),
 
@@ -692,126 +514,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     );
   }
 
-  Widget _buildPhotoCard() {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Photo preview / placeholder
-          GestureDetector(
-            onTap: _showPhotoOptions,
-            child: Container(
-              width: _photoBoxW,
-              height: _photoBoxH,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: _photoBytes != null
-                      ? const Color(0xFF1565C0)
-                      : const Color(0xFFCCCCCC),
-                  width: 1.5,
-                ),
-                borderRadius: BorderRadius.circular(6),
-                color: const Color(0xFFF5F5F5),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: _photoBytes != null
-                  ? Image.memory(_photoBytes!, fit: BoxFit.cover)
-                  : const _PhotoPlaceholder(),
-            ),
-          ),
-          const SizedBox(width: 14),
-
-          // Info + button
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'पासपोर्ट साइज फोटो',
-                  style: TextStyle(
-                    fontFamily: 'NotoSansDevanagari',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF212121),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  '1.2" × 1.5"  •  300 DPI\n'
-                  'केवल सिर का हिस्सा चुनें\n'
-                  'फोटो लेने के बाद क्रॉप करें',
-                  style: TextStyle(
-                    fontFamily: 'NotoSansDevanagari',
-                    fontSize: 11,
-                    color: Color(0xFF888888),
-                    height: 1.5,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    OutlinedButton.icon(
-                      onPressed: _showPhotoOptions,
-                      icon: Icon(
-                        _photoBytes != null
-                            ? Icons.edit_rounded
-                            : Icons.add_photo_alternate_rounded,
-                        size: 15,
-                      ),
-                      label: Text(
-                        _photoBytes != null ? 'बदलें' : 'फोटो चुनें',
-                        style: const TextStyle(
-                          fontFamily: 'NotoSansDevanagari',
-                          fontSize: 12,
-                        ),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
-                    if (_photoBytes != null) ...[
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: () => setState(() => _photoBytes = null),
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 6,
-                          ),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          foregroundColor: Colors.red,
-                        ),
-                        child: const Text(
-                          'हटाएं',
-                          style: TextStyle(
-                            fontFamily: 'NotoSansDevanagari',
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildRelationRow() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -888,7 +590,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
               child: Container(
                 color: Colors.white,
                 padding: const EdgeInsets.all(12),
-                child: _buildDocumentWidget(photoBytes: _photoBytes),
+                child: _buildDocumentWidget(),
               ),
             ),
           ),
@@ -913,8 +615,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
 
   /// Shared widget that renders the Parmaan Patra document.
   /// [fontSize] — pass explicit value for PDF capture, null for on-screen.
-  /// [photoBytes] — the cropped photo bytes, or null for blank box.
-  Widget _buildDocumentWidget({double? fontSize, Uint8List? photoBytes}) {
+  Widget _buildDocumentWidget({double? fontSize}) {
     final fs =
         fontSize ?? Theme.of(context).textTheme.bodyMedium?.fontSize ?? 14.0;
     // title heading = 18pt, cert chips = 16pt, body = 14pt
@@ -970,98 +671,39 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Top row: heading + cert chips (left column) / photo box (right) ──
-          SizedBox(height: fs * 2.0), // shift heading+photo 2 lines down
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          SizedBox(height: fs * 2.0),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Left area — heading centered within it, chips left-aligned below
-              Expanded(
+              IntrinsicWidth(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    // IntrinsicWidth clamps underline to exact text width
-                    IntrinsicWidth(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'प्रधान द्वारा प्रमाणित प्रमाण पत्र',
-                            style: TextStyle(
-                              fontFamily: 'NotoSansDevanagari',
-                              fontSize: titleFs,
-                              fontWeight: FontWeight.w500,
-                              color: const Color(0xFF212121),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ), // underline offset: 5px gap
-                          Container(
-                            height: 1.5,
-                            color: const Color(0xFF212121),
-                          ),
-                        ],
+                    Text(
+                      'प्रधान द्वारा प्रमाणित प्रमाण पत्र',
+                      style: TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
+                        fontSize: titleFs,
+                        fontWeight: FontWeight.w500,
+                        color: const Color(0xFF212121),
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    SizedBox(
-                      height: fs * 3.0,
-                    ), // cert chips 2 extra lines below heading
-                    // Cert chips — 16pt regular, centered
-                    Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          _docCertChip('आय', _certAay, certStyle, phStyle),
-                          SizedBox(width: fs * 1.5),
-                          _docCertChip('जाति', _certJaati, certStyle, phStyle),
-                          SizedBox(width: fs * 1.5),
-                          _docCertChip('निवास', _certNiwas, certStyle, phStyle),
-                        ],
-                      ),
-                    ),
+                    const SizedBox(height: 5),
+                    Container(height: 1.5, color: const Color(0xFF212121)),
                   ],
                 ),
               ),
-              SizedBox(width: fs * 0.6),
-              // Photo box — slightly larger, with placeholder text
-              Container(
-                width: _photoBoxW,
-                height: _photoBoxH,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0xFF212121),
-                    width: 0.8,
-                  ),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: photoBytes != null
-                    ? Image.memory(photoBytes, fit: BoxFit.cover)
-                    : Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.person_rounded,
-                              size: fs * 1.6,
-                              color: Colors.grey[350],
-                            ),
-                            SizedBox(height: fs * 0.25),
-                            Text(
-                              'यहाँ अपना\nफोटो चिपकाएँ',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontFamily: 'NotoSansDevanagari',
-                                fontSize: fs * 0.62,
-                                color: Colors.grey[500],
-                                height: 1.35,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+              SizedBox(height: fs * 3.0),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _docCertChip('आय', _certAay, certStyle, phStyle),
+                  SizedBox(width: fs * 1.5),
+                  _docCertChip('जाति', _certJaati, certStyle, phStyle),
+                  SizedBox(width: fs * 1.5),
+                  _docCertChip('निवास', _certNiwas, certStyle, phStyle),
+                ],
               ),
             ],
           ),
@@ -1175,30 +817,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
         ),
         const SizedBox(width: 3),
         Text(label, style: base),
-      ],
-    );
-  }
-}
-
-// ── Photo box placeholder ──
-class _PhotoPlaceholder extends StatelessWidget {
-  const _PhotoPlaceholder();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(Icons.person_rounded, size: 30, color: Color(0xFFBBBBBB)),
-        SizedBox(height: 4),
-        Text(
-          'फोटो',
-          style: TextStyle(
-            fontFamily: 'NotoSansDevanagari',
-            fontSize: 11,
-            color: Color(0xFFAAAAAA),
-          ),
-        ),
       ],
     );
   }
