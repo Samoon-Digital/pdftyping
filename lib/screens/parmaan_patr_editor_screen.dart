@@ -838,10 +838,10 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                         'के मूल निवासी/निवासिनी हैं। मैं इनको भली भांति जानता/जानती पहचानता/पहचानती हूं '
                         'तथा इनकी जाति ',
                   ),
-                  _docValue(jaati),
+                  _docValue(jaati, emptyText: '******'),
                   const TextSpan(text: ' '),
                   const TextSpan(text: 'उपजाति '),
-                  _docValue(upjaati),
+                  _docValue(upjaati, emptyText: '******'),
                   const TextSpan(text: ' '),
                   const TextSpan(
                     text:
