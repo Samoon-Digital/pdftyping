@@ -5,6 +5,7 @@ import '../services/ad_service.dart';
 import '../widgets/unlock_sheet.dart';
 import 'application_editor_screen.dart';
 import 'asha_editor_screen.dart';
+import 'custom_layout_one_editor_screen.dart';
 import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
 import 'parmaan_patr_editor_screen.dart';
@@ -157,7 +158,30 @@ class _HomePageState extends State<HomePage> {
 
     if (selected != null && mounted) {
       setState(() => _selectedLayoutId = selected);
+      _openCustomLayout(selected);
     }
+  }
+
+  void _openCustomLayout(String layoutId) {
+    if (layoutId == 'classic') {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) =>
+              CustomLayoutOneEditorScreen(onPdfSaved: widget.onPdfSaved),
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'यह layout editor अभी अगली update में आएगा।',
+          style: TextStyle(fontFamily: 'NotoSansDevanagari'),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   void _openCategory(_CategorySection category, List<_TemplateItem> items) {
@@ -353,18 +377,18 @@ class _DashboardHeroCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(22),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.all(14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
                     Container(
-                      width: 42,
-                      height: 42,
+                      width: 36,
+                      height: 36,
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: Colors.white.withValues(alpha: 0.22),
                         ),
@@ -377,8 +401,8 @@ class _DashboardHeroCard extends StatelessWidget {
                     const Spacer(),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
+                        horizontal: 9,
+                        vertical: 5,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.14),
@@ -396,34 +420,34 @@ class _DashboardHeroCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 const Text(
                   'कस्टम आवेदन लिखें',
                   style: TextStyle(
                     fontFamily: 'NotoSansDevanagari',
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w700,
                     height: 1.2,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 4),
                 const Text(
-                  'यहाँ से अपनी जरूरत के हिसाब से खाली लेआउट चुनकर आगे मनमुताबिक आवेदन लिखा जा सकेगा। अभी 4 प्री-डिफाइन लेआउट प्रीव्यू उपलब्ध हैं।',
+                  'यहाँ से खाली लेआउट चुनकर आगे मनमुताबिक आवेदन लिखा जा सकेगा।',
                   style: TextStyle(
                     fontFamily: 'NotoSansDevanagari',
-                    fontSize: 13,
-                    height: 1.45,
+                    fontSize: 12,
+                    height: 1.35,
                     color: Color(0xFFEFF6FF),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 Row(
                   children: List.generate(
                     4,
                     (index) => Expanded(
                       child: Padding(
-                        padding: EdgeInsets.only(right: index == 3 ? 0 : 10),
+                        padding: EdgeInsets.only(right: index == 3 ? 0 : 8),
                         child: _HeroLayoutPreview(
                           background: primaryContainer,
                           lineColor: onPrimaryContainer.withValues(alpha: 0.85),
@@ -439,29 +463,30 @@ class _DashboardHeroCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Expanded(
                       child: Text(
-                        'टैप करें और अपने आवेदन का बेस लेआउट चुनें',
+                        'टैप करें और बेस लेआउट चुनें',
                         style: TextStyle(
                           fontFamily: 'NotoSansDevanagari',
-                          fontSize: 13,
+                          fontSize: 12,
                           color: Color(0xFFE2E8F0),
                         ),
                       ),
                     ),
                     Container(
-                      width: 40,
-                      height: 40,
+                      width: 34,
+                      height: 34,
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
                         Icons.arrow_forward_rounded,
                         color: selectedLayout.accent,
+                        size: 18,
                       ),
                     ),
                   ],
@@ -489,23 +514,23 @@ class _HeroLayoutPreview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 68,
-      padding: const EdgeInsets.all(7),
+      height: 54,
+      padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
       ),
       child: Column(
         children: [
           Container(
-            height: 6,
+            height: 5,
             decoration: BoxDecoration(
               color: lineColor,
               borderRadius: BorderRadius.circular(999),
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Expanded(
             child: Row(
               children: [
@@ -517,28 +542,28 @@ class _HeroLayoutPreview extends StatelessWidget {
                         child: Container(
                           decoration: BoxDecoration(
                             color: background,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 4),
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
                             color: background.withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 5),
+                const SizedBox(width: 4),
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
                       color: accent.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                   ),
                 ),
