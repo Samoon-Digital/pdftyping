@@ -393,7 +393,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
           ),
           if (_showJaatiOptions)
             Padding(
-              padding: const EdgeInsets.only(top: -6, bottom: 12),
+              padding: const EdgeInsets.only(bottom: 12),
               child: Wrap(
                 spacing: 8,
                 runSpacing: 8,
