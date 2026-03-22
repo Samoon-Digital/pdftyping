@@ -22,6 +22,13 @@ class ParmaanPatrEditorScreen extends StatefulWidget {
 }
 
 class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
+  static const List<String> _jaatiOptions = [
+    'अन्य पिछड़ा वर्ग',
+    'अनुसूचित जाति',
+    'अनुसूचित जनजाति',
+    'सामान्य',
+  ];
+
   // ── Form controllers ──
   final _nameCtrl = TextEditingController();
   final _relationNameCtrl = TextEditingController();
@@ -45,11 +52,11 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
 
   // ── Step ──
   int _step = 0;
+  bool _showJaatiOptions = false;
 
-  // ── Photo box size: 1.2" × 1.5" at the document render scale ──
-  // Off-screen render is 560dp wide → inner content ~512dp → 512/8.5 ≈ 60dp/"
-  static const _photoBoxW = 90.0; // slightly larger photo box
-  static const _photoBoxH = 112.0; // 4:5 ratio
+  // ── PDF photo box size ──
+  static const _photoBoxW = 90.0;
+  static const _photoBoxH = 112.0;
 
   @override
   void initState() {
@@ -307,7 +314,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'जिसके लिए प्रमाण पत्र बनाना है उनकी details भरें',
+                    'जिसके लिए प्रमाण पत्र बनाना है उनकी जानकारी हिंदी में भरें। सभी इनपुट हिंदी में दर्ज करें।',
                     style: TextStyle(
                       fontFamily: 'NotoSansDevanagari',
                       fontSize: 13,
@@ -381,8 +388,46 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             fieldKey: 'parmaan_jaati',
             label: 'जाति',
             hint: 'जैसे : अन्य पिछड़ा वर्ग , अनुसूचित जाति , जनजाति आदि',
-            onChanged: (_) => setState(() {}),
+            onTap: () => setState(() => _showJaatiOptions = true),
+            onChanged: (_) => setState(() => _showJaatiOptions = true),
           ),
+          if (_showJaatiOptions)
+            Padding(
+              padding: const EdgeInsets.only(top: -6, bottom: 12),
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: _jaatiOptions.map((option) {
+                  final selected = _jaatiCtrl.text.trim() == option;
+                  return ChoiceChip(
+                    label: Text(
+                      option,
+                      style: const TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
+                        fontSize: 13,
+                      ),
+                    ),
+                    selected: selected,
+                    onSelected: (_) {
+                      _jaatiCtrl.text = option;
+                      _jaatiCtrl.selection = TextSelection.collapsed(
+                        offset: option.length,
+                      );
+                      setState(() => _showJaatiOptions = false);
+                    },
+                    selectedColor: const Color(
+                      0xFF1565C0,
+                    ).withValues(alpha: 0.13),
+                    checkmarkColor: const Color(0xFF1565C0),
+                    side: BorderSide(
+                      color: selected
+                          ? const Color(0xFF1565C0)
+                          : const Color(0xFFCCCCCC),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
           SuggestibleInputField(
             controller: _upjaatiCtrl,
             fieldKey: 'parmaan_upjaati',
@@ -668,18 +713,15 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Top row: heading + cert chips (left column) / photo box (right) ──
-          SizedBox(height: fs * 2.0), // shift heading+photo 2 lines down
+          SizedBox(height: fs * 2.0),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Left area — heading centered within it, chips left-aligned below
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // IntrinsicWidth clamps underline to exact text width
                     IntrinsicWidth(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -694,9 +736,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(
-                            height: 5,
-                          ), // underline offset: 5px gap
+                          const SizedBox(height: 5),
                           Container(
                             height: 1.5,
                             color: const Color(0xFF212121),
@@ -704,10 +744,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                         ],
                       ),
                     ),
-                    SizedBox(
-                      height: fs * 3.0,
-                    ), // cert chips 2 extra lines below heading
-                    // Cert chips — 16pt regular, centered
+                    SizedBox(height: fs * 3.0),
                     Center(
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -724,7 +761,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                 ),
               ),
               SizedBox(width: fs * 0.6),
-              // Photo box — slightly larger, with placeholder text
               Container(
                 width: _photoBoxW,
                 height: _photoBoxH,
