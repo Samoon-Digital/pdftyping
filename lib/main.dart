@@ -1,13 +1,14 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
-import 'screens/splash_screen.dart';
+import 'screens/main_shell.dart';
 import 'services/ad_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await AdService.init();
+  unawaited(AdService.init());
   runApp(const MainApp());
 }
 
@@ -28,7 +29,7 @@ class MainApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const SplashScreen(),
+      home: const MainShell(),
     );
   }
 }
