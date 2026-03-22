@@ -16,6 +16,7 @@ class SuggestibleInputField extends StatefulWidget {
   final TextInputType keyboardType;
   final ValueChanged<String>? onChanged;
   final bool readOnly;
+  final bool enableSuggestions;
   final VoidCallback? onTap;
   final Widget? suffixIcon;
   final String? Function(String?)? validator;
@@ -29,6 +30,7 @@ class SuggestibleInputField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.onChanged,
     this.readOnly = false,
+    this.enableSuggestions = true,
     this.onTap,
     this.suffixIcon,
     this.validator,
@@ -46,6 +48,15 @@ class _SuggestibleInputFieldState extends State<SuggestibleInputField> {
   @override
   void initState() {
     super.initState();
+    if (!widget.enableSuggestions) {
+      _focusNode.addListener(() {
+        if (!_focusNode.hasFocus && _showSuggestions) {
+          setState(() => _showSuggestions = false);
+        }
+      });
+      return;
+    }
+
     // Initialise service (no-op if already done)
     SuggestionsService.instance.init().then((_) {
       if (mounted) {
@@ -105,7 +116,10 @@ class _SuggestibleInputFieldState extends State<SuggestibleInputField> {
   @override
   Widget build(BuildContext context) {
     final showChips =
-        _showSuggestions && !widget.readOnly && _suggestions.isNotEmpty;
+        widget.enableSuggestions &&
+        _showSuggestions &&
+        !widget.readOnly &&
+        _suggestions.isNotEmpty;
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 14),

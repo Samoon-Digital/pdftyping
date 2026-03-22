@@ -38,7 +38,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
   final _jilaCtrl = TextEditingController();
   final _jaatiCtrl = TextEditingController();
   final _upjaatiCtrl = TextEditingController();
-  final _maasikAayCtrl = TextEditingController();
   final _varsikAayCtrl = TextEditingController();
   final _dateCtrl = TextEditingController();
 
@@ -76,10 +75,22 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     _jilaCtrl.dispose();
     _jaatiCtrl.dispose();
     _upjaatiCtrl.dispose();
-    _maasikAayCtrl.dispose();
     _varsikAayCtrl.dispose();
     _dateCtrl.dispose();
     super.dispose();
+  }
+
+  String _computedMaasikAay() {
+    final annualText = _varsikAayCtrl.text.trim().replaceAll(
+      RegExp(r'[^0-9]'),
+      '',
+    );
+    if (annualText.isEmpty) return '';
+
+    final annualIncome = int.tryParse(annualText);
+    if (annualIncome == null) return '';
+
+    return (annualIncome ~/ 12).toString();
   }
 
   // ── Date picker ──
@@ -388,6 +399,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             fieldKey: 'parmaan_jaati',
             label: 'जाति',
             hint: 'जैसे : अन्य पिछड़ा वर्ग , अनुसूचित जाति , जनजाति आदि',
+            enableSuggestions: false,
             onTap: () => setState(() => _showJaatiOptions = true),
             onChanged: (_) => setState(() => _showJaatiOptions = true),
           ),
@@ -439,14 +451,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
           // ── Income (only when आय is selected) ──
           if (_certAay) ...[
             _sectionLabel('आय की जानकारी'),
-            SuggestibleInputField(
-              controller: _maasikAayCtrl,
-              fieldKey: 'parmaan_maasik_aay',
-              label: 'मासिक आय (रु०)',
-              hint: 'जैसे : 5000',
-              keyboardType: TextInputType.number,
-              onChanged: (_) => setState(() {}),
-            ),
             SuggestibleInputField(
               controller: _varsikAayCtrl,
               fieldKey: 'parmaan_varsik_aay',
@@ -696,7 +700,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     final jila = _jilaCtrl.text.trim();
     final jaati = _jaatiCtrl.text.trim();
     final upjaati = _upjaatiCtrl.text.trim();
-    final maasik = _maasikAayCtrl.text.trim();
+    final maasik = _computedMaasikAay();
     final varsik = _varsikAayCtrl.text.trim();
     final date = _dateCtrl.text.trim();
 
