@@ -92,6 +92,10 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     return (annualIncome ~/ 12).toString();
   }
 
+  TextSpan _docValue(String value, {String emptyText = ''}) {
+    return TextSpan(text: value.isEmpty ? emptyText : value);
+  }
+
   // ── Date picker ──
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -391,61 +395,63 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             onChanged: (_) => setState(() {}),
           ),
 
-          // ── Caste ──
-          _sectionLabel('जाति की जानकारी'),
-          SuggestibleInputField(
-            controller: _jaatiCtrl,
-            fieldKey: 'parmaan_jaati',
-            label: 'जाति',
-            hint: 'जैसे : अन्य पिछड़ा वर्ग , अनुसूचित जाति , जनजाति आदि',
-            enableSuggestions: false,
-            onTap: () => setState(() => _showJaatiOptions = true),
-            onChanged: (_) => setState(() => _showJaatiOptions = true),
-          ),
-          if (_showJaatiOptions)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _jaatiOptions.map((option) {
-                  final selected = _jaatiCtrl.text.trim() == option;
-                  return ChoiceChip(
-                    label: Text(
-                      option,
-                      style: const TextStyle(
-                        fontFamily: 'NotoSansDevanagari',
-                        fontSize: 13,
-                      ),
-                    ),
-                    selected: selected,
-                    onSelected: (_) {
-                      _jaatiCtrl.text = option;
-                      _jaatiCtrl.selection = TextSelection.collapsed(
-                        offset: option.length,
-                      );
-                      setState(() => _showJaatiOptions = false);
-                    },
-                    selectedColor: const Color(
-                      0xFF1565C0,
-                    ).withValues(alpha: 0.13),
-                    checkmarkColor: const Color(0xFF1565C0),
-                    side: BorderSide(
-                      color: selected
-                          ? const Color(0xFF1565C0)
-                          : const Color(0xFFCCCCCC),
-                    ),
-                  );
-                }).toList(),
-              ),
+          if (_certJaati) ...[
+            // ── Caste ──
+            _sectionLabel('जाति की जानकारी'),
+            SuggestibleInputField(
+              controller: _jaatiCtrl,
+              fieldKey: 'parmaan_jaati',
+              label: 'जाति',
+              hint: 'जैसे : अन्य पिछड़ा वर्ग , अनुसूचित जाति , जनजाति आदि',
+              enableSuggestions: false,
+              onTap: () => setState(() => _showJaatiOptions = true),
+              onChanged: (_) => setState(() => _showJaatiOptions = true),
             ),
-          SuggestibleInputField(
-            controller: _upjaatiCtrl,
-            fieldKey: 'parmaan_upjaati',
-            label: 'उपजाति',
-            hint: 'जैसे : मोमिन / अंसार',
-            onChanged: (_) => setState(() {}),
-          ),
+            if (_showJaatiOptions)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _jaatiOptions.map((option) {
+                    final selected = _jaatiCtrl.text.trim() == option;
+                    return ChoiceChip(
+                      label: Text(
+                        option,
+                        style: const TextStyle(
+                          fontFamily: 'NotoSansDevanagari',
+                          fontSize: 13,
+                        ),
+                      ),
+                      selected: selected,
+                      onSelected: (_) {
+                        _jaatiCtrl.text = option;
+                        _jaatiCtrl.selection = TextSelection.collapsed(
+                          offset: option.length,
+                        );
+                        setState(() => _showJaatiOptions = false);
+                      },
+                      selectedColor: const Color(
+                        0xFF1565C0,
+                      ).withValues(alpha: 0.13),
+                      checkmarkColor: const Color(0xFF1565C0),
+                      side: BorderSide(
+                        color: selected
+                            ? const Color(0xFF1565C0)
+                            : const Color(0xFFCCCCCC),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            SuggestibleInputField(
+              controller: _upjaatiCtrl,
+              fieldKey: 'parmaan_upjaati',
+              label: 'उपजाति',
+              hint: 'जैसे : मोमिन / अंसार',
+              onChanged: (_) => setState(() {}),
+            ),
+          ],
 
           // ── Income (only when आय is selected) ──
           if (_certAay) ...[
@@ -532,7 +538,10 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                 setState(() => _certAay = v);
               }),
               _certChip('जाति', _certJaati, (v) {
-                setState(() => _certJaati = v);
+                setState(() {
+                  _certJaati = v;
+                  if (!v) _showJaatiOptions = false;
+                });
               }),
               _certChip('निवास', _certNiwas, (v) {
                 setState(() => _certNiwas = v);
@@ -703,10 +712,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     final varsik = _varsikAayCtrl.text.trim();
     final date = _dateCtrl.text.trim();
 
-    // Helper: colored placeholder when empty
-    TextSpan val(String v, String ph) =>
-        TextSpan(text: v.isEmpty ? ph : v, style: v.isEmpty ? phStyle : null);
-
     return Container(
       decoration: BoxDecoration(
         border: Border.all(color: const Color(0xFF212121), width: 0.9),
@@ -813,40 +818,40 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                   const TextSpan(
                     text: 'प्रमाणित किया जाता है कि श्री/श्रीमती/कु0 ',
                   ),
-                  val(name, 'व्यक्ति का नाम'),
+                  _docValue(name),
                   const TextSpan(text: ' '),
                   TextSpan(text: '$_relationType '),
-                  val(relName, 'पिता/पति का नाम'),
+                  _docValue(relName),
                   const TextSpan(text: ' ग्राम '),
-                  val(gram, 'ग्राम'),
+                  _docValue(gram),
                   const TextSpan(text: ' '),
                   const TextSpan(text: 'पोस्ट '),
-                  val(post, 'पोस्ट'),
+                  _docValue(post),
                   const TextSpan(text: ' '),
                   const TextSpan(text: 'थाना '),
-                  val(thana, 'थाना'),
+                  _docValue(thana),
                   const TextSpan(text: ' जिला '),
-                  val(jila, 'जिला'),
+                  _docValue(jila),
                   const TextSpan(text: ' '),
                   const TextSpan(
                     text:
                         'के मूल निवासी/निवासिनी हैं। मैं इनको भली भांति जानता/जानती पहचानता/पहचानती हूं '
                         'तथा इनकी जाति ',
                   ),
-                  val(jaati, 'जाति'),
+                  _docValue(jaati),
                   const TextSpan(text: ' '),
                   const TextSpan(text: 'उपजाति '),
-                  val(upjaati, 'उपजाति'),
+                  _docValue(upjaati),
                   const TextSpan(text: ' '),
                   const TextSpan(
                     text:
                         'है। तथा इनके पिता/पति की समस्त श्रोतों से होने वाली कुल '
                         'मासिक आय मु0 ',
                   ),
-                  val(maasik, '…………………'),
+                  _docValue(maasik, emptyText: '******'),
                   const TextSpan(text: ' '),
                   const TextSpan(text: 'तथा वार्षिक आय मु0 '),
-                  val(varsik, '…………………'),
+                  _docValue(varsik, emptyText: '******'),
                   const TextSpan(text: ' '),
                   const TextSpan(text: 'है।'),
                 ],
@@ -908,9 +913,20 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
           decoration: BoxDecoration(
             border: Border.all(color: const Color(0xFF212121), width: 0.8),
           ),
-          child: checked
-              ? Icon(Icons.check, size: size * 0.8, color: Colors.black)
-              : null,
+          child: Center(
+            child: checked
+                ? Icon(Icons.check, size: size * 0.8, color: Colors.black)
+                : Text(
+                    'X',
+                    style: TextStyle(
+                      fontFamily: 'NotoSansDevanagari',
+                      fontSize: size * 0.72,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                      height: 1,
+                    ),
+                  ),
+          ),
         ),
         const SizedBox(width: 3),
         Text(label, style: base),
