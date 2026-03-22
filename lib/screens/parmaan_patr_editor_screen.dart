@@ -26,7 +26,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
   final _nameCtrl = TextEditingController();
   final _relationNameCtrl = TextEditingController();
   final _gramCtrl = TextEditingController();
-  final _majraCtrl = TextEditingController();
   final _postCtrl = TextEditingController();
   final _thanaCtrl = TextEditingController();
   final _jilaCtrl = TextEditingController();
@@ -60,7 +59,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     _nameCtrl.dispose();
     _relationNameCtrl.dispose();
     _gramCtrl.dispose();
-    _majraCtrl.dispose();
     _postCtrl.dispose();
     _thanaCtrl.dispose();
     _jilaCtrl.dispose();
@@ -302,7 +300,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                 SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'जिसके लिए प्रमाण पत्र बनाना है उनकी details भरें',
+                    'जिसके लिए प्रमाण पत्र बनाना है उनकी जानकारी हिंदी में भरें। सभी इनपुट हिंदी में दर्ज करें।',
                     style: TextStyle(
                       fontFamily: 'NotoSansDevanagari',
                       fontSize: 13,
@@ -345,13 +343,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             fieldKey: 'parmaan_gram',
             label: 'ग्राम',
             hint: 'जैसे : ग्राम गदनिया',
-            onChanged: (_) => setState(() {}),
-          ),
-          SuggestibleInputField(
-            controller: _majraCtrl,
-            fieldKey: 'parmaan_majra',
-            label: 'मजरा (वैकल्पिक)',
-            hint: 'जैसे : बड़ा मजरा',
             onChanged: (_) => setState(() {}),
           ),
           SuggestibleInputField(
@@ -648,7 +639,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
     final name = _nameCtrl.text.trim();
     final relName = _relationNameCtrl.text.trim();
     final gram = _gramCtrl.text.trim();
-    final majra = _majraCtrl.text.trim();
     final post = _postCtrl.text.trim();
     final thana = _thanaCtrl.text.trim();
     final jila = _jilaCtrl.text.trim();
@@ -725,10 +715,6 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
                   val(relName, 'पिता/पति का नाम'),
                   const TextSpan(text: '\nग्राम '),
                   val(gram, 'ग्राम'),
-                  if (majra.isNotEmpty) ...[
-                    const TextSpan(text: ' मजरा '),
-                    TextSpan(text: majra),
-                  ],
                   const TextSpan(text: ' पोस्ट '),
                   val(post, 'पोस्ट'),
                   const TextSpan(text: ' थाना '),
