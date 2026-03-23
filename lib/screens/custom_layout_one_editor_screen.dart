@@ -34,19 +34,18 @@ class _CustomLayoutOneEditorScreenState
   final _subjectCtrl = TextEditingController();
   final _bodyCtrl = TextEditingController();
   final _gratitudeCtrl = TextEditingController();
-  final _dateCtrl = TextEditingController();
-  final _nameCtrl = TextEditingController();
-  final _classCtrl = TextEditingController();
-  final _rollNoCtrl = TextEditingController();
+  final _footerCtrl = TextEditingController();
 
-  int _step = 0;
+  late final String _footerHint;
 
   @override
   void initState() {
     super.initState();
     final now = DateTime.now();
-    _dateCtrl.text =
+    final formattedDate =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+    _footerHint =
+        'भवदीय,\nआपका आज्ञाकारी शिष्य,\nराहुल कुमार\nकक्षा - 10\nअनुक्रमांक - 15\nदिनांक - $formattedDate';
   }
 
   @override
@@ -55,97 +54,42 @@ class _CustomLayoutOneEditorScreenState
     _subjectCtrl.dispose();
     _bodyCtrl.dispose();
     _gratitudeCtrl.dispose();
-    _dateCtrl.dispose();
-    _nameCtrl.dispose();
-    _classCtrl.dispose();
-    _rollNoCtrl.dispose();
+    _footerCtrl.dispose();
     super.dispose();
   }
 
-  int get _reviewStep => 5;
+  bool _validateInputs() {
+    final sections = <(TextEditingController, String)>[
+      (_recipientCtrl, 'संबोधन और प्राप्तकर्ता'),
+      (_subjectCtrl, 'विषय'),
+      (_bodyCtrl, 'मुख्य आवेदन सामग्री'),
+      (_gratitudeCtrl, 'समापन पंक्ति'),
+      (_footerCtrl, 'फुटर'),
+    ];
 
-  Future<void> _pickDate() async {
-    final now = DateTime.now();
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-      locale: const Locale('hi', 'IN'),
-    );
-    if (picked != null && mounted) {
-      _dateCtrl.text =
-          '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
-      setState(() {});
-    }
-  }
-
-  bool _validateCurrentStep() {
-    String? message;
-    switch (_step) {
-      case 0:
-        if (_recipientCtrl.text.trim().isEmpty) {
-          message = 'कृपया संबोधन और प्राप्तकर्ता का टेक्स्ट लिखें';
-        }
-        break;
-      case 1:
-        if (_subjectCtrl.text.trim().isEmpty) {
-          message = 'कृपया विषय लिखें';
-        }
-        break;
-      case 2:
-        if (_bodyCtrl.text.trim().isEmpty) {
-          message = 'कृपया आवेदन की मुख्य सामग्री लिखें';
-        }
-        break;
-      case 3:
-        if (_gratitudeCtrl.text.trim().isEmpty) {
-          message = 'कृपया धन्यवाद या समापन पंक्ति लिखें';
-        }
-        break;
-      case 4:
-        if (_nameCtrl.text.trim().isEmpty ||
-            _classCtrl.text.trim().isEmpty ||
-            _rollNoCtrl.text.trim().isEmpty ||
-            _dateCtrl.text.trim().isEmpty) {
-          message = 'कृपया footer की सभी details भरें';
-        }
-        break;
-      default:
-        break;
-    }
-
-    if (message != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            message,
-            style: const TextStyle(fontFamily: 'NotoSansDevanagari'),
+    for (final section in sections) {
+      if (section.$1.text.trim().isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'कृपया ${section.$2} भरें',
+              style: const TextStyle(fontFamily: 'NotoSansDevanagari'),
+            ),
+            behavior: SnackBarBehavior.floating,
           ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return false;
+        );
+        return false;
+      }
     }
+
     return true;
   }
 
-  void _nextStep() {
-    if (_step < _reviewStep && !_validateCurrentStep()) {
-      return;
-    }
-    setState(() => _step = (_step + 1).clamp(0, _reviewStep));
-  }
-
-  void _previousStep() {
-    if (_step == 0) {
-      Navigator.of(context).maybePop();
-      return;
-    }
-    setState(() => _step -= 1);
-  }
-
   Future<void> _generatePdf() async {
+    if (!_validateInputs()) {
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -250,16 +194,12 @@ class _CustomLayoutOneEditorScreenState
     final stamp =
         '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}_'
         '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
-    final safeName = _nameCtrl.text
-        .trim()
-        .replaceAll(RegExp(r'[^\w\u0900-\u097F ]'), '')
-        .trim();
     final safeSubject = _subjectCtrl.text
         .trim()
         .replaceAll(RegExp(r'[^\w\u0900-\u097F ]'), '')
         .trim();
     final fileName =
-        '${safeName.isNotEmpty ? safeName : 'आवेदन'}_${safeSubject.isNotEmpty ? safeSubject : 'लेआउट1'}_$stamp.pdf';
+        '${safeSubject.isNotEmpty ? safeSubject : 'आवेदन'}_लेआउट1_$stamp.pdf';
     final pdfBytes = await pdf.save();
 
     if (kIsWeb) {
@@ -314,243 +254,164 @@ class _CustomLayoutOneEditorScreenState
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: _step == 0,
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) {
-          setState(() => _step -= 1);
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(
-            _step == _reviewStep ? 'लेआउट 1 प्रीव्यू' : 'लेआउट 1 एडिटर',
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: _previousStep,
-          ),
-        ),
-        body: _step == _reviewStep ? _buildReviewStep() : _buildStepBody(),
-      ),
-    );
-  }
-
-  Widget _buildStepBody() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          _buildProgressCard(),
-          const SizedBox(height: 16),
-          _buildStepIntro(),
-          const SizedBox(height: 16),
-          _buildActiveStepCard(),
-          const SizedBox(height: 18),
-          Row(
-            children: [
-              if (_step > 0)
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _previousStep,
-                    child: const Text('पिछला स्टेप'),
-                  ),
-                ),
-              if (_step > 0) const SizedBox(width: 12),
-              Expanded(
-                flex: _step > 0 ? 1 : 2,
-                child: SizedBox(
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _nextStep,
-                    child: Text(_step == 4 ? 'प्रीव्यू देखें' : 'अगला स्टेप'),
-                  ),
-                ),
+    return Scaffold(
+      appBar: AppBar(title: const Text('लेआउट 1 एडिटर')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _buildInfoCard(),
+            const SizedBox(height: 16),
+            _buildSectionCard(
+              title: '1. संबोधन और प्राप्तकर्ता',
+              description:
+                  'पत्र की शुरुआत और receiver details एक box में लिखें।',
+              child: _EditorSectionField(
+                controller: _recipientCtrl,
+                hint: _recipientHint,
+                minLines: 5,
+                maxLines: 7,
+                onChanged: (_) => setState(() {}),
               ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressCard() {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'स्टेप ${_step + 1} / 6',
-            style: const TextStyle(
-              fontFamily: 'NotoSansDevanagari',
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1565C0),
             ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: List.generate(6, (index) {
-              final isDone = index <= _step;
-              return Expanded(
-                child: Container(
-                  height: 6,
-                  margin: EdgeInsets.only(right: index == 5 ? 0 : 6),
-                  decoration: BoxDecoration(
-                    color: isDone
-                        ? const Color(0xFF1565C0)
-                        : const Color(0xFFE2E8F0),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ],
+            const SizedBox(height: 14),
+            _buildSectionCard(
+              title: '2. विषय',
+              description: 'यह box केवल subject line के लिए है।',
+              child: _EditorSectionField(
+                controller: _subjectCtrl,
+                hint: _subjectHint,
+                minLines: 1,
+                maxLines: 2,
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            const SizedBox(height: 14),
+            _buildSectionCard(
+              title: '3. मुख्य आवेदन',
+              description: 'जो paragraph PDF में दिखाना है, वह यहां लिखें।',
+              child: _EditorSectionField(
+                controller: _bodyCtrl,
+                hint: _bodyHint,
+                minLines: 7,
+                maxLines: 10,
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            const SizedBox(height: 14),
+            _buildSectionCard(
+              title: '4. समापन पंक्ति',
+              description: 'धन्यवाद या अंतिम निवेदन वाली line यहां लिखें।',
+              child: _EditorSectionField(
+                controller: _gratitudeCtrl,
+                hint: _gratitudeHint,
+                minLines: 3,
+                maxLines: 5,
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            const SizedBox(height: 14),
+            _buildSectionCard(
+              title: '5. फुटर',
+              description:
+                  'नीचे की पूरी signature/details block एक ही Hindi box में लिखें।',
+              child: _EditorSectionField(
+                controller: _footerCtrl,
+                hint: _footerHint,
+                minLines: 6,
+                maxLines: 8,
+                onChanged: (_) => setState(() {}),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _buildPreviewCard(),
+            const SizedBox(height: 20),
+            SizedBox(
+              height: 52,
+              child: ElevatedButton.icon(
+                onPressed: _generatePdf,
+                icon: const Icon(Icons.picture_as_pdf_rounded),
+                label: const Text('पीडीएफ बनाएं'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildStepIntro() {
-    final config = _stepConfig();
+  Widget _buildInfoCard() {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFEFF6FF),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFBFDBFE)),
+        color: const Color(0xFFFCF7E8),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFF1D08A)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            config.title,
-            style: const TextStyle(
-              fontFamily: 'NotoSansDevanagari',
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF0F172A),
-            ),
+        children: <Widget>[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFE7B0),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(
+                  Icons.keyboard_voice_outlined,
+                  color: Color(0xFF8A5300),
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text(
+                  'हिंदी voice typing के लिए native keyboard इस्तेमाल करें',
+                  style: TextStyle(
+                    fontFamily: 'NotoSansDevanagari',
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF4A3310),
+                    height: 1.3,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            config.description,
-            style: const TextStyle(
+          const SizedBox(height: 12),
+          const Text(
+            'किसी भी box पर tap करें, keyboard खोलें, फिर Gboard या iPhone keyboard के mic button से सीधे Hindi में बोलें। इससे user ko sabse native, fast aur accurate typing experience milega.',
+            style: TextStyle(
               fontFamily: 'NotoSansDevanagari',
               fontSize: 13,
-              height: 1.45,
-              color: Color(0xFF334155),
+              height: 1.5,
+              color: Color(0xFF6C4B16),
             ),
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: const <Widget>[
+              _NativeTipChip(label: '1. Box par tap karein'),
+              _NativeTipChip(label: '2. Keyboard ka mic dabayein'),
+              _NativeTipChip(label: '3. Hindi me bolte jaiye'),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildActiveStepCard() {
-    switch (_step) {
-      case 0:
-        return _buildEditorCard(
-          child: _MultilineStepField(
-            controller: _recipientCtrl,
-            label: 'संबोधन और प्राप्तकर्ता',
-            hint: _recipientHint,
-            minLines: 5,
-            maxLines: 7,
-            onChanged: (_) => setState(() {}),
-          ),
-        );
-      case 1:
-        return _buildEditorCard(
-          child: Column(
-            children: [
-              _SingleLineStepField(
-                controller: _subjectCtrl,
-                label: 'विषय',
-                hint: _subjectHint,
-                prefix: 'विषय: ',
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 12),
-              _FixedLinePreview(
-                label: 'स्वतः जुड़ने वाला टेक्स्ट',
-                value: 'महोदय,',
-              ),
-            ],
-          ),
-        );
-      case 2:
-        return _buildEditorCard(
-          child: _MultilineStepField(
-            controller: _bodyCtrl,
-            label: 'मुख्य आवेदन सामग्री',
-            hint: _bodyHint,
-            minLines: 7,
-            maxLines: 10,
-            onChanged: (_) => setState(() {}),
-          ),
-        );
-      case 3:
-        return _buildEditorCard(
-          child: _MultilineStepField(
-            controller: _gratitudeCtrl,
-            label: 'समापन पंक्ति',
-            hint: _gratitudeHint,
-            minLines: 3,
-            maxLines: 5,
-            onChanged: (_) => setState(() {}),
-          ),
-        );
-      case 4:
-        return _buildEditorCard(
-          child: Column(
-            children: [
-              _SingleLineStepField(
-                controller: _dateCtrl,
-                label: 'दिनांक',
-                hint: '22/03/2026',
-                readOnly: true,
-                onTap: _pickDate,
-                suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
-              ),
-              const SizedBox(height: 12),
-              _SingleLineStepField(
-                controller: _nameCtrl,
-                label: 'नाम',
-                hint: 'राहुल कुमार',
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 12),
-              _SingleLineStepField(
-                controller: _classCtrl,
-                label: 'कक्षा',
-                hint: '10',
-                onChanged: (_) => setState(() {}),
-              ),
-              const SizedBox(height: 12),
-              _SingleLineStepField(
-                controller: _rollNoCtrl,
-                label: 'अनुक्रमांक',
-                hint: '15',
-                keyboardType: TextInputType.number,
-                onChanged: (_) => setState(() {}),
-              ),
-            ],
-          ),
-        );
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
-  Widget _buildEditorCard({required Widget child}) {
+  Widget _buildSectionCard({
+    required String title,
+    required String description,
+    required Widget child,
+  }) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -565,79 +426,70 @@ class _CustomLayoutOneEditorScreenState
           ),
         ],
       ),
-      child: child,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontFamily: 'NotoSansDevanagari',
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF0F172A),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            description,
+            style: const TextStyle(
+              fontFamily: 'NotoSansDevanagari',
+              fontSize: 12.5,
+              height: 1.45,
+              color: Color(0xFF475569),
+            ),
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
     );
   }
 
-  Widget _buildReviewStep() {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEFF6FF),
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: const Color(0xFFBFDBFE)),
-            ),
-            child: const Text(
-              'यह final preview है। इसी format में PDF generate होगी।',
-              style: TextStyle(
-                fontFamily: 'NotoSansDevanagari',
-                fontSize: 13,
-                height: 1.4,
-                color: Color(0xFF334155),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE0E0E0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
-              child: Container(
-                width: double.infinity,
-                color: Colors.white,
-                padding: const EdgeInsets.all(20),
-                child: _buildApplicationPreview(),
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: _previousStep,
-                  child: const Text('संपादन करें'),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: SizedBox(
-                  height: 52,
-                  child: ElevatedButton.icon(
-                    onPressed: _generatePdf,
-                    icon: const Icon(Icons.picture_as_pdf_rounded),
-                    label: const Text('पीडीएफ बनाएं'),
-                  ),
-                ),
-              ),
-            ],
+  Widget _buildPreviewCard() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          width: double.infinity,
+          color: Colors.white,
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'लाइव प्रीव्यू',
+                style: TextStyle(
+                  fontFamily: 'NotoSansDevanagari',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 14),
+              _buildApplicationPreview(),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -674,10 +526,7 @@ class _CustomLayoutOneEditorScreenState
     final subject = _subjectCtrl.text.trim();
     final body = _bodyCtrl.text.trim();
     final gratitude = _gratitudeCtrl.text.trim();
-    final date = _dateCtrl.text.trim();
-    final name = _nameCtrl.text.trim();
-    final className = _classCtrl.text.trim();
-    final rollNo = _rollNoCtrl.text.trim();
+    final footer = _footerCtrl.text.trim();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -703,115 +552,21 @@ class _CustomLayoutOneEditorScreenState
         SizedBox(height: resolvedFontSize * 1.2),
         block(gratitude, _gratitudeHint),
         SizedBox(height: resolvedFontSize * 2.0),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: RichText(
-                text: TextSpan(
-                  style: baseStyle,
-                  children: [
-                    const TextSpan(text: 'दिनांक: '),
-                    TextSpan(
-                      text: date.isEmpty ? '22/03/2026' : date,
-                      style: date.isEmpty ? placeholderStyle : null,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('भवदीय,', style: baseStyle),
-                block(name, 'राहुल कुमार'),
-                RichText(
-                  text: TextSpan(
-                    style: baseStyle,
-                    children: [
-                      const TextSpan(text: 'कक्षा – '),
-                      TextSpan(
-                        text: className.isEmpty ? '10' : className,
-                        style: className.isEmpty ? placeholderStyle : null,
-                      ),
-                    ],
-                  ),
-                ),
-                RichText(
-                  text: TextSpan(
-                    style: baseStyle,
-                    children: [
-                      const TextSpan(text: 'अनुक्रमांक – '),
-                      TextSpan(
-                        text: rollNo.isEmpty ? '15' : rollNo,
-                        style: rollNo.isEmpty ? placeholderStyle : null,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        block(footer, _footerHint),
       ],
     );
   }
-
-  _StepConfig _stepConfig() {
-    switch (_step) {
-      case 0:
-        return const _StepConfig(
-          title: 'स्टेप 1: प्रारंभिक संबोधन',
-          description:
-              'यही टेक्स्ट PDF के सबसे ऊपर वैसा ही सेट होगा जैसा आप यहाँ लिखेंगे।',
-        );
-      case 1:
-        return const _StepConfig(
-          title: 'स्टेप 2: विषय',
-          description:
-              'विषय: prefix fixed रहेगा। उसके बाद का विषय आप अपने हिसाब से लिखें। “महोदय,” अपने आप जुड़ेगा।',
-        );
-      case 2:
-        return const _StepConfig(
-          title: 'स्टेप 3: मुख्य आवेदन सामग्री',
-          description:
-              'यह आवेदन का मुख्य body section है। जो लिखेंगे वही paragraph preview और PDF में जाएगा।',
-        );
-      case 3:
-        return const _StepConfig(
-          title: 'स्टेप 4: धन्यवाद / समापन',
-          description: 'इस हिस्से में अंतिम निवेदन या धन्यवाद की पंक्ति लिखें।',
-        );
-      case 4:
-        return const _StepConfig(
-          title: 'स्टेप 5: Footer details',
-          description:
-              'दिनांक, नाम, कक्षा और अनुक्रमांक भरें। Footer preview में नीचे दिखाई देगा।',
-        );
-      default:
-        return const _StepConfig(title: '', description: '');
-    }
-  }
 }
 
-class _StepConfig {
-  final String title;
-  final String description;
-
-  const _StepConfig({required this.title, required this.description});
-}
-
-class _MultilineStepField extends StatelessWidget {
+class _EditorSectionField extends StatelessWidget {
   final TextEditingController controller;
-  final String label;
   final String hint;
   final int minLines;
   final int maxLines;
   final ValueChanged<String>? onChanged;
 
-  const _MultilineStepField({
+  const _EditorSectionField({
     required this.controller,
-    required this.label,
     required this.hint,
     required this.minLines,
     required this.maxLines,
@@ -825,119 +580,68 @@ class _MultilineStepField extends StatelessWidget {
       minLines: minLines,
       maxLines: maxLines,
       onChanged: onChanged,
+      textCapitalization: TextCapitalization.sentences,
+      keyboardType: maxLines == 1
+          ? TextInputType.text
+          : TextInputType.multiline,
+      textInputAction: maxLines == 1
+          ? TextInputAction.next
+          : TextInputAction.newline,
       style: const TextStyle(
         fontFamily: 'NotoSansDevanagari',
         fontSize: 16,
         height: 1.45,
       ),
       decoration: InputDecoration(
-        labelText: label,
-        alignLabelWithHint: true,
         hintText: hint,
-        labelStyle: const TextStyle(fontFamily: 'NotoSansDevanagari'),
+        alignLabelWithHint: true,
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        contentPadding: const EdgeInsets.all(16),
         hintStyle: TextStyle(
           fontFamily: 'NotoSansDevanagari',
           color: Colors.grey.shade500,
           height: 1.45,
         ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFD7DEE7)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFD7DEE7)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFB7791F), width: 1.6),
+        ),
       ),
     );
   }
 }
 
-class _SingleLineStepField extends StatelessWidget {
-  final TextEditingController controller;
+class _NativeTipChip extends StatelessWidget {
   final String label;
-  final String hint;
-  final String? prefix;
-  final TextInputType keyboardType;
-  final bool readOnly;
-  final VoidCallback? onTap;
-  final Widget? suffixIcon;
-  final ValueChanged<String>? onChanged;
 
-  const _SingleLineStepField({
-    required this.controller,
-    required this.label,
-    required this.hint,
-    this.prefix,
-    this.keyboardType = TextInputType.text,
-    this.readOnly = false,
-    this.onTap,
-    this.suffixIcon,
-    this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextFormField(
-      controller: controller,
-      keyboardType: keyboardType,
-      readOnly: readOnly,
-      onTap: onTap,
-      onChanged: onChanged,
-      style: const TextStyle(fontFamily: 'NotoSansDevanagari', fontSize: 16),
-      decoration: InputDecoration(
-        labelText: label,
-        hintText: hint,
-        prefixText: prefix,
-        prefixStyle: const TextStyle(
-          fontFamily: 'NotoSansDevanagari',
-          fontSize: 16,
-          color: Color(0xFF212121),
-        ),
-        labelStyle: const TextStyle(fontFamily: 'NotoSansDevanagari'),
-        hintStyle: TextStyle(
-          fontFamily: 'NotoSansDevanagari',
-          color: Colors.grey.shade500,
-        ),
-        suffixIcon: suffixIcon == null
-            ? null
-            : GestureDetector(onTap: onTap, child: suffixIcon),
-      ),
-    );
-  }
-}
-
-class _FixedLinePreview extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _FixedLinePreview({required this.label, required this.value});
+  const _NativeTipChip({required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: const Color(0xFFE8C979)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontFamily: 'NotoSansDevanagari',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF64748B),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: 'NotoSansDevanagari',
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF111827),
-            ),
-          ),
-        ],
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontFamily: 'NotoSansDevanagari',
+          fontSize: 12.5,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF7A520F),
+        ),
       ),
     );
   }
