@@ -127,9 +127,8 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
         aadharCardName.isEmpty ? '……………………' : aadharCardName,
         aadharCardName.isEmpty,
       ),
-      const _TextSegment(' पर जारी है,', false),
       const _TextSegment(
-        '\nअपने उपरोक्त बैंक खाते से लिंक (सीडिंग) कराना चाहता/चाहती हूँ।',
+        ' पर जारी है, अपने उपरोक्त बैंक खाते से लिंक (सीडिंग) कराना चाहता/चाहती हूँ।',
         false,
       ),
       const _TextSegment('\n\n', false),
@@ -576,22 +575,23 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
                 ],
               ),
               SizedBox(height: resolvedFontSize * 1.8),
-              Text('हस्ताक्षर / अंगूठा – ………………………', style: baseStyle),
-            ],
-          ),
-        ),
-
-        SizedBox(height: resolvedFontSize * 1.8),
-
-        // ── Date bottom-left ──
-        RichText(
-          text: TextSpan(
-            style: baseStyle,
-            children: [
-              const TextSpan(text: 'दिनांक – '),
-              TextSpan(
-                text: date.isEmpty ? '……………' : date,
-                style: date.isEmpty ? phStyle : null,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      style: baseStyle,
+                      children: [
+                        const TextSpan(text: 'दिनांक – '),
+                        TextSpan(
+                          text: date.isEmpty ? '……………' : date,
+                          style: date.isEmpty ? phStyle : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text('हस्ताक्षर / अंगूठा – ………………………', style: baseStyle),
+                ],
               ),
             ],
           ),
