@@ -24,7 +24,6 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
   final _bankNameCtrl = TextEditingController();
   final _branchCtrl = TextEditingController();
   final _nameCtrl = TextEditingController();
-  final _fatherNameCtrl = TextEditingController();
   final _addressCtrl = TextEditingController();
   final _accountNumberCtrl = TextEditingController();
   final _aadharNoCtrl = TextEditingController();
@@ -34,8 +33,6 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  // If user hasn't manually edited aadhar-card name, mirror the applicant name.
-  bool _aadharNameManuallyEdited = false;
   int _step = 0;
 
   @override
@@ -46,14 +43,12 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
 
-    // Mirror applicant name → aadhar card name until user edits it manually
+    // Always mirror applicant name → aadhar card name
     _nameCtrl.addListener(() {
-      if (!_aadharNameManuallyEdited) {
-        final val = _nameCtrl.text;
-        if (_aadharCardNameCtrl.text != val) {
-          _aadharCardNameCtrl.text = val;
-          setState(() {});
-        }
+      final val = _nameCtrl.text;
+      if (_aadharCardNameCtrl.text != val) {
+        _aadharCardNameCtrl.text = val;
+        setState(() {});
       }
     });
   }
@@ -63,7 +58,6 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
     _bankNameCtrl.dispose();
     _branchCtrl.dispose();
     _nameCtrl.dispose();
-    _fatherNameCtrl.dispose();
     _addressCtrl.dispose();
     _accountNumberCtrl.dispose();
     _aadharNoCtrl.dispose();
@@ -94,25 +88,18 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
     final bankName = _bankNameCtrl.text.trim();
     final branch = _branchCtrl.text.trim();
     final name = _nameCtrl.text.trim();
-    final fatherName = _fatherNameCtrl.text.trim();
     final address = _addressCtrl.text.trim();
     final accNo = _accountNumberCtrl.text.trim();
     final aadharNo = _aadharNoCtrl.text.trim();
     final aadharCardName = _aadharCardNameCtrl.text.trim();
-    final date = _dateCtrl.text.trim();
 
     return [
       const _TextSegment('सेवा में,', false),
       const _TextSegment('\nशाखा प्रबंधक महोदय/महोदया', false),
       const _TextSegment('\n', false),
       _TextSegment(bankName.isEmpty ? '…………' : bankName, bankName.isEmpty),
-      const _TextSegment(' बैंक', false),
       const _TextSegment('\n', false),
       _TextSegment(branch.isEmpty ? '…………' : branch, branch.isEmpty),
-      const _TextSegment(' शाखा', false),
-      const _TextSegment('\n\n', false),
-      const _TextSegment('दिनांक: ', false),
-      _TextSegment(date.isEmpty ? '___ / ___ / ______' : date, date.isEmpty),
       const _TextSegment('\n\n', false),
       const _TextSegment(
         'विषय: बैंक खाते से आधार संख्या लिंक (सीडिंग) कराने हेतु आवेदन',
@@ -123,18 +110,10 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
       const _TextSegment('\n\n', false),
       const _TextSegment('सविनय निवेदन है कि मैं, ', false),
       _TextSegment(name.isEmpty ? '……………………' : name, name.isEmpty),
-      const _TextSegment(' (नाम),', false),
-      const _TextSegment('\nपिता/पति का नाम ', false),
-      _TextSegment(
-        fatherName.isEmpty ? '……………………' : fatherName,
-        fatherName.isEmpty,
-      ),
       const _TextSegment(', निवासी ', false),
       _TextSegment(address.isEmpty ? '……………………' : address, address.isEmpty),
       const _TextSegment(',', false),
-      const _TextSegment('\nआपके बैंक की ', false),
-      _TextSegment(branch.isEmpty ? '…………' : branch, branch.isEmpty),
-      const _TextSegment(' शाखा में मेरा खाता संख्या ', false),
+      const _TextSegment('\nआपके बैंक की शाखा में मेरा खाता संख्या ', false),
       _TextSegment(accNo.isEmpty ? '……………………' : accNo, accNo.isEmpty),
       const _TextSegment(' संचालित है।', false),
       const _TextSegment('\n\n', false),
@@ -143,8 +122,7 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
         aadharNo.isEmpty ? '________________' : aadharNo,
         aadharNo.isEmpty,
       ),
-      const _TextSegment(' (12 अंकों का आधार नंबर),', false),
-      const _TextSegment('\nजो कि आधार कार्ड के अनुसार नाम ', false),
+      const _TextSegment(' जो कि आधार कार्ड के अनुसार नाम ', false),
       _TextSegment(
         aadharCardName.isEmpty ? '……………………' : aadharCardName,
         aadharCardName.isEmpty,
@@ -404,14 +382,7 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
               controller: _nameCtrl,
               fieldKey: 'aadhar_name',
               label: 'आवेदक का नाम',
-              hint: 'जैसे : राम प्रसाद',
-              onChanged: (_) => setState(() {}),
-            ),
-            SuggestibleInputField(
-              controller: _fatherNameCtrl,
-              fieldKey: 'aadhar_father',
-              label: 'पिता/पति का नाम',
-              hint: 'जैसे : मोहन प्रसाद',
+              hint: 'जैसे : सामून अली पुत्र अब्दुल वहाब इस तरह लिखें',
               onChanged: (_) => setState(() {}),
             ),
             SuggestibleInputField(
@@ -436,16 +407,6 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
               hint: 'जैसे : 1234 5678 9012',
               keyboardType: TextInputType.number,
               onChanged: (_) => setState(() {}),
-            ),
-            SuggestibleInputField(
-              controller: _aadharCardNameCtrl,
-              fieldKey: 'aadhar_card_name',
-              label: 'आधार कार्ड पर नाम',
-              hint: 'जैसे : राम प्रसाद (आधार कार्ड के अनुसार)',
-              onChanged: (_) {
-                _aadharNameManuallyEdited = true;
-                setState(() {});
-              },
             ),
             SuggestibleInputField(
               controller: _mobileCtrl,
@@ -614,30 +575,26 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
                   Flexible(child: valueText(accNo, '……………')),
                 ],
               ),
+              SizedBox(height: resolvedFontSize * 1.8),
+              Text('हस्ताक्षर / अंगूठा – ………………………', style: baseStyle),
             ],
           ),
         ),
 
         SizedBox(height: resolvedFontSize * 1.8),
 
-        // ── Date left, हस्ताक्षर right ──
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            RichText(
-              text: TextSpan(
-                style: baseStyle,
-                children: [
-                  const TextSpan(text: 'दिनांक – '),
-                  TextSpan(
-                    text: date.isEmpty ? '……………' : date,
-                    style: date.isEmpty ? phStyle : null,
-                  ),
-                ],
+        // ── Date bottom-left ──
+        RichText(
+          text: TextSpan(
+            style: baseStyle,
+            children: [
+              const TextSpan(text: 'दिनांक – '),
+              TextSpan(
+                text: date.isEmpty ? '……………' : date,
+                style: date.isEmpty ? phStyle : null,
               ),
-            ),
-            Flexible(child: Text('हस्ताक्षर – ………………………', style: baseStyle)),
-          ],
+            ],
+          ),
         ),
       ],
     );
