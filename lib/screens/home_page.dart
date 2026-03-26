@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../services/ad_service.dart';
 import '../widgets/unlock_sheet.dart';
+import 'aadhar_seeding_editor_screen.dart';
 import 'application_editor_screen.dart';
 import 'asha_editor_screen.dart';
 import 'custom_layout_one_editor_screen.dart';
@@ -64,6 +65,13 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.verified_user_rounded,
       color: Color(0xFFC62828),
     ),
+    _TemplateItem(
+      id: 'aadhar_seeding',
+      title: 'आधार सीडिंग कराने हेतु आवेदन',
+      subtitle: 'बैंक खाते से आधार संख्या लिंक (सीडिंग) कराने का आवेदन',
+      icon: Icons.fingerprint_rounded,
+      color: Color(0xFF00897B),
+    ),
   ];
 
   static const _categories = <_CategorySection>[
@@ -86,7 +94,7 @@ class _HomePageState extends State<HomePage> {
       title: 'बैंकिंग',
       subtitle: 'खाते और सेवा अपडेट आवेदन',
       icon: Icons.account_balance_rounded,
-      itemIds: ['bima_hatao', 'mobile_update'],
+      itemIds: ['bima_hatao', 'mobile_update', 'aadhar_seeding'],
     ),
   ];
 
@@ -208,6 +216,8 @@ class _HomePageState extends State<HomePage> {
         screen = AshaEditorScreen(onPdfSaved: widget.onPdfSaved);
       case 'parmaan_patr':
         screen = ParmaanPatrEditorScreen(onPdfSaved: widget.onPdfSaved);
+      case 'aadhar_seeding':
+        screen = AadharSeedingEditorScreen(onPdfSaved: widget.onPdfSaved);
       default:
         screen = ApplicationEditorScreen(onPdfSaved: widget.onPdfSaved);
     }
