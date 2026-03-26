@@ -240,10 +240,8 @@ class _CustomLayoutOneEditorScreenState
       builder: (_) => PdfSuccessSheet(
         fileName: fileName,
         onViewSaved: () {
-          final nav = Navigator.of(context);
-          nav.pop();
-          nav.pop();
           widget.onPdfSaved?.call();
+          Navigator.of(context).popUntil((route) => route.isFirst);
         },
         onMakeAnother: () {
           Navigator.of(context).pop();

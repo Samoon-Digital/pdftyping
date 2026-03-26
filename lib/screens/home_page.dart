@@ -442,24 +442,14 @@ class _DashboardHeroCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Row(
-                  children: List.generate(
-                    4,
-                    (index) => Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(right: index == 3 ? 0 : 8),
-                        child: _HeroLayoutPreview(
-                          background: primaryContainer,
-                          lineColor: onPrimaryContainer.withValues(alpha: 0.85),
-                          accent: index == 0
-                              ? primaryContainer
-                              : index == 1
-                              ? primaryContainer.withValues(alpha: 0.92)
-                              : index == 2
-                              ? primaryContainer.withValues(alpha: 0.84)
-                              : primaryContainer.withValues(alpha: 0.76),
-                        ),
-                      ),
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: const Text(
+                    'अपना बेस लेआउट चुनें',
+                    style: TextStyle(
+                      fontFamily: 'NotoSansDevanagari',
+                      fontSize: 14,
+                      color: Color(0xFFEFF6FF),
                     ),
                   ),
                 ),

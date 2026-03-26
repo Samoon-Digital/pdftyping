@@ -270,10 +270,8 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
       builder: (_) => PdfSuccessSheet(
         fileName: fileName,
         onViewSaved: () {
-          final nav = Navigator.of(context);
-          nav.pop(); // dismiss sheet
-          nav.pop(); // pop editor → back to shell
-          widget.onPdfSaved?.call(); // switch to Saved tab + trigger ad
+          widget.onPdfSaved?.call();
+          Navigator.of(context).popUntil((route) => route.isFirst);
         },
         onMakeAnother: () {
           Navigator.of(context).pop(); // dismiss sheet, stay on editor
