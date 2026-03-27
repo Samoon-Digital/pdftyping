@@ -5,13 +5,15 @@ import 'package:flutter/rendering.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import '../services/pdf_saver.dart';
 import '../widgets/suggestible_input_field.dart';
 import '../widgets/pdf_generation_widgets.dart';
 
 class ApplicationEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
-  const ApplicationEditorScreen({super.key, this.onPdfSaved});
+  final String? editorTitle;
+  const ApplicationEditorScreen({super.key, this.onPdfSaved, this.editorTitle});
 
   @override
   State<ApplicationEditorScreen> createState() =>
@@ -51,6 +53,11 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     final now = DateTime.now();
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+    // Analytics: log editor open with provided title (if any)
+    FirebaseAnalytics.instance.logEvent(
+      name: 'editor_open',
+      parameters: {'editor_title': widget.editorTitle ?? 'application_editor'},
+    );
   }
 
   // ── Date picker ──

@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 
 import '../services/pdf_saver.dart';
 import '../widgets/pdf_generation_widgets.dart';
@@ -13,7 +14,12 @@ import '../widgets/suggestible_input_field.dart';
 
 class AadharSeedingEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
-  const AadharSeedingEditorScreen({super.key, this.onPdfSaved});
+  final String? editorTitle;
+  const AadharSeedingEditorScreen({
+    super.key,
+    this.onPdfSaved,
+    this.editorTitle,
+  });
 
   @override
   State<AadharSeedingEditorScreen> createState() =>
@@ -42,6 +48,13 @@ class _AadharSeedingEditorScreenState extends State<AadharSeedingEditorScreen> {
     final now = DateTime.now();
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+
+    FirebaseAnalytics.instance.logEvent(
+      name: 'editor_open',
+      parameters: {
+        'editor_title': widget.editorTitle ?? 'aadhar_seeding_editor',
+      },
+    );
 
     // Always mirror applicant name → aadhar card name
     _nameCtrl.addListener(() {

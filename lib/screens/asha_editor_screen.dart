@@ -5,13 +5,15 @@ import 'package:flutter/rendering.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import '../services/pdf_saver.dart';
 import '../widgets/suggestible_input_field.dart';
 import '../widgets/pdf_generation_widgets.dart';
 
 class AshaEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
-  const AshaEditorScreen({super.key, this.onPdfSaved});
+  final String? editorTitle;
+  const AshaEditorScreen({super.key, this.onPdfSaved, this.editorTitle});
 
   @override
   State<AshaEditorScreen> createState() => _AshaEditorScreenState();
@@ -49,6 +51,11 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
     final now = DateTime.now();
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
+
+    FirebaseAnalytics.instance.logEvent(
+      name: 'editor_open',
+      parameters: {'editor_title': widget.editorTitle ?? 'asha_editor'},
+    );
   }
 
   Future<void> _pickBirthDate() async {

@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
 import '../services/ad_service.dart';
@@ -11,6 +11,9 @@ import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
 import 'parmaan_patr_editor_screen.dart';
 import 'profile_screen.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -107,6 +110,70 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _loadUnlockStates();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _maybeAskNotificationPermission();
+    });
+  }
+
+  Future<void> _maybeAskNotificationPermission() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final seenBefore = prefs.getBool('home_seen_before') ?? false;
+      if (!seenBefore) {
+        await prefs.setBool('home_seen_before', true);
+        return; // first visit — do not prompt
+      }
+      final alreadyPrompted =
+          prefs.getBool('notifications_prompt_shown') ?? false;
+      if (alreadyPrompted) return;
+
+      final settings = await FirebaseMessaging.instance
+          .getNotificationSettings();
+      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+          settings.authorizationStatus == AuthorizationStatus.provisional) {
+        await prefs.setBool('notifications_prompt_shown', true);
+        return; // already allowed
+      }
+
+      if (!mounted) return;
+      final allow = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('सूचना अनुमति'),
+          content: const Text(
+            'हम महत्वपूर्ण सूचनाएं भेजने के लिए अनुमति चाहते हैं। क्या आप अनुमति देंगे?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('बाद में करें'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('अनुमति दें'),
+            ),
+          ],
+        ),
+      );
+
+      await prefs.setBool('notifications_prompt_shown', true);
+      if (allow == true) {
+        final perm = await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+          provisional: false,
+        );
+        await FirebaseAnalytics.instance.logEvent(
+          name: 'notification_permission',
+          parameters: {'status': perm.authorizationStatus.toString()},
+        );
+        final token = await FirebaseMessaging.instance.getToken();
+        if (kDebugMode) print('FCM token (after permission): $token');
+      }
+    } catch (_) {
+      // ignore errors — don't block the UI
+    }
   }
 
   Future<void> _loadUnlockStates() async {
@@ -120,7 +187,7 @@ class _HomePageState extends State<HomePage> {
   Future<void> _onTemplateTap(_TemplateItem t) async {
     if (kIsWeb || _unlocked[t.id] == true) {
       // Web: all templates free | Mobile: already unlocked
-      _openEditor(t.id);
+      _openEditor(t.id, t.title);
       return;
     }
 
@@ -148,7 +215,7 @@ class _HomePageState extends State<HomePage> {
             duration: const Duration(seconds: 2),
           ),
         );
-        _openEditor(t.id);
+        _openEditor(t.id, t.title);
       }
     }
   }
@@ -205,21 +272,38 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openEditor(String templateId) {
+  void _openEditor(String templateId, String templateTitle) {
     final Widget screen;
-    switch (templateId) {
-      case 'mobile_update':
-        screen = MobileUpdateEditorScreen(onPdfSaved: widget.onPdfSaved);
-      case 'death_grameen':
-        screen = DeathGrameenEditorScreen(onPdfSaved: widget.onPdfSaved);
-      case 'asha_janm':
-        screen = AshaEditorScreen(onPdfSaved: widget.onPdfSaved);
-      case 'parmaan_patr':
-        screen = ParmaanPatrEditorScreen(onPdfSaved: widget.onPdfSaved);
-      case 'aadhar_seeding':
-        screen = AadharSeedingEditorScreen(onPdfSaved: widget.onPdfSaved);
-      default:
-        screen = ApplicationEditorScreen(onPdfSaved: widget.onPdfSaved);
+    if (templateId == 'mobile_update') {
+      screen = MobileUpdateEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else if (templateId == 'death_grameen') {
+      screen = DeathGrameenEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else if (templateId == 'asha_janm') {
+      screen = AshaEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else if (templateId == 'parmaan_patr') {
+      screen = ParmaanPatrEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else if (templateId == 'aadhar_seeding') {
+      screen = AadharSeedingEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else {
+      screen = ApplicationEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
     }
     Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
   }
