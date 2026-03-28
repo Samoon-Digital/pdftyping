@@ -116,9 +116,9 @@ class _SabhashadMrityuEditorScreenState
         name.isEmpty,
       ),
       const _SabMrityuSegment(' मकान संख्या ', false),
-      _SabMrityuSegment(makan.isEmpty ? '35/ए' : makan, makan.isEmpty),
+      _SabMrityuSegment(makan.isEmpty ? '******' : makan, makan.isEmpty),
       const _SabMrityuSegment(' वार्ड संख्या ', false),
-      _SabMrityuSegment(ward.isEmpty ? '8' : ward, ward.isEmpty),
+      _SabMrityuSegment(ward.isEmpty ? '******' : ward, ward.isEmpty),
       const _SabMrityuSegment(' मोहल्ला ', false),
       _SabMrityuSegment(
         mohallah.isEmpty ? 'पठान 2' : mohallah,
@@ -415,16 +415,7 @@ class _SabhashadMrityuEditorScreenState
               onTap: _pickMrityuDate,
               suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
             ),
-            SuggestibleInputField(
-              controller: _mrityuMohallahCtrl,
-              fieldKey: 'sab_mrityu_mrityu_mohallah',
-              label: 'मृत्यु मोहल्ला',
-              hint: 'जैसे : पठान 2 (स्वतः भर जाता है)',
-              onChanged: (_) {
-                _mrityuMohallahManuallyEdited = true;
-                setState(() {});
-              },
-            ),
+            // मृत्यु मोहल्ला इनपुट छिपाया गया — यह स्वतः निवासी मोहल्ला से भरेगा
             SuggestibleInputField(
               controller: _dateCtrl,
               fieldKey: 'sab_mrityu_cert_date',
@@ -577,7 +568,7 @@ class _SabhashadMrityuEditorScreenState
             ),
             Padding(
               padding: EdgeInsets.only(right: fontSize != null ? 23 : 0),
-              child: Text('आशा हस्ताक्षर/ मोहर', style: baseStyle),
+              child: Text('सभासद हस्ताक्षर/ मोहर', style: baseStyle),
             ),
           ],
         ),
