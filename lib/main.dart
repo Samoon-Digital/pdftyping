@@ -88,6 +88,27 @@ void main() async {
     }
   });
 
+  // Handle user tapping a notification when the app is in background
+  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    print('Notification caused app to open: ${message.messageId}');
+    FirebaseAnalytics.instance.logEvent(
+      name: 'notification_opened',
+      parameters: {'id': message.messageId ?? ''},
+    );
+  });
+
+  // Handle app opened from a terminated state via a notification
+  final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null) {
+    print(
+      'App opened from terminated state by notification: ${initialMessage.messageId}',
+    );
+    FirebaseAnalytics.instance.logEvent(
+      name: 'notification_opened_initial',
+      parameters: {'id': initialMessage.messageId ?? ''},
+    );
+  }
+
   // Log open event (analytics)
   FirebaseAnalytics.instance.logAppOpen();
 

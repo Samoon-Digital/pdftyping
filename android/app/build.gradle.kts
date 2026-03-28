@@ -68,5 +68,6 @@ flutter {
 apply(plugin = "com.google.gms.google-services")
 
 dependencies {
+    implementation("com.android.billingclient:billing:8.1.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
