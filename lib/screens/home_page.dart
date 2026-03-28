@@ -12,6 +12,7 @@ import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
 import 'parmaan_patr_editor_screen.dart';
 import 'shahri_sabhashad_editor_screen.dart';
+import 'sabhashad_mrityu_editor_screen.dart';
 import 'profile_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -64,6 +65,13 @@ class _HomePageState extends State<HomePage> {
       color: Color(0xFF00838F),
     ),
     _TemplateItem(
+      id: 'sabhashad_mrityu',
+      title: 'सभासद द्वारा प्रमाणित मृत्यु प्रमाण पत्र - शहरी',
+      subtitle: 'शहरी क्षेत्र का सभासद प्रमाणित मृत्यु प्रमाण पत्र',
+      icon: Icons.location_city_rounded,
+      color: Color(0xFF37474F),
+    ),
+    _TemplateItem(
       id: 'asha_janm_cert',
       title: 'आशा द्वारा प्रमाणित जन्म प्रमाण पत्र - ग्रामीण',
       subtitle: 'आशा प्रमाणित जन्म प्रमाण पत्र प्रारूप',
@@ -106,7 +114,12 @@ class _HomePageState extends State<HomePage> {
       title: 'जन्म / मृत्यु प्रमाण पत्र',
       subtitle: 'ग्रामीण प्रमाणन से जुड़े आवेदन प्रारूप',
       icon: Icons.fact_check_rounded,
-      itemIds: ['asha_janm', 'asha_janm_cert', 'death_grameen'],
+      itemIds: [
+        'asha_janm',
+        'sabhashad_mrityu',
+        'asha_janm_cert',
+        'death_grameen',
+      ],
     ),
     _CategorySection(
       id: 'banking',
@@ -302,6 +315,11 @@ class _HomePageState extends State<HomePage> {
       );
     } else if (templateId == 'asha_janm') {
       screen = AshaEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else if (templateId == 'sabhashad_mrityu') {
+      screen = SabhashadMrityuEditorScreen(
         onPdfSaved: widget.onPdfSaved,
         editorTitle: templateTitle,
       );
