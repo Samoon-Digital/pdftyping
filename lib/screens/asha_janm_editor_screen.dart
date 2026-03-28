@@ -10,39 +10,42 @@ import '../services/pdf_saver.dart';
 import '../widgets/suggestible_input_field.dart';
 import '../widgets/pdf_generation_widgets.dart';
 
-class AshaEditorScreen extends StatefulWidget {
+// ─────────────────────────────────────────────────────────────────────────────
+// आशा द्वारा प्रमाणित जन्म प्रमाण पत्र - ग्रामीण
+// ─────────────────────────────────────────────────────────────────────────────
+class AshaJanmEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
   final String? editorTitle;
-  const AshaEditorScreen({super.key, this.onPdfSaved, this.editorTitle});
+  const AshaJanmEditorScreen({super.key, this.onPdfSaved, this.editorTitle});
 
   @override
-  State<AshaEditorScreen> createState() => _AshaEditorScreenState();
+  State<AshaJanmEditorScreen> createState() => _AshaJanmEditorScreenState();
 }
 
-class _AshaEditorScreenState extends State<AshaEditorScreen> {
+class _AshaJanmEditorScreenState extends State<AshaJanmEditorScreen> {
   final _nameCtrl = TextEditingController();
   final _gramCtrl = TextEditingController();
   final _postCtrl = TextEditingController();
   final _vikasKhandCtrl = TextEditingController();
   final _tehsilCtrl = TextEditingController();
   final _jilaCtrl = TextEditingController();
-  final _mrityuDateCtrl = TextEditingController();
-  final _mrityuGramCtrl = TextEditingController();
+  final _birthDateCtrl = TextEditingController();
+  final _janmGramCtrl = TextEditingController();
   final _dateCtrl = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  bool _mrityuGramManuallyEdited = false;
+  bool _janmGramManuallyEdited = false;
   int _step = 0;
 
   @override
   void initState() {
     super.initState();
-    // Auto-fill मृत्यु ग्राम from निवासी ग्राम unless manually edited
+    // Auto-fill जन्म का ग्राम from निवासी ग्राम unless manually edited
     _gramCtrl.addListener(() {
-      if (!_mrityuGramManuallyEdited) {
+      if (!_janmGramManuallyEdited) {
         final val = _gramCtrl.text;
-        if (_mrityuGramCtrl.text != val) {
-          _mrityuGramCtrl.text = val;
+        if (_janmGramCtrl.text != val) {
+          _janmGramCtrl.text = val;
           setState(() {});
         }
       }
@@ -54,11 +57,11 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
 
     FirebaseAnalytics.instance.logEvent(
       name: 'editor_open',
-      parameters: {'editor_title': widget.editorTitle ?? 'asha_mrityu_editor'},
+      parameters: {'editor_title': widget.editorTitle ?? 'asha_janm_editor'},
     );
   }
 
-  Future<void> _pickMrityuDate() async {
+  Future<void> _pickBirthDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
@@ -68,7 +71,7 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
       locale: const Locale('hi', 'IN'),
     );
     if (picked != null && mounted) {
-      _mrityuDateCtrl.text =
+      _birthDateCtrl.text =
           '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
       setState(() {});
     }
@@ -91,50 +94,50 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
   }
 
   // ── Build body text segments ──
-  List<_TextSegment> _buildDocumentSegments() {
+  List<_JanmTextSegment> _buildDocumentSegments() {
     final name = _nameCtrl.text.trim();
     final gram = _gramCtrl.text.trim();
     final post = _postCtrl.text.trim();
     final vikasKhand = _vikasKhandCtrl.text.trim();
     final tehsil = _tehsilCtrl.text.trim();
     final jila = _jilaCtrl.text.trim();
-    final mrityuDate = _mrityuDateCtrl.text.trim();
-    final mrityuGram = _mrityuGramCtrl.text.trim();
+    final birthDate = _birthDateCtrl.text.trim();
+    final janmGram = _janmGramCtrl.text.trim();
 
     return [
-      const _TextSegment('प्रमाणित किया जाता है कि ', false),
-      _TextSegment(
+      const _JanmTextSegment('प्रमाणित किया जाता है कि ', false),
+      _JanmTextSegment(
         name.isEmpty ? 'फलक नाज पुत्री कमाल अहमद' : name,
         name.isEmpty,
       ),
-      const _TextSegment(' ग्राम ', false),
-      _TextSegment(gram.isEmpty ? 'गदनिया' : gram, gram.isEmpty),
-      const _TextSegment(' पोस्ट ', false),
-      _TextSegment(post.isEmpty ? 'त्रिकौलिया' : post, post.isEmpty),
-      const _TextSegment(' विकास खण्ड ', false),
-      _TextSegment(
+      const _JanmTextSegment(' ग्राम ', false),
+      _JanmTextSegment(gram.isEmpty ? 'गदनिया' : gram, gram.isEmpty),
+      const _JanmTextSegment(' पोस्ट ', false),
+      _JanmTextSegment(post.isEmpty ? 'त्रिकौलिया' : post, post.isEmpty),
+      const _JanmTextSegment(' विकास खण्ड ', false),
+      _JanmTextSegment(
         vikasKhand.isEmpty ? 'पलिया कलां' : vikasKhand,
         vikasKhand.isEmpty,
       ),
-      const _TextSegment(' तहसील ', false),
-      _TextSegment(tehsil.isEmpty ? 'पलिया कलां' : tehsil, tehsil.isEmpty),
-      const _TextSegment(' जिला ', false),
-      _TextSegment(jila.isEmpty ? 'लखीमपुर खीरी' : jila, jila.isEmpty),
-      const _TextSegment(
-        '  की / के मूल निवासी / निवासनी हैं  इनकी मृत्यु दिनांक ',
+      const _JanmTextSegment(' तहसील ', false),
+      _JanmTextSegment(tehsil.isEmpty ? 'पलिया कलां' : tehsil, tehsil.isEmpty),
+      const _JanmTextSegment(' जिला ', false),
+      _JanmTextSegment(jila.isEmpty ? 'लखीमपुर खीरी' : jila, jila.isEmpty),
+      const _JanmTextSegment(
+        '  की / के मूल निवासी / निवासनी हैं  इनका जन्म दिनांक ',
         false,
       ),
-      _TextSegment(
-        mrityuDate.isEmpty ? 'मृत्यु दिनांक' : mrityuDate,
-        mrityuDate.isEmpty,
+      _JanmTextSegment(
+        birthDate.isEmpty ? 'जन्म दिनांक' : birthDate,
+        birthDate.isEmpty,
       ),
-      const _TextSegment(' को  अपने ग्राम ', false),
-      _TextSegment(
-        mrityuGram.isEmpty ? 'गदनिया' : mrityuGram,
-        mrityuGram.isEmpty,
+      const _JanmTextSegment(' को  अपने ग्राम ', false),
+      _JanmTextSegment(
+        janmGram.isEmpty ? 'गदनिया' : janmGram,
+        janmGram.isEmpty,
       ),
-      const _TextSegment(
-        ' के निजी आवास  पर हुई है  मैं इनको भली भांति जानती व पहचानती हूँ',
+      const _JanmTextSegment(
+        ' के निजी आवास  पर हुआ है  मैं इनको भली भांति जानती व पहचानती हूँ',
         false,
       ),
     ];
@@ -248,7 +251,7 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
         '${now.hour.toString().padLeft(2, '0')}${now.minute.toString().padLeft(2, '0')}${now.second.toString().padLeft(2, '0')}';
     final safeName = name.replaceAll(RegExp(r'[^\w\u0900-\u097F ]'), '').trim();
     final fileName =
-        'मृत्यु_प्रमाण_${safeName.isNotEmpty ? safeName : 'प्रमाण'}_$stamp.pdf';
+        'जन्म_प्रमाण_${safeName.isNotEmpty ? safeName : 'प्रमाण'}_$stamp.pdf';
     final pdfBytes = await pdf.save();
 
     if (kIsWeb) {
@@ -310,8 +313,8 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
     _vikasKhandCtrl.dispose();
     _tehsilCtrl.dispose();
     _jilaCtrl.dispose();
-    _mrityuDateCtrl.dispose();
-    _mrityuGramCtrl.dispose();
+    _birthDateCtrl.dispose();
+    _janmGramCtrl.dispose();
     _dateCtrl.dispose();
     super.dispose();
   }
@@ -325,9 +328,7 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            _step == 0 ? 'मृत्यु प्रमाण पत्र' : 'प्रमाण पत्र प्रीव्यू',
-          ),
+          title: Text(_step == 0 ? 'जन्म प्रमाण पत्र' : 'प्रमाण पत्र प्रीव्यू'),
           leading: _step == 1
               ? IconButton(
                   icon: const Icon(Icons.arrow_back),
@@ -358,68 +359,68 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
 
             SuggestibleInputField(
               controller: _nameCtrl,
-              fieldKey: 'asha_name',
+              fieldKey: 'asha_janm_name',
               label: 'नाम',
               hint: 'जैसे : फलक नाज पुत्री कमाल अहमद',
               onChanged: (_) => setState(() {}),
             ),
             SuggestibleInputField(
               controller: _gramCtrl,
-              fieldKey: 'asha_gram',
+              fieldKey: 'asha_janm_gram',
               label: 'निवासी ग्राम',
               hint: 'जैसे : गदनिया',
               onChanged: (_) => setState(() {}),
             ),
             SuggestibleInputField(
               controller: _postCtrl,
-              fieldKey: 'asha_post',
+              fieldKey: 'asha_janm_post',
               label: 'पोस्ट',
               hint: 'जैसे : त्रिकौलिया',
               onChanged: (_) => setState(() {}),
             ),
             SuggestibleInputField(
               controller: _vikasKhandCtrl,
-              fieldKey: 'asha_vikas_khand',
+              fieldKey: 'asha_janm_vikas_khand',
               label: 'विकास खंड (ब्लॉक)',
               hint: 'जैसे : पलिया कलां',
               onChanged: (_) => setState(() {}),
             ),
             SuggestibleInputField(
               controller: _tehsilCtrl,
-              fieldKey: 'asha_tehsil',
+              fieldKey: 'asha_janm_tehsil',
               label: 'तहसील',
               hint: 'जैसे : पलिया कलां',
               onChanged: (_) => setState(() {}),
             ),
             SuggestibleInputField(
               controller: _jilaCtrl,
-              fieldKey: 'asha_jila',
+              fieldKey: 'asha_janm_jila',
               label: 'जिला',
               hint: 'जैसे : लखीमपुर खीरी',
               onChanged: (_) => setState(() {}),
             ),
             SuggestibleInputField(
-              controller: _mrityuDateCtrl,
-              fieldKey: 'asha_mrityu_date',
-              label: 'मृत्यु दिनांक',
+              controller: _birthDateCtrl,
+              fieldKey: 'asha_janm_birth_date',
+              label: 'जन्म दिनांक',
               hint: 'जैसे : 10/03/2026',
               readOnly: true,
-              onTap: _pickMrityuDate,
+              onTap: _pickBirthDate,
               suffixIcon: const Icon(Icons.calendar_today_rounded, size: 20),
             ),
             SuggestibleInputField(
-              controller: _mrityuGramCtrl,
-              fieldKey: 'asha_mrityu_gram',
-              label: 'मृत्यु ग्राम',
+              controller: _janmGramCtrl,
+              fieldKey: 'asha_janm_janm_gram',
+              label: 'जन्म का ग्राम',
               hint: 'जैसे : गदनिया (स्वतः भर जाता है)',
               onChanged: (_) {
-                _mrityuGramManuallyEdited = true;
+                _janmGramManuallyEdited = true;
                 setState(() {});
               },
             ),
             SuggestibleInputField(
               controller: _dateCtrl,
-              fieldKey: 'asha_cert_date',
+              fieldKey: 'asha_janm_cert_date',
               label: 'प्रमाण पत्र दिनांक',
               hint: 'जैसे : 15/03/2026',
               readOnly: true,
@@ -526,7 +527,7 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
         Align(
           alignment: Alignment.center,
           child: Text(
-            'ग्राम पंचायत आशा द्वारा प्रमाणित\nमृत्यु प्रमाण पत्र - ग्रामीण',
+            'ग्राम पंचायत आशा द्वारा प्रमाणित\nजन्म प्रमाण पत्र - ग्रामीण',
             style: headingStyle,
             textAlign: TextAlign.center,
           ),
@@ -579,8 +580,8 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
 }
 
 // ── Text segment: normal or placeholder ──
-class _TextSegment {
+class _JanmTextSegment {
   final String text;
   final bool isPlaceholder;
-  const _TextSegment(this.text, this.isPlaceholder);
+  const _JanmTextSegment(this.text, this.isPlaceholder);
 }

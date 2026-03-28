@@ -6,6 +6,7 @@ import '../widgets/unlock_sheet.dart';
 import 'aadhar_seeding_editor_screen.dart';
 import 'application_editor_screen.dart';
 import 'asha_editor_screen.dart';
+import 'asha_janm_editor_screen.dart';
 import 'custom_layout_one_editor_screen.dart';
 import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
@@ -56,10 +57,17 @@ class _HomePageState extends State<HomePage> {
     ),
     _TemplateItem(
       id: 'asha_janm',
-      title: 'ग्राम पंचायत आशा द्वारा प्रमाणित मृत्यु प्रमाण पत्र',
-      subtitle: 'आशा प्रमाणन श्रेणी का प्रमाण पत्र',
+      title: 'आशा द्वारा प्रमाणित मृत्यु प्रमाण पत्र - ग्रामीण',
+      subtitle: 'आशा प्रमाणित मृत्यु प्रमाण पत्र प्रारूप',
       icon: Icons.child_care_rounded,
       color: Color(0xFF00838F),
+    ),
+    _TemplateItem(
+      id: 'asha_janm_cert',
+      title: 'आशा द्वारा प्रमाणित जन्म प्रमाण पत्र - ग्रामीण',
+      subtitle: 'आशा प्रमाणित जन्म प्रमाण पत्र प्रारूप',
+      icon: Icons.child_friendly_rounded,
+      color: Color(0xFF2E7D32),
     ),
     _TemplateItem(
       id: 'parmaan_patr',
@@ -90,7 +98,7 @@ class _HomePageState extends State<HomePage> {
       title: 'जन्म / मृत्यु प्रमाण पत्र',
       subtitle: 'ग्रामीण प्रमाणन से जुड़े आवेदन प्रारूप',
       icon: Icons.fact_check_rounded,
-      itemIds: ['asha_janm', 'death_grameen'],
+      itemIds: ['asha_janm', 'asha_janm_cert', 'death_grameen'],
     ),
     _CategorySection(
       id: 'banking',
@@ -286,6 +294,11 @@ class _HomePageState extends State<HomePage> {
       );
     } else if (templateId == 'asha_janm') {
       screen = AshaEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else if (templateId == 'asha_janm_cert') {
+      screen = AshaJanmEditorScreen(
         onPdfSaved: widget.onPdfSaved,
         editorTitle: templateTitle,
       );
