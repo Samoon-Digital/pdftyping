@@ -37,7 +37,7 @@ class _SabhashadMrityuEditorScreenState
   final _dateCtrl = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  bool _mrityuMohallahManuallyEdited = false;
+  final bool _mrityuMohallahManuallyEdited = false;
   int _step = 0;
 
   @override

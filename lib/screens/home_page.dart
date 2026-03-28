@@ -459,7 +459,6 @@ class _CategorySection {
     required this.subtitle,
     required this.icon,
     required this.itemIds,
-    this.dividerAfterItemId,
   });
 }
 
