@@ -11,6 +11,7 @@ import 'custom_layout_one_editor_screen.dart';
 import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
 import 'parmaan_patr_editor_screen.dart';
+import 'shahri_sabhashad_editor_screen.dart';
 import 'profile_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -77,6 +78,13 @@ class _HomePageState extends State<HomePage> {
       color: Color(0xFFC62828),
     ),
     _TemplateItem(
+      id: 'shahri_sabhashad',
+      title: 'सभासद द्वारा प्रमाणित प्रमाण पत्र',
+      subtitle: 'शहरी क्षेत्र का आय / जाति / निवास प्रमाण पत्र',
+      icon: Icons.location_city_rounded,
+      color: Color(0xFF6A1B9A),
+    ),
+    _TemplateItem(
       id: 'aadhar_seeding',
       title: 'आधार सीडिंग कराने हेतु आवेदन',
       subtitle: 'बैंक खाते से आधार संख्या लिंक (सीडिंग) कराने का आवेदन',
@@ -91,7 +99,7 @@ class _HomePageState extends State<HomePage> {
       title: 'जाति • आय • निवास',
       subtitle: 'प्रमाणित पत्र और सत्यापन प्रारूप',
       icon: Icons.verified_user_rounded,
-      itemIds: ['parmaan_patr'],
+      itemIds: ['parmaan_patr', 'shahri_sabhashad'],
     ),
     _CategorySection(
       id: 'birth_death',
@@ -304,6 +312,11 @@ class _HomePageState extends State<HomePage> {
       );
     } else if (templateId == 'parmaan_patr') {
       screen = ParmaanPatrEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else if (templateId == 'shahri_sabhashad') {
+      screen = ShahriSabhashadEditorScreen(
         onPdfSaved: widget.onPdfSaved,
         editorTitle: templateTitle,
       );
