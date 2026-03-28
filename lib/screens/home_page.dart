@@ -450,6 +450,8 @@ class _CategorySection {
   final String subtitle;
   final IconData icon;
   final List<String> itemIds;
+  // ID of item after which a शहरी/ग्रामीण divider is inserted
+  final String? dividerAfterItemId;
 
   const _CategorySection({
     required this.id,
@@ -457,6 +459,7 @@ class _CategorySection {
     required this.subtitle,
     required this.icon,
     required this.itemIds,
+    this.dividerAfterItemId,
   });
 }
 
@@ -833,40 +836,107 @@ class _CategoryTemplatesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dividerIdx = category.dividerAfterItemId != null
+        ? items.indexWhere((t) => t.id == category.dividerAfterItemId)
+        : -1;
+
+    final rows = <Widget>[];
+
+    // Subtitle card
+    rows.add(
+      Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Text(
+          category.subtitle,
+          style: const TextStyle(
+            fontFamily: 'NotoSansDevanagari',
+            fontSize: 13,
+            height: 1.45,
+            color: Color(0xFF64748B),
+          ),
+        ),
+      ),
+    );
+
+    for (int i = 0; i < items.length; i++) {
+      // Section label before first shahri item
+      if (dividerIdx >= 0 && i == 0) {
+        rows.add(const SizedBox(height: 16));
+        rows.add(_buildSectionLabel('शहरी'));
+        rows.add(const SizedBox(height: 6));
+      } else {
+        rows.add(const SizedBox(height: 12));
+      }
+
+      // Divider + grameen label before grameen group
+      if (dividerIdx >= 0 && i == dividerIdx + 1) {
+        rows.add(_buildDividerRow('ग्रामीण'));
+        rows.add(const SizedBox(height: 6));
+      }
+
+      rows.add(
+        _TemplateListTile(
+          template: items[i],
+          isUnlocked: unlocked[items[i].id] == true,
+          onTap: () => onItemTap(items[i]),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(title: Text(category.title)),
-      body: ListView.separated(
+      body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        itemCount: items.length + 1,
-        separatorBuilder: (_, _) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFFE2E8F0)),
-              ),
-              child: Text(
-                category.subtitle,
-                style: const TextStyle(
-                  fontFamily: 'NotoSansDevanagari',
-                  fontSize: 13,
-                  height: 1.45,
-                  color: Color(0xFF64748B),
-                ),
-              ),
-            );
-          }
+        children: rows,
+      ),
+    );
+  }
 
-          final template = items[index - 1];
-          return _TemplateListTile(
-            template: template,
-            isUnlocked: unlocked[template.id] == true,
-            onTap: () => onItemTap(template),
-          );
-        },
+  Widget _buildSectionLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontFamily: 'NotoSansDevanagari',
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+          color: Color(0xFF6B7280),
+          letterSpacing: 0.4,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDividerRow(String label) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Divider(thickness: 1, color: Color(0xFFE5E7EB)),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10),
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontFamily: 'NotoSansDevanagari',
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+          ),
+          const Expanded(
+            child: Divider(thickness: 1, color: Color(0xFFE5E7EB)),
+          ),
+        ],
       ),
     );
   }

@@ -116,9 +116,9 @@ class _SabhashadMrityuEditorScreenState
         name.isEmpty,
       ),
       const _SabMrityuSegment(' मकान संख्या ', false),
-      _SabMrityuSegment(makan.isEmpty ? '******' : makan, makan.isEmpty),
+      _SabMrityuSegment(makan.isEmpty ? '******' : makan, false),
       const _SabMrityuSegment(' वार्ड संख्या ', false),
-      _SabMrityuSegment(ward.isEmpty ? '******' : ward, ward.isEmpty),
+      _SabMrityuSegment(ward.isEmpty ? '******' : ward, false),
       const _SabMrityuSegment(' मोहल्ला ', false),
       _SabMrityuSegment(
         mohallah.isEmpty ? 'पठान 2' : mohallah,
@@ -142,7 +142,7 @@ class _SabhashadMrityuEditorScreenState
         mrityuMohallah.isEmpty,
       ),
       const _SabMrityuSegment(
-        ' के निजी आवास  पर हुई है  मैं इनको भली भांति जानती व पहचानती हूँ',
+        ' के निजी आवास पर हुई है  मैं इनको भली भांति जानता / जानती व पहचानता / पहचानती हूँ |',
         false,
       ),
     ];
