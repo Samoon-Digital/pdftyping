@@ -526,7 +526,7 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
         Align(
           alignment: Alignment.center,
           child: Text(
-            'ग्राम पंचायत आशा द्वारा प्रमाणित\nमृत्यु प्रमाण पत्र - ग्रामीण',
+            'ग्राम पंचायत आशा द्वारा प्रमाणित\nमृत्यु प्रमाण पत्र',
             style: headingStyle,
             textAlign: TextAlign.center,
           ),
