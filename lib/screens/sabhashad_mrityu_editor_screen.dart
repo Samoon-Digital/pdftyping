@@ -9,6 +9,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import '../services/pdf_saver.dart';
 import '../widgets/suggestible_input_field.dart';
 import '../widgets/pdf_generation_widgets.dart';
+import '../widgets/web_a4_layout.dart';
 
 class SabhashadMrityuEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -262,22 +263,12 @@ class _SabhashadMrityuEditorScreenState
     final pdfBytes = await pdf.save();
 
     if (kIsWeb) {
-      await Printing.sharePdf(bytes: pdfBytes, filename: fileName);
       if (!mounted) return;
-      Navigator.of(context).pop();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            '✅ PDF डाउनलोड हो गई!',
-            style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-          ),
-          backgroundColor: const Color(0xFF2E7D32),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      await showWebPdfSuccessDialog(
+        context,
+        fileName: fileName,
+        onDownload: () =>
+            Printing.sharePdf(bytes: pdfBytes, filename: fileName),
       );
       return;
     }
@@ -345,7 +336,9 @@ class _SabhashadMrityuEditorScreenState
                 )
               : null,
         ),
-        body: _step == 0 ? _buildInputStep() : _buildReviewStep(),
+        body: WebA4Layout(
+          child: _step == 0 ? _buildInputStep() : _buildReviewStep(),
+        ),
       ),
     );
   }

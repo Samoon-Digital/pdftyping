@@ -9,6 +9,7 @@ import 'package:printing/printing.dart';
 
 import '../services/pdf_saver.dart';
 import '../widgets/pdf_generation_widgets.dart';
+import '../widgets/web_a4_layout.dart';
 
 class CustomLayoutOneEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -203,22 +204,12 @@ class _CustomLayoutOneEditorScreenState
     final pdfBytes = await pdf.save();
 
     if (kIsWeb) {
-      await Printing.sharePdf(bytes: pdfBytes, filename: fileName);
       if (!mounted) return;
-      Navigator.of(context).pop();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            '✅ PDF डाउनलोड हो गई!',
-            style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-          ),
-          backgroundColor: const Color(0xFF2E7D32),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      await showWebPdfSuccessDialog(
+        context,
+        fileName: fileName,
+        onDownload: () =>
+            Printing.sharePdf(bytes: pdfBytes, filename: fileName),
       );
       return;
     }
@@ -254,86 +245,88 @@ class _CustomLayoutOneEditorScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('लेआउट 1 एडिटर')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _buildInfoCard(),
-            const SizedBox(height: 16),
-            _buildSectionCard(
-              title: '1. संबोधन और प्राप्तकर्ता',
-              description:
-                  'पत्र की शुरुआत और receiver details एक box में लिखें।',
-              child: _EditorSectionField(
-                controller: _recipientCtrl,
-                hint: _recipientHint,
-                minLines: 5,
-                maxLines: 7,
-                onChanged: (_) => setState(() {}),
+      body: WebA4Layout(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildInfoCard(),
+              const SizedBox(height: 16),
+              _buildSectionCard(
+                title: '1. संबोधन और प्राप्तकर्ता',
+                description:
+                    'पत्र की शुरुआत और receiver details एक box में लिखें।',
+                child: _EditorSectionField(
+                  controller: _recipientCtrl,
+                  hint: _recipientHint,
+                  minLines: 5,
+                  maxLines: 7,
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            _buildSectionCard(
-              title: '2. विषय',
-              description: 'यह box केवल subject line के लिए है।',
-              child: _EditorSectionField(
-                controller: _subjectCtrl,
-                hint: _subjectHint,
-                minLines: 1,
-                maxLines: 2,
-                onChanged: (_) => setState(() {}),
+              const SizedBox(height: 14),
+              _buildSectionCard(
+                title: '2. विषय',
+                description: 'यह box केवल subject line के लिए है।',
+                child: _EditorSectionField(
+                  controller: _subjectCtrl,
+                  hint: _subjectHint,
+                  minLines: 1,
+                  maxLines: 2,
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            _buildSectionCard(
-              title: '3. मुख्य आवेदन',
-              description: 'जो paragraph PDF में दिखाना है, वह यहां लिखें।',
-              child: _EditorSectionField(
-                controller: _bodyCtrl,
-                hint: _bodyHint,
-                minLines: 7,
-                maxLines: 10,
-                onChanged: (_) => setState(() {}),
+              const SizedBox(height: 14),
+              _buildSectionCard(
+                title: '3. मुख्य आवेदन',
+                description: 'जो paragraph PDF में दिखाना है, वह यहां लिखें।',
+                child: _EditorSectionField(
+                  controller: _bodyCtrl,
+                  hint: _bodyHint,
+                  minLines: 7,
+                  maxLines: 10,
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            _buildSectionCard(
-              title: '4. समापन पंक्ति',
-              description: 'धन्यवाद या अंतिम निवेदन वाली line यहां लिखें।',
-              child: _EditorSectionField(
-                controller: _gratitudeCtrl,
-                hint: _gratitudeHint,
-                minLines: 3,
-                maxLines: 5,
-                onChanged: (_) => setState(() {}),
+              const SizedBox(height: 14),
+              _buildSectionCard(
+                title: '4. समापन पंक्ति',
+                description: 'धन्यवाद या अंतिम निवेदन वाली line यहां लिखें।',
+                child: _EditorSectionField(
+                  controller: _gratitudeCtrl,
+                  hint: _gratitudeHint,
+                  minLines: 3,
+                  maxLines: 5,
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            _buildSectionCard(
-              title: '5. फुटर',
-              description:
-                  'नीचे की पूरी signature/details block एक ही Hindi box में लिखें।',
-              child: _EditorSectionField(
-                controller: _footerCtrl,
-                hint: _footerHint,
-                minLines: 6,
-                maxLines: 8,
-                onChanged: (_) => setState(() {}),
+              const SizedBox(height: 14),
+              _buildSectionCard(
+                title: '5. फुटर',
+                description:
+                    'नीचे की पूरी signature/details block एक ही Hindi box में लिखें।',
+                child: _EditorSectionField(
+                  controller: _footerCtrl,
+                  hint: _footerHint,
+                  minLines: 6,
+                  maxLines: 8,
+                  onChanged: (_) => setState(() {}),
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            _buildPreviewCard(),
-            const SizedBox(height: 20),
-            SizedBox(
-              height: 52,
-              child: ElevatedButton.icon(
-                onPressed: _generatePdf,
-                icon: const Icon(Icons.picture_as_pdf_rounded),
-                label: const Text('पीडीएफ बनाएं'),
+              const SizedBox(height: 20),
+              _buildPreviewCard(),
+              const SizedBox(height: 20),
+              SizedBox(
+                height: 52,
+                child: ElevatedButton.icon(
+                  onPressed: _generatePdf,
+                  icon: const Icon(Icons.picture_as_pdf_rounded),
+                  label: const Text('पीडीएफ बनाएं'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
