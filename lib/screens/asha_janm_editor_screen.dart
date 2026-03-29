@@ -55,10 +55,12 @@ class _AshaJanmEditorScreenState extends State<AshaJanmEditorScreen> {
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
 
-    FirebaseAnalytics.instance.logEvent(
-      name: 'editor_open',
-      parameters: {'editor_title': widget.editorTitle ?? 'asha_janm_editor'},
-    );
+    if (!kIsWeb) {
+      FirebaseAnalytics.instance.logEvent(
+        name: 'editor_open',
+        parameters: {'editor_title': widget.editorTitle ?? 'asha_janm_editor'},
+      );
+    }
   }
 
   Future<void> _pickBirthDate() async {

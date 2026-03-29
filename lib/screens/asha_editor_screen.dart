@@ -52,10 +52,14 @@ class _AshaEditorScreenState extends State<AshaEditorScreen> {
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
 
-    FirebaseAnalytics.instance.logEvent(
-      name: 'editor_open',
-      parameters: {'editor_title': widget.editorTitle ?? 'asha_mrityu_editor'},
-    );
+    if (!kIsWeb) {
+      FirebaseAnalytics.instance.logEvent(
+        name: 'editor_open',
+        parameters: {
+          'editor_title': widget.editorTitle ?? 'asha_mrityu_editor',
+        },
+      );
+    }
   }
 
   Future<void> _pickMrityuDate() async {

@@ -54,10 +54,14 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
     // Analytics: log editor open with provided title (if any)
-    FirebaseAnalytics.instance.logEvent(
-      name: 'editor_open',
-      parameters: {'editor_title': widget.editorTitle ?? 'application_editor'},
-    );
+    if (!kIsWeb) {
+      FirebaseAnalytics.instance.logEvent(
+        name: 'editor_open',
+        parameters: {
+          'editor_title': widget.editorTitle ?? 'application_editor',
+        },
+      );
+    }
   }
 
   // ── Date picker ──

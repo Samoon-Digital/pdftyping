@@ -45,12 +45,14 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
 
-    FirebaseAnalytics.instance.logEvent(
-      name: 'editor_open',
-      parameters: {
-        'editor_title': widget.editorTitle ?? 'mobile_update_editor',
-      },
-    );
+    if (!kIsWeb) {
+      FirebaseAnalytics.instance.logEvent(
+        name: 'editor_open',
+        parameters: {
+          'editor_title': widget.editorTitle ?? 'mobile_update_editor',
+        },
+      );
+    }
   }
 
   // ── Date picker ──

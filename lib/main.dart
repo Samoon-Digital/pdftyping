@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
@@ -33,6 +34,12 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // ── Web: skip Firebase / Ads / Notifications — not supported on web ──
+  if (kIsWeb) {
+    runApp(const MainApp());
+    return;
+  }
 
   // Initialize Firebase
   await Firebase.initializeApp();

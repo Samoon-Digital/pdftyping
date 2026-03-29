@@ -57,12 +57,14 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
     _dateCtrl.text =
         '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
 
-    FirebaseAnalytics.instance.logEvent(
-      name: 'editor_open',
-      parameters: {
-        'editor_title': widget.editorTitle ?? 'death_grameen_editor',
-      },
-    );
+    if (!kIsWeb) {
+      FirebaseAnalytics.instance.logEvent(
+        name: 'editor_open',
+        parameters: {
+          'editor_title': widget.editorTitle ?? 'death_grameen_editor',
+        },
+      );
+    }
   }
 
   Future<void> _pickDeathDate() async {
