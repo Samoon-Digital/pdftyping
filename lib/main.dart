@@ -28,8 +28,35 @@ const AndroidNotificationChannel _highImportanceChannel =
 // Handles background messages
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  // TODO: handle background message (analytics, storage, etc.)
-  print('Background message received: ${message.messageId}');
+  final n = message.notification;
+  if (n == null) return; // data-only: nothing to display
+
+  final plugin = FlutterLocalNotificationsPlugin();
+  await plugin.initialize(
+    settings: const InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    ),
+  );
+  await plugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >()
+      ?.createNotificationChannel(_highImportanceChannel);
+  await plugin.show(
+    id: n.hashCode,
+    title: n.title,
+    body: n.body,
+    notificationDetails: NotificationDetails(
+      android: AndroidNotificationDetails(
+        _highImportanceChannel.id,
+        _highImportanceChannel.name,
+        channelDescription: _highImportanceChannel.description,
+        importance: Importance.max,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      ),
+    ),
+  );
 }
 
 void main() async {
@@ -55,10 +82,7 @@ void main() async {
   );
   await flutterLocalNotificationsPlugin.initialize(
     settings: initializationSettings,
-    onDidReceiveNotificationResponse: (NotificationResponse details) async {
-      // handle interaction when app is in foreground/background
-      print('Notification tapped: ${details.payload}');
-    },
+    onDidReceiveNotificationResponse: (NotificationResponse details) async {},
   );
 
   // Create Android notification channel
@@ -73,7 +97,6 @@ void main() async {
 
   // Foreground message handler -> show local notification
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Foreground message received: ${message.messageId}');
     final notification = message.notification;
     final android = message.notification?.android;
     if (notification != null && android != null) {
@@ -97,7 +120,6 @@ void main() async {
 
   // Handle user tapping a notification when the app is in background
   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    print('Notification caused app to open: ${message.messageId}');
     FirebaseAnalytics.instance.logEvent(
       name: 'notification_opened',
       parameters: {'id': message.messageId ?? ''},
@@ -107,9 +129,6 @@ void main() async {
   // Handle app opened from a terminated state via a notification
   final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null) {
-    print(
-      'App opened from terminated state by notification: ${initialMessage.messageId}',
-    );
     FirebaseAnalytics.instance.logEvent(
       name: 'notification_opened_initial',
       parameters: {'id': initialMessage.messageId ?? ''},
@@ -118,10 +137,6 @@ void main() async {
 
   // Log open event (analytics)
   FirebaseAnalytics.instance.logAppOpen();
-
-  // Print FCM token for testing
-  final token = await FirebaseMessaging.instance.getToken();
-  print('FCM token: $token');
 
   unawaited(AdService.init());
   runApp(const MainApp());

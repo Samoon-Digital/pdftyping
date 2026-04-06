@@ -17,6 +17,7 @@ import 'profile_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../services/update_service.dart';
 
 class HomePage extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -141,6 +142,7 @@ class _HomePageState extends State<HomePage> {
     _loadUnlockStates();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeAskNotificationPermission();
+      UpdateService.checkForUpdate();
     });
   }
 

@@ -24,6 +24,7 @@ dependencies:
   firebase_messaging: any
   flutter_local_notifications: any
   in_app_purchase: any
+  in_app_update: ^4.2.3
 
 dev_dependencies:
   flutter_test:
