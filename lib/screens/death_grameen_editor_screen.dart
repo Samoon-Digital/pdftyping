@@ -158,6 +158,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
       barrierColor: Colors.black45,
       builder: (_) => const PdfGeneratingDialog(),
     );
+    await Future.delayed(const Duration(milliseconds: 100));
 
     try {
       await _doGeneratePdf();

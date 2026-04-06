@@ -133,6 +133,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
       barrierColor: Colors.black45,
       builder: (_) => const PdfGeneratingDialog(),
     );
+    await Future.delayed(const Duration(milliseconds: 100));
     try {
       await _doGeneratePdf();
     } catch (_) {

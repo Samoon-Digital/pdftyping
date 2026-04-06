@@ -44,6 +44,9 @@ class _SuggestibleInputFieldState extends State<SuggestibleInputField> {
   final _focusNode = FocusNode();
   List<String> _suggestions = [];
   bool _showSuggestions = false;
+  // On web, mousedown removes focus before onPressed fires, hiding chips from
+  // the tree before the tap completes. This flag suppresses that hide.
+  bool _suppressFocusHide = false;
 
   @override
   void initState() {
@@ -73,6 +76,7 @@ class _SuggestibleInputFieldState extends State<SuggestibleInputField> {
         _refresh();
         setState(() => _showSuggestions = true);
       } else {
+        if (_suppressFocusHide) return; // chip tap in progress — don't hide
         setState(() => _showSuggestions = false);
         // Save value when field loses focus
         _save();
@@ -96,13 +100,15 @@ class _SuggestibleInputFieldState extends State<SuggestibleInputField> {
   }
 
   void _applySuggestion(String value) {
+    _suppressFocusHide = false;
     widget.controller.text = value;
     widget.controller.selection = TextSelection.collapsed(offset: value.length);
     widget.onChanged?.call(value);
-    _focusNode.unfocus();
+    setState(() => _showSuggestions = false);
   }
 
   Future<void> _deleteSuggestion(String value) async {
+    _suppressFocusHide = false;
     await SuggestionsService.instance.removeSuggestion(widget.fieldKey, value);
     _refresh();
   }
@@ -172,23 +178,31 @@ class _SuggestibleInputFieldState extends State<SuggestibleInputField> {
                 spacing: 8,
                 runSpacing: 4,
                 children: _suggestions.map((s) {
-                  return GestureDetector(
-                    onLongPress: () => _deleteSuggestion(s),
-                    child: ActionChip(
-                      label: Text(
-                        s,
-                        style: const TextStyle(
-                          fontFamily: 'NotoSansDevanagari',
-                          fontSize: 13,
+                  return Listener(
+                    // Capture pointer-down BEFORE focus leaves the text field.
+                    // On web, mousedown fires first → focus lost → chips hidden
+                    // → onPressed never fires.  Setting the flag here prevents
+                    // the focus listener from collapsing the chip list.
+                    onPointerDown: (_) =>
+                        setState(() => _suppressFocusHide = true),
+                    child: GestureDetector(
+                      onLongPress: () => _deleteSuggestion(s),
+                      child: ActionChip(
+                        label: Text(
+                          s,
+                          style: const TextStyle(
+                            fontFamily: 'NotoSansDevanagari',
+                            fontSize: 13,
+                          ),
                         ),
+                        backgroundColor: const Color(0xFFE3F2FD),
+                        side: const BorderSide(color: Color(0xFF90CAF9)),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 0,
+                        ),
+                        onPressed: () => _applySuggestion(s),
                       ),
-                      backgroundColor: const Color(0xFFE3F2FD),
-                      side: const BorderSide(color: Color(0xFF90CAF9)),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 0,
-                      ),
-                      onPressed: () => _applySuggestion(s),
                     ),
                   );
                 }).toList(),

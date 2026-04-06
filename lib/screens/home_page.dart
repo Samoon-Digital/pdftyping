@@ -490,8 +490,6 @@ class _DashboardHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final primary = theme.colorScheme.primary;
-    final primaryContainer = theme.colorScheme.primaryContainer;
-    final onPrimaryContainer = theme.colorScheme.onPrimaryContainer;
 
     return DecoratedBox(
       decoration: BoxDecoration(

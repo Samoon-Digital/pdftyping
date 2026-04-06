@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:printing/printing.dart';
+import 'dart:async';
 
 // ── Show the web PDF success dialog (call after kIsWeb PDF generation) ──
 /// Dismisses the loading dialog, then shows a centered popup with a Download
@@ -23,8 +23,36 @@ Future<void> showWebPdfSuccessDialog(
 }
 
 // ── Loading dialog shown while PDF is being rendered & saved ──
-class PdfGeneratingDialog extends StatelessWidget {
+class PdfGeneratingDialog extends StatefulWidget {
   const PdfGeneratingDialog({super.key});
+
+  @override
+  State<PdfGeneratingDialog> createState() => _PdfGeneratingDialogState();
+}
+
+class _PdfGeneratingDialogState extends State<PdfGeneratingDialog> {
+  static const _steps = [
+    'दस्तावेज तैयार हो रहा है…',
+    'छवि बनाई जा रही है…',
+    'PDF फ़ाइल बन रही है…',
+    'फ़ाइल सहेजी जा रही है…',
+  ];
+  int _stepIndex = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 1100), (_) {
+      if (mounted) setState(() => _stepIndex = (_stepIndex + 1) % _steps.length);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,14 +84,37 @@ class PdfGeneratingDialog extends StatelessWidget {
                   color: Color(0xFF212121),
                 ),
               ),
-              const SizedBox(height: 6),
-              Text(
-                'कृपया प्रतीक्षा करें',
-                style: TextStyle(
-                  fontFamily: 'NotoSansDevanagari',
-                  fontSize: 13,
-                  color: Colors.grey.shade500,
+              const SizedBox(height: 10),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                child: Text(
+                  _steps[_stepIndex],
+                  key: ValueKey(_stepIndex),
+                  style: const TextStyle(
+                    fontFamily: 'NotoSansDevanagari',
+                    fontSize: 13,
+                    color: Color(0xFF616161),
+                  ),
+                  textAlign: TextAlign.center,
                 ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(_steps.length, (i) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 300),
+                    width: i == _stepIndex ? 20 : 8,
+                    height: 8,
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    decoration: BoxDecoration(
+                      color: i <= _stepIndex
+                          ? const Color(0xFF1565C0)
+                          : const Color(0xFFBBDEFB),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  );
+                }),
               ),
             ],
           ),
