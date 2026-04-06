@@ -44,7 +44,8 @@ class _PdfGeneratingDialogState extends State<PdfGeneratingDialog> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(const Duration(milliseconds: 1100), (_) {
-      if (mounted) setState(() => _stepIndex = (_stepIndex + 1) % _steps.length);
+      if (mounted)
+        setState(() => _stepIndex = (_stepIndex + 1) % _steps.length);
     });
   }
 
