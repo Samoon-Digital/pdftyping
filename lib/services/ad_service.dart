@@ -14,6 +14,8 @@ class AdService with WidgetsBindingObserver {
   AppOpenAd? _appOpenAd;
   bool _aoLoading = false;
   bool _aoShowing = false;
+  // Only show when app is cold-started or resumed from background
+  bool _showWhenReady = true;
 
   // ── Interstitial state ──
   InterstitialAd? _interstitialAd;
@@ -50,7 +52,7 @@ class AdService with WidgetsBindingObserver {
         onAdLoaded: (ad) {
           _appOpenAd = ad;
           _aoLoading = false;
-          _showAppOpenIfAvailable();
+          if (_showWhenReady) _showAppOpenIfAvailable();
         },
         onAdFailedToLoad: (_) {
           _aoLoading = false;
@@ -62,6 +64,7 @@ class AdService with WidgetsBindingObserver {
 
   void _showAppOpenIfAvailable() {
     if (_aoShowing || _appOpenAd == null) return;
+    _showWhenReady = false; // reset — only show again on next app resume
     final ad = _appOpenAd!;
     _appOpenAd = null;
     _aoShowing = true;
@@ -82,7 +85,10 @@ class AdService with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) _showAppOpenIfAvailable();
+    if (state == AppLifecycleState.resumed) {
+      _showWhenReady = true;
+      _showAppOpenIfAvailable();
+    }
   }
 
   // ─────────────────────────────────────────

@@ -14,19 +14,11 @@ class UpdateService {
       if (!info.flexibleUpdateAllowed) return;
 
       await InAppUpdate.startFlexibleUpdate();
-
-      StreamSubscription? sub;
-      sub = InAppUpdate.onFlexibleUpdateInstallStateChange.listen((
-        state,
-      ) async {
-        if (state.installStatus == InstallStatus.downloaded) {
-          sub?.cancel();
-          await InAppUpdate.completeFlexibleUpdate();
-        } else if (state.installStatus == InstallStatus.failed ||
-            state.installStatus == InstallStatus.canceled) {
-          sub?.cancel();
-        }
-      });
+      // Some plugin versions do not provide an install-state stream.
+      // Try completing immediately; if not ready, the call will be ignored.
+      try {
+        await InAppUpdate.completeFlexibleUpdate();
+      } catch (_) {}
     } catch (_) {
       // Not on Play Store / no connection — silently skip.
     }

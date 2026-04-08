@@ -5,7 +5,6 @@ import 'aadhar_seeding_editor_screen.dart';
 import 'application_editor_screen.dart';
 import 'asha_editor_screen.dart';
 import 'asha_janm_editor_screen.dart';
-import 'custom_layout_one_editor_screen.dart';
 import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
 import 'parmaan_patr_editor_screen.dart';
@@ -26,13 +25,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const _layoutOptions = <_LayoutOption>[
-    _LayoutOption(id: 'classic', title: 'लेआउट 01', accent: Color(0xFF0F766E)),
-    _LayoutOption(id: 'formal', title: 'लेआउट 02', accent: Color(0xFF2563EB)),
-    _LayoutOption(id: 'modern', title: 'लेआउट 03', accent: Color(0xFFDC2626)),
-    _LayoutOption(id: 'minimal', title: 'लेआउट 04', accent: Color(0xFF7C3AED)),
-  ];
-
   // Template list — each has a unique id for unlock tracking
   static const _templates = <_TemplateItem>[
     _TemplateItem(
@@ -129,8 +121,6 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  String _selectedLayoutId = _layoutOptions.first.id;
-
   @override
   void initState() {
     super.initState();
@@ -203,44 +193,15 @@ class _HomePageState extends State<HomePage> {
 
   void _onTemplateTap(_TemplateItem t) => _openEditor(t.id, t.title);
 
-  Future<void> _showLayoutPicker() async {
-    final selected = await showModalBottomSheet<String>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
-      builder: (context) => _LayoutPickerSheet(
-        options: _layoutOptions,
-        selectedLayoutId: _selectedLayoutId,
+  void _onCustomCardTap() => ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text(
+        'यह फ़ीचर जल्द ही आएगा।',
+        style: TextStyle(fontFamily: 'NotoSansDevanagari'),
       ),
-    );
-
-    if (selected != null && mounted) {
-      setState(() => _selectedLayoutId = selected);
-      _openCustomLayout(selected);
-    }
-  }
-
-  void _openCustomLayout(String layoutId) {
-    if (layoutId == 'classic') {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) =>
-              CustomLayoutOneEditorScreen(onPdfSaved: widget.onPdfSaved),
-        ),
-      );
-      return;
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'यह layout editor अभी अगली update में आएगा।',
-          style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
+      behavior: SnackBarBehavior.floating,
+    ),
+  );
 
   void _openCategory(_CategorySection category, List<_TemplateItem> items) {
     Navigator.of(context).push(
@@ -311,9 +272,6 @@ class _HomePageState extends State<HomePage> {
     final templateMap = {
       for (final template in _templates) template.id: template,
     };
-    final selectedLayout = _layoutOptions.firstWhere(
-      (layout) => layout.id == _selectedLayoutId,
-    );
 
     return Scaffold(
       appBar: AppBar(
@@ -337,10 +295,7 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _DashboardHeroCard(
-                    selectedLayout: selectedLayout,
-                    onTap: _showLayoutPicker,
-                  ),
+                  _DashboardHeroCard(onTap: _onCustomCardTap),
                   const SizedBox(height: 24),
                   const Text(
                     'श्रेणियाँ',
@@ -383,18 +338,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class _LayoutOption {
-  final String id;
-  final String title;
-  final Color accent;
-
-  const _LayoutOption({
-    required this.id,
-    required this.title,
-    required this.accent,
-  });
-}
-
 class _CategorySection {
   final String id;
   final String title;
@@ -432,10 +375,9 @@ class _TemplateItem {
 }
 
 class _DashboardHeroCard extends StatelessWidget {
-  final _LayoutOption selectedLayout;
   final VoidCallback onTap;
 
-  const _DashboardHeroCard({required this.selectedLayout, required this.onTap});
+  const _DashboardHeroCard({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -498,9 +440,9 @@ class _DashboardHeroCard extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.14),
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: Text(
-                        selectedLayout.title,
-                        style: const TextStyle(
+                      child: const Text(
+                        'जल्द आ रहा है',
+                        style: TextStyle(
                           fontFamily: 'NotoSansDevanagari',
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
@@ -532,23 +474,11 @@ class _DashboardHeroCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: const Text(
-                    'अपना बेस लेआउट चुनें',
-                    style: TextStyle(
-                      fontFamily: 'NotoSansDevanagari',
-                      fontSize: 14,
-                      color: Color(0xFFEFF6FF),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Expanded(
                       child: Text(
-                        'टैप करें और बेस लेआउट चुनें',
+                        'जल्द ही उपलब्ध होगा।',
                         style: TextStyle(
                           fontFamily: 'NotoSansDevanagari',
                           fontSize: 12,
@@ -563,9 +493,9 @@ class _DashboardHeroCard extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Icon(
+                      child: const Icon(
                         Icons.arrow_forward_rounded,
-                        color: selectedLayout.accent,
+                        color: Color(0xFF0F766E),
                         size: 18,
                       ),
                     ),
@@ -575,82 +505,6 @@ class _DashboardHeroCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _HeroLayoutPreview extends StatelessWidget {
-  final Color accent;
-  final Color background;
-  final Color lineColor;
-
-  const _HeroLayoutPreview({
-    required this.accent,
-    required this.background,
-    required this.lineColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 54,
-      padding: const EdgeInsets.all(6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.14),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
-      ),
-      child: Column(
-        children: [
-          Container(
-            height: 5,
-            decoration: BoxDecoration(
-              color: lineColor,
-              borderRadius: BorderRadius.circular(999),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Expanded(
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: background,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: background.withValues(alpha: 0.8),
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: accent.withValues(alpha: 0.9),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -961,226 +815,4 @@ class _TemplateListTile extends StatelessWidget {
       ),
     );
   }
-}
-
-class _LayoutPickerSheet extends StatelessWidget {
-  final List<_LayoutOption> options;
-  final String selectedLayoutId;
-
-  const _LayoutPickerSheet({
-    required this.options,
-    required this.selectedLayoutId,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(18, 14, 18, 22),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 46,
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFCBD5E1),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 18),
-              const Text(
-                'लेआउट चुनें',
-                style: TextStyle(
-                  fontFamily: 'NotoSansDevanagari',
-                  fontSize: 21,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF111827),
-                ),
-              ),
-              const SizedBox(height: 6),
-              const Text(
-                'इन 4 प्रीव्यू में अभी कोई टेक्स्ट नहीं है। आगे यही चयन मल्टीस्टेप आवेदन फॉर्म में इस्तेमाल होगा।',
-                style: TextStyle(
-                  fontFamily: 'NotoSansDevanagari',
-                  fontSize: 13,
-                  height: 1.45,
-                  color: Color(0xFF64748B),
-                ),
-              ),
-              const SizedBox(height: 18),
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: options.length,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 0.92,
-                ),
-                itemBuilder: (context, index) {
-                  final option = options[index];
-                  final isSelected = option.id == selectedLayoutId;
-                  return _LayoutOptionCard(
-                    option: option,
-                    isSelected: isSelected,
-                    onTap: () => Navigator.of(context).pop(option.id),
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LayoutOptionCard extends StatelessWidget {
-  final _LayoutOption option;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _LayoutOptionCard({
-    required this.option,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(24),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(24),
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: isSelected ? option.accent : const Color(0xFFE2E8F0),
-              width: isSelected ? 1.8 : 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: option.accent.withValues(
-                  alpha: isSelected ? 0.14 : 0.06,
-                ),
-                blurRadius: 18,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: option.accent,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const Spacer(),
-                  if (isSelected)
-                    Icon(
-                      Icons.check_circle_rounded,
-                      color: option.accent,
-                      size: 20,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: option.accent.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    children: [
-                      Container(
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: option.accent,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Column(
-                                children: [
-                                  Expanded(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Expanded(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.82,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.9),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                option.title,
-                style: const TextStyle(
-                  fontFamily: 'NotoSansDevanagari',
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF0F172A),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+}
