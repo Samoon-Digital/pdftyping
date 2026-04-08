@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import '../l10n/app_localizations.dart';
-import '../services/ad_service.dart';
-import '../widgets/unlock_sheet.dart';
 import 'aadhar_seeding_editor_screen.dart';
 import 'application_editor_screen.dart';
 import 'asha_editor_screen.dart';
@@ -131,15 +129,11 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
-  // Track which templates are unlocked  (id → bool)
-  final Map<String, bool> _unlocked = {};
-  bool _loading = true;
   String _selectedLayoutId = _layoutOptions.first.id;
 
   @override
   void initState() {
     super.initState();
-    _loadUnlockStates();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _maybeAskNotificationPermission();
       UpdateService.checkForUpdate();
@@ -207,49 +201,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _loadUnlockStates() async {
-    final ad = AdService.instance;
-    for (final t in _templates) {
-      _unlocked[t.id] = await ad.isUnlocked(t.id);
-    }
-    if (mounted) setState(() => _loading = false);
-  }
-
-  Future<void> _onTemplateTap(_TemplateItem t) async {
-    if (kIsWeb || _unlocked[t.id] == true) {
-      // Web: all templates free | Mobile: already unlocked
-      _openEditor(t.id, t.title);
-      return;
-    }
-
-    // Show unlock sheet
-    final unlocked = await showUnlockSheet(
-      context: context,
-      templateId: t.id,
-      templateTitle: t.title,
-    );
-
-    if (unlocked) {
-      setState(() => _unlocked[t.id] = true);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
-              '🎉 आवेदन अनलॉक हो गया!',
-              style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-            ),
-            backgroundColor: const Color(0xFF00897B),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-        _openEditor(t.id, t.title);
-      }
-    }
-  }
+  void _onTemplateTap(_TemplateItem t) => _openEditor(t.id, t.title);
 
   Future<void> _showLayoutPicker() async {
     final selected = await showModalBottomSheet<String>(
@@ -296,7 +248,6 @@ class _HomePageState extends State<HomePage> {
         builder: (_) => _CategoryTemplatesScreen(
           category: category,
           items: items,
-          unlocked: _unlocked,
           onItemTap: _onTemplateTap,
         ),
       ),
@@ -377,59 +328,57 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _DashboardHeroCard(
-                          selectedLayout: selectedLayout,
-                          onTap: _showLayoutPicker,
-                        ),
-                        const SizedBox(height: 24),
-                        const Text(
-                          'श्रेणियाँ',
-                          style: TextStyle(
-                            fontFamily: 'NotoSansDevanagari',
-                            fontSize: 21,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF111827),
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          'किसी श्रेणी पर टैप करें। अगले पेज पर उसकी पूरी सूची खुलेगी और फिर वहाँ से संबंधित एडिटर खोला जा सकेगा।',
-                          style: TextStyle(
-                            fontFamily: 'NotoSansDevanagari',
-                            fontSize: 13,
-                            height: 1.45,
-                            color: Color(0xFF6B7280),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        for (final category in _categories) ...[
-                          _CategoryCard(
-                            category: category,
-                            itemCount: category.itemIds.length,
-                            onTap: () => _openCategory(category, [
-                              for (final itemId in category.itemIds)
-                                templateMap[itemId]!,
-                            ]),
-                          ),
-                          const SizedBox(height: 14),
-                        ],
-                      ],
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _DashboardHeroCard(
+                    selectedLayout: selectedLayout,
+                    onTap: _showLayoutPicker,
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'श्रेणियाँ',
+                    style: TextStyle(
+                      fontFamily: 'NotoSansDevanagari',
+                      fontSize: 21,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF111827),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 6),
+                  const Text(
+                    'किसी श्रेणी पर टैप करें। अगले पेज पर उसकी पूरी सूची खुलेगी और फिर वहाँ से संबंधित एडिटर खोला जा सकेगा।',
+                    style: TextStyle(
+                      fontFamily: 'NotoSansDevanagari',
+                      fontSize: 13,
+                      height: 1.45,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  for (final category in _categories) ...[
+                    _CategoryCard(
+                      category: category,
+                      itemCount: category.itemIds.length,
+                      onTap: () => _openCategory(category, [
+                        for (final itemId in category.itemIds)
+                          templateMap[itemId]!,
+                      ]),
+                    ),
+                    const SizedBox(height: 14),
+                  ],
+                ],
+              ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -824,13 +773,11 @@ class _CategoryCard extends StatelessWidget {
 class _CategoryTemplatesScreen extends StatelessWidget {
   final _CategorySection category;
   final List<_TemplateItem> items;
-  final Map<String, bool> unlocked;
   final ValueChanged<_TemplateItem> onItemTap;
 
   const _CategoryTemplatesScreen({
     required this.category,
     required this.items,
-    required this.unlocked,
     required this.onItemTap,
   });
 
@@ -880,11 +827,7 @@ class _CategoryTemplatesScreen extends StatelessWidget {
       }
 
       rows.add(
-        _TemplateListTile(
-          template: items[i],
-          isUnlocked: unlocked[items[i].id] == true,
-          onTap: () => onItemTap(items[i]),
-        ),
+        _TemplateListTile(template: items[i], onTap: () => onItemTap(items[i])),
       );
     }
 
@@ -944,14 +887,9 @@ class _CategoryTemplatesScreen extends StatelessWidget {
 
 class _TemplateListTile extends StatelessWidget {
   final _TemplateItem template;
-  final bool isUnlocked;
   final VoidCallback onTap;
 
-  const _TemplateListTile({
-    required this.template,
-    required this.isUnlocked,
-    required this.onTap,
-  });
+  const _TemplateListTile({required this.template, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1008,50 +946,15 @@ class _TemplateListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              isUnlocked
-                  ? Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                        color: template.color.withValues(alpha: 0.10),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Icon(
-                        Icons.chevron_right_rounded,
-                        color: template.color,
-                      ),
-                    )
-                  : Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.orange.shade200),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.lock_rounded,
-                            size: 14,
-                            color: Colors.orange.shade700,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'अनलॉक',
-                            style: TextStyle(
-                              fontFamily: 'NotoSansDevanagari',
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.orange.shade700,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: template.color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(Icons.chevron_right_rounded, color: template.color),
+              ),
             ],
           ),
         ),

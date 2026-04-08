@@ -16,23 +16,10 @@ class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   final _savedKey = GlobalKey<SavedPdfsScreenState>();
 
-  // Called by ApplicationEditorScreen after PDF is saved to disk.
-  // Switches to Saved tab and refreshes the list.
   void _onPdfSaved() {
     _savedKey.currentState?.refresh();
     setState(() => _currentIndex = 1);
-    AdService.instance.showInterstitialIfNeeded('saved');
-  }
-
-  // Called when user manually taps a bottom nav item.
-  // Shows interstitial for Saved/GetPdfs tabs (once per session each).
-  void _onTabTapped(int i) {
-    setState(() => _currentIndex = i);
-    if (i == 1) {
-      AdService.instance.showInterstitialIfNeeded('saved');
-    } else if (i == 2) {
-      AdService.instance.showInterstitialIfNeeded('get_pdfs');
-    }
+    AdService.instance.showInterstitialForSaved(priority: true);
   }
 
   @override
@@ -64,7 +51,10 @@ class _MainShellState extends State<MainShell> {
           top: false,
           child: NavigationBar(
             selectedIndex: _currentIndex,
-            onDestinationSelected: _onTabTapped,
+            onDestinationSelected: (i) {
+              setState(() => _currentIndex = i);
+              if (i == 1) AdService.instance.showInterstitialForSaved();
+            },
             backgroundColor: Colors.white,
             indicatorColor: primary.withValues(alpha: 0.12),
             surfaceTintColor: Colors.transparent,
