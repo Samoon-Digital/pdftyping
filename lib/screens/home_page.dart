@@ -193,16 +193,6 @@ class _HomePageState extends State<HomePage> {
 
   void _onTemplateTap(_TemplateItem t) => _openEditor(t.id, t.title);
 
-  void _onCustomCardTap() => ScaffoldMessenger.of(context).showSnackBar(
-    const SnackBar(
-      content: Text(
-        'यह फ़ीचर जल्द ही आएगा।',
-        style: TextStyle(fontFamily: 'NotoSansDevanagari'),
-      ),
-      behavior: SnackBarBehavior.floating,
-    ),
-  );
-
   void _openCategory(_CategorySection category, List<_TemplateItem> items) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -295,8 +285,6 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _DashboardHeroCard(onTap: _onCustomCardTap),
-                  const SizedBox(height: 24),
                   const Text(
                     'श्रेणियाँ',
                     style: TextStyle(
@@ -372,142 +360,6 @@ class _TemplateItem {
     required this.icon,
     required this.color,
   });
-}
-
-class _DashboardHeroCard extends StatelessWidget {
-  final VoidCallback onTap;
-
-  const _DashboardHeroCard({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final primary = theme.colorScheme.primary;
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            primary,
-            Color.alphaBlend(Colors.white.withValues(alpha: 0.12), primary),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(22),
-        boxShadow: [
-          BoxShadow(
-            color: primary.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 14),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(22),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.22),
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.auto_awesome_mosaic_rounded,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 9,
-                        vertical: 5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: const Text(
-                        'जल्द आ रहा है',
-                        style: TextStyle(
-                          fontFamily: 'NotoSansDevanagari',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'कस्टम आवेदन लिखें',
-                  style: TextStyle(
-                    fontFamily: 'NotoSansDevanagari',
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    height: 1.2,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                const Text(
-                  'यहाँ से खाली लेआउट चुनकर आगे मनमुताबिक आवेदन लिखा जा सकेगा।',
-                  style: TextStyle(
-                    fontFamily: 'NotoSansDevanagari',
-                    fontSize: 12,
-                    height: 1.35,
-                    color: Color(0xFFEFF6FF),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'जल्द ही उपलब्ध होगा।',
-                        style: TextStyle(
-                          fontFamily: 'NotoSansDevanagari',
-                          fontSize: 12,
-                          color: Color(0xFFE2E8F0),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.arrow_forward_rounded,
-                        color: Color(0xFF0F766E),
-                        size: 18,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _CategoryCard extends StatelessWidget {
@@ -608,11 +460,6 @@ class _CategoryCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Icon(
-                      Icons.arrow_forward_ios_rounded,
-                      color: primary.withValues(alpha: 0.8),
-                      size: 16,
-                    ),
                   ],
                 ),
               ],
@@ -800,19 +647,11 @@ class _TemplateListTile extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: template.color.withValues(alpha: 0.10),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(Icons.chevron_right_rounded, color: template.color),
-              ),
+              const SizedBox(width: 12),
             ],
           ),
         ),
       ),
     );
   }
-}
+}
