@@ -98,7 +98,8 @@ class _HomePageState extends State<HomePage> {
       title: 'जाति • आय • निवास',
       subtitle: 'प्रमाणित पत्र और सत्यापन प्रारूप',
       icon: Icons.verified_user_rounded,
-      itemIds: ['parmaan_patr', 'shahri_sabhashad'],
+      itemIds: ['shahri_sabhashad', 'parmaan_patr'],
+      dividerAfterItemId: 'shahri_sabhashad',
     ),
     _CategorySection(
       id: 'birth_death',
@@ -106,11 +107,12 @@ class _HomePageState extends State<HomePage> {
       subtitle: 'ग्रामीण प्रमाणन से जुड़े आवेदन प्रारूप',
       icon: Icons.fact_check_rounded,
       itemIds: [
-        'asha_janm',
         'sabhashad_mrityu',
+        'asha_janm',
         'asha_janm_cert',
         'death_grameen',
       ],
+      dividerAfterItemId: 'sabhashad_mrityu',
     ),
     _CategorySection(
       id: 'banking',

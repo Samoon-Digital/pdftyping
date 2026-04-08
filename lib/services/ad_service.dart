@@ -15,7 +15,7 @@ class AdService with WidgetsBindingObserver {
   bool _aoLoading = false;
   bool _aoShowing = false;
   bool _showWhenReady = true;
-  bool _justShowedAd = false; // prevents re-trigger on returning from own ad
+  bool _skipNextResume = false;
 
   // ── Interstitial state ──
   InterstitialAd? _interstitialAd;
@@ -65,7 +65,7 @@ class AdService with WidgetsBindingObserver {
   void _showAppOpenIfAvailable() {
     if (_aoShowing || _appOpenAd == null) return;
     _showWhenReady = false;
-    _justShowedAd = true;
+    _skipNextResume = true;
     final ad = _appOpenAd!;
     _appOpenAd = null;
     _aoShowing = true;
@@ -78,7 +78,7 @@ class AdService with WidgetsBindingObserver {
       onAdFailedToShowFullScreenContent: (ad, _) {
         ad.dispose();
         _aoShowing = false;
-        _justShowedAd = false;
+        _skipNextResume = false;
         _loadAppOpen();
       },
     );
@@ -88,11 +88,12 @@ class AdService with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      if (_justShowedAd) {
-        _justShowedAd = false;
-        return; // returning from our own ad — do not re-trigger
+      if (_skipNextResume) {
+        _skipNextResume = false;
+        return;
       }
       _showWhenReady = true;
+      _loadAppOpen();
       _showAppOpenIfAvailable();
     }
   }
@@ -149,9 +150,11 @@ class AdService with WidgetsBindingObserver {
       },
       onAdFailedToShowFullScreenContent: (ad, _) {
         ad.dispose();
+        _skipNextResume = false;
         _loadInterstitial();
       },
     );
+    _skipNextResume = true;
     ad.show();
   }
 }
