@@ -102,20 +102,12 @@ class ProfileScreen extends StatelessWidget {
             _Card(
               children: [
                 _ContactTile(
-                  icon: Icons.email_rounded,
-                  iconColor: _primaryBlue,
-                  iconBg: const Color(0xFFE3F2FD),
-                  title: 'ईमेल',
-                  subtitle: 'alimailsamun@gmail.com',
-                  onTap: () => _launch('mailto:alimailsamun@gmail.com'),
-                ),
-                const _Divider(),
-                _ContactTile(
                   icon: Icons.camera_alt_rounded,
                   iconColor: const Color(0xFFE1306C),
                   iconBg: const Color(0xFFFCE4EC),
                   title: 'Instagram',
-                  subtitle: '@samoon_digital',
+                  subtitle:
+                      '@samoon_digital\nमुझे Instagram पर message करें और follow करें updates के लिए',
                   onTap: () =>
                       _launch('https://www.instagram.com/samoon_digital/'),
                 ),
@@ -156,7 +148,7 @@ class ProfileScreen extends StatelessWidget {
                   iconColor: const Color(0xFF7B1FA2),
                   iconBg: const Color(0xFFF3E5F5),
                   title: 'संस्करण',
-                  value: '1.0.0',
+                  value: '1.6.0+6',
                 ),
                 const _Divider(),
                 _InfoTile(

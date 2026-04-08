@@ -4,7 +4,7 @@
     <!-- Android 13+ runtime notification permission; requested in app UI -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
-        android:label="pdftyping"
+        android:label="PDF Typing version 1.6.0+6"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
