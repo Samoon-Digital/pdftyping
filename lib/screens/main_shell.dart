@@ -17,9 +17,12 @@ class _MainShellState extends State<MainShell> {
   final _savedKey = GlobalKey<SavedPdfsScreenState>();
 
   void _onPdfSaved() {
+    final shouldShowInterstitial = _currentIndex != 1;
     _savedKey.currentState?.refresh();
     setState(() => _currentIndex = 1);
-    AdService.instance.showInterstitialForSaved(priority: true);
+    if (shouldShowInterstitial) {
+      AdService.instance.showInterstitialForSaved(priority: true);
+    }
   }
 
   @override
@@ -52,6 +55,7 @@ class _MainShellState extends State<MainShell> {
           child: NavigationBar(
             selectedIndex: _currentIndex,
             onDestinationSelected: (i) {
+              if (i == _currentIndex) return;
               setState(() => _currentIndex = i);
               if (i == 1) AdService.instance.showInterstitialForSaved();
             },

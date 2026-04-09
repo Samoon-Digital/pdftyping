@@ -6,6 +6,8 @@ class AdService with WidgetsBindingObserver {
   AdService._();
   static final AdService instance = AdService._();
 
+  static const _appOpenRequestWindow = Duration(seconds: 3);
+
   // ── Ad Unit IDs ──
   static const _appOpenAdUnit = 'ca-app-pub-1638673809508848/2471334449';
   static const _interstitialAdUnit = 'ca-app-pub-1638673809508848/4556898771';
@@ -14,8 +16,10 @@ class AdService with WidgetsBindingObserver {
   AppOpenAd? _appOpenAd;
   bool _aoLoading = false;
   bool _aoShowing = false;
-  bool _showWhenReady = true;
   bool _skipNextResume = false;
+  DateTime? _backgroundedAt;
+  DateTime? _pendingAppOpenUntil;
+  int _appOpenSuppressionCount = 0;
 
   // ── Interstitial state ──
   InterstitialAd? _interstitialAd;
@@ -34,6 +38,7 @@ class AdService with WidgetsBindingObserver {
     if (kIsWeb) return;
     await MobileAds.instance.initialize();
     WidgetsBinding.instance.addObserver(instance);
+    instance._requestAppOpen();
     instance._loadAppOpen();
     instance._loadInterstitial();
   }
@@ -52,7 +57,7 @@ class AdService with WidgetsBindingObserver {
         onAdLoaded: (ad) {
           _appOpenAd = ad;
           _aoLoading = false;
-          if (_showWhenReady) _showAppOpenIfAvailable();
+          _showAppOpenIfAvailable();
         },
         onAdFailedToLoad: (_) {
           _aoLoading = false;
@@ -62,9 +67,39 @@ class AdService with WidgetsBindingObserver {
     );
   }
 
+  bool get _appOpenIsSuppressed => _appOpenSuppressionCount > 0;
+
+  void _requestAppOpen() {
+    _pendingAppOpenUntil = DateTime.now().add(_appOpenRequestWindow);
+    _showAppOpenIfAvailable();
+    _loadAppOpen();
+  }
+
+  void _clearPendingAppOpen() {
+    _pendingAppOpenUntil = null;
+  }
+
+  void pushAppOpenSuppression() {
+    _appOpenSuppressionCount++;
+    _clearPendingAppOpen();
+  }
+
+  void popAppOpenSuppression() {
+    if (_appOpenSuppressionCount == 0) return;
+    _appOpenSuppressionCount--;
+  }
+
   void _showAppOpenIfAvailable() {
-    if (_aoShowing || _appOpenAd == null) return;
-    _showWhenReady = false;
+    final pendingAppOpenUntil = _pendingAppOpenUntil;
+    if (_aoShowing || _appOpenAd == null || pendingAppOpenUntil == null) {
+      return;
+    }
+    if (_appOpenIsSuppressed || pendingAppOpenUntil.isBefore(DateTime.now())) {
+      _clearPendingAppOpen();
+      return;
+    }
+
+    _clearPendingAppOpen();
     _skipNextResume = true;
     final ad = _appOpenAd!;
     _appOpenAd = null;
@@ -87,14 +122,24 @@ class AdService with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (_skipNextResume) {
-        _skipNextResume = false;
-        return;
-      }
-      _showWhenReady = true;
-      _loadAppOpen();
-      _showAppOpenIfAvailable();
+    switch (state) {
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        _backgroundedAt ??= DateTime.now();
+        break;
+      case AppLifecycleState.resumed:
+        if (_skipNextResume) {
+          _skipNextResume = false;
+          return;
+        }
+        final backgroundedAt = _backgroundedAt;
+        _backgroundedAt = null;
+        if (backgroundedAt == null) return;
+        _requestAppOpen();
+        break;
+      case AppLifecycleState.detached:
+      case AppLifecycleState.inactive:
+        break;
     }
   }
 
@@ -154,6 +199,7 @@ class AdService with WidgetsBindingObserver {
         _loadInterstitial();
       },
     );
+    _clearPendingAppOpen();
     _skipNextResume = true;
     ad.show();
   }

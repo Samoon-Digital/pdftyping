@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
+import '../services/ad_service.dart';
 
 class PdfViewerScreen extends StatefulWidget {
   final File file;
@@ -15,7 +16,18 @@ class PdfViewerScreen extends StatefulWidget {
 
 class _PdfViewerScreenState extends State<PdfViewerScreen> {
   final _viewerKey = GlobalKey<SfPdfViewerState>();
-  final bool _isToolbarVisible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    AdService.instance.pushAppOpenSuppression();
+  }
+
+  @override
+  void dispose() {
+    AdService.instance.popAppOpenSuppression();
+    super.dispose();
+  }
 
   Future<void> _share() async {
     final bytes = await widget.file.readAsBytes();
