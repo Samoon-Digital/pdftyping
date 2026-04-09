@@ -7,6 +7,7 @@ import 'asha_editor_screen.dart';
 import 'asha_janm_editor_screen.dart';
 import 'death_grameen_editor_screen.dart';
 import 'mobile_update_editor_screen.dart';
+import 'mayke_ki_jati_gram_pradhan_editor_screen.dart';
 import 'parmaan_patr_editor_screen.dart';
 import 'shahri_sabhashad_editor_screen.dart';
 import 'sabhashad_mrityu_editor_screen.dart';
@@ -77,6 +78,13 @@ class _HomePageState extends State<HomePage> {
       color: Color(0xFFC62828),
     ),
     _TemplateItem(
+      id: 'mayke_ki_jati_gram_pradhan',
+      title: 'प्रधान द्वारा प्रमाणित मायके का जाति प्रमाण पत्र',
+      subtitle: 'विवाहित महिला के मायके का जाति प्रमाण पत्र',
+      icon: Icons.badge_rounded,
+      color: Color(0xFFAD1457),
+    ),
+    _TemplateItem(
       id: 'shahri_sabhashad',
       title: 'सभासद द्वारा प्रमाणित प्रमाण पत्र',
       subtitle: 'शहरी क्षेत्र का आय / जाति / निवास प्रमाण पत्र',
@@ -98,7 +106,11 @@ class _HomePageState extends State<HomePage> {
       title: 'जाति • आय • निवास',
       subtitle: 'प्रमाणित पत्र और सत्यापन प्रारूप',
       icon: Icons.verified_user_rounded,
-      itemIds: ['shahri_sabhashad', 'parmaan_patr'],
+      itemIds: [
+        'shahri_sabhashad',
+        'parmaan_patr',
+        'mayke_ki_jati_gram_pradhan',
+      ],
       dividerAfterItemId: 'shahri_sabhashad',
     ),
     _CategorySection(
@@ -236,6 +248,11 @@ class _HomePageState extends State<HomePage> {
       );
     } else if (templateId == 'parmaan_patr') {
       screen = ParmaanPatrEditorScreen(
+        onPdfSaved: widget.onPdfSaved,
+        editorTitle: templateTitle,
+      );
+    } else if (templateId == 'mayke_ki_jati_gram_pradhan') {
+      screen = MaykeKiJatiGramPradhanEditorScreen(
         onPdfSaved: widget.onPdfSaved,
         editorTitle: templateTitle,
       );
