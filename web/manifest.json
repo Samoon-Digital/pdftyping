@@ -1,6 +1,6 @@
 {
-    "name": "pdftyping",
-    "short_name": "pdftyping",
+    "name": "PDF Typing",
+    "short_name": "PDF Typing",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

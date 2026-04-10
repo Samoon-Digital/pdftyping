@@ -9,7 +9,7 @@ class AppLocalizationsHi extends AppLocalizations {
   AppLocalizationsHi([String locale = 'hi']) : super(locale);
 
   @override
-  String get appTitle => 'PDF Typing version 1.6.0+6';
+  String get appTitle => 'PDF Typing';
 
   @override
   String get splashTagline => 'आपका ग्रामीण आवेदन सहायक';

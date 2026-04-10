@@ -374,7 +374,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
             controller: _gramCtrl,
             fieldKey: 'parmaan_gram',
             label: 'ग्राम',
-            hint: 'जैसे : ग्राम गदनिया',
+            hint: 'जैसे : गदनिया',
             onChanged: (_) => setState(() {}),
           ),
           SuggestibleInputField(

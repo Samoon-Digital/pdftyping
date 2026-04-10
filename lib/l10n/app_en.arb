@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "PDF Typing version 1.6.0+6",
+  "appTitle": "PDF Typing",
   "@appTitle": { "description": "Application title" },
   "splashTagline": "Your Rural Application Assistant",
   "@splashTagline": { "description": "Tagline on splash screen" },

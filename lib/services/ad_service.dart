@@ -6,7 +6,10 @@ class AdService with WidgetsBindingObserver {
   AdService._();
   static final AdService instance = AdService._();
 
-  static const _appOpenRequestWindow = Duration(seconds: 3);
+  static const _appOpenRequestWindow = Duration(milliseconds: 1200);
+  static const _minBackgroundForAppOpen = Duration(seconds: 2);
+  static const _appOpenMaxAge = Duration(hours: 4);
+  static const _interstitialMaxAge = Duration(hours: 1);
 
   // ── Ad Unit IDs ──
   static const _appOpenAdUnit = 'ca-app-pub-1638673809508848/2471334449';
@@ -14,6 +17,7 @@ class AdService with WidgetsBindingObserver {
 
   // ── App Open state ──
   AppOpenAd? _appOpenAd;
+  DateTime? _appOpenLoadedAt;
   bool _aoLoading = false;
   bool _aoShowing = false;
   bool _skipNextResume = false;
@@ -23,6 +27,7 @@ class AdService with WidgetsBindingObserver {
 
   // ── Interstitial state ──
   InterstitialAd? _interstitialAd;
+  DateTime? _interstitialLoadedAt;
   bool _intLoading = false;
 
   // ── Session / CPM control ──
@@ -43,6 +48,9 @@ class AdService with WidgetsBindingObserver {
     instance._loadInterstitial();
   }
 
+  bool _isExpired(DateTime? loadedAt, Duration maxAge) =>
+      loadedAt == null || DateTime.now().difference(loadedAt) > maxAge;
+
   // ─────────────────────────────────────────
   // APP OPEN AD
   // ─────────────────────────────────────────
@@ -56,6 +64,7 @@ class AdService with WidgetsBindingObserver {
       adLoadCallback: AppOpenAdLoadCallback(
         onAdLoaded: (ad) {
           _appOpenAd = ad;
+          _appOpenLoadedAt = DateTime.now();
           _aoLoading = false;
           _showAppOpenIfAvailable();
         },
@@ -91,9 +100,20 @@ class AdService with WidgetsBindingObserver {
 
   void _showAppOpenIfAvailable() {
     final pendingAppOpenUntil = _pendingAppOpenUntil;
-    if (_aoShowing || _appOpenAd == null || pendingAppOpenUntil == null) {
+    final ad = _appOpenAd;
+    if (_aoShowing || ad == null || pendingAppOpenUntil == null) {
       return;
     }
+
+    if (_isExpired(_appOpenLoadedAt, _appOpenMaxAge)) {
+      ad.dispose();
+      _appOpenAd = null;
+      _appOpenLoadedAt = null;
+      _clearPendingAppOpen();
+      _loadAppOpen();
+      return;
+    }
+
     if (_appOpenIsSuppressed || pendingAppOpenUntil.isBefore(DateTime.now())) {
       _clearPendingAppOpen();
       return;
@@ -101,8 +121,8 @@ class AdService with WidgetsBindingObserver {
 
     _clearPendingAppOpen();
     _skipNextResume = true;
-    final ad = _appOpenAd!;
     _appOpenAd = null;
+    _appOpenLoadedAt = null;
     _aoShowing = true;
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdDismissedFullScreenContent: (ad) {
@@ -126,6 +146,8 @@ class AdService with WidgetsBindingObserver {
       case AppLifecycleState.hidden:
       case AppLifecycleState.paused:
         _backgroundedAt ??= DateTime.now();
+        _loadAppOpen();
+        _loadInterstitial();
         break;
       case AppLifecycleState.resumed:
         if (_skipNextResume) {
@@ -135,6 +157,10 @@ class AdService with WidgetsBindingObserver {
         final backgroundedAt = _backgroundedAt;
         _backgroundedAt = null;
         if (backgroundedAt == null) return;
+        if (DateTime.now().difference(backgroundedAt) <
+            _minBackgroundForAppOpen) {
+          return;
+        }
         _requestAppOpen();
         break;
       case AppLifecycleState.detached:
@@ -156,6 +182,7 @@ class AdService with WidgetsBindingObserver {
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           _interstitialAd = ad;
+          _interstitialLoadedAt = DateTime.now();
           _intLoading = false;
         },
         onAdFailedToLoad: (_) {
@@ -184,7 +211,16 @@ class AdService with WidgetsBindingObserver {
       return;
     }
 
+    if (_isExpired(_interstitialLoadedAt, _interstitialMaxAge)) {
+      ad.dispose();
+      _interstitialAd = null;
+      _interstitialLoadedAt = null;
+      _loadInterstitial();
+      return;
+    }
+
     _interstitialAd = null;
+    _interstitialLoadedAt = null;
     _sessionShown++;
     _lastShown = DateTime.now();
 

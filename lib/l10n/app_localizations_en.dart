@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'PDF Typing version 1.6.0+6';
+  String get appTitle => 'PDF Typing';
 
   @override
   String get splashTagline => 'Your Rural Application Assistant';

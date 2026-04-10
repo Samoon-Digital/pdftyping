@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// Application title
   ///
   /// In en, this message translates to:
-  /// **'PDF Typing version 1.6.0+6'**
+  /// **'PDF Typing'**
   String get appTitle;
 
   /// Tagline on splash screen

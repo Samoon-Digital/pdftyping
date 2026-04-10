@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import '../l10n/app_localizations.dart';
 import 'aadhar_seeding_editor_screen.dart';
 import 'application_editor_screen.dart';
 import 'asha_editor_screen.dart';
@@ -14,6 +13,7 @@ import 'sabhashad_mrityu_editor_screen.dart';
 import 'profile_screen.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/update_service.dart';
 
@@ -26,6 +26,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const _appShareUrl =
+      'https://play.google.com/store/apps/details?id=com.samoondigital.pdftyping';
+
   // Template list — each has a unique id for unlock tracking
   static const _templates = <_TemplateItem>[
     _TemplateItem(
@@ -205,6 +208,19 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _shareApp() async {
+    try {
+      await SharePlus.instance.share(
+        ShareParams(
+          subject: 'PDF Typing',
+          text: 'PDF Typing app download karein:\n$_appShareUrl',
+        ),
+      );
+    } catch (_) {
+      // Ignore share errors to keep home flow uninterrupted.
+    }
+  }
+
   void _onTemplateTap(_TemplateItem t) => _openEditor(t.id, t.title);
 
   void _openCategory(_CategorySection category, List<_TemplateItem> items) {
@@ -277,15 +293,19 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
     final templateMap = {
       for (final template in _templates) template.id: template,
     };
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(loc.appTitle),
+        title: const Text('PDF Typing'),
         actions: [
+          IconButton(
+            tooltip: 'Share App',
+            icon: const Icon(Icons.share_rounded),
+            onPressed: _shareApp,
+          ),
           IconButton(
             tooltip: 'प्रोफाइल',
             icon: const Icon(Icons.account_circle_rounded),

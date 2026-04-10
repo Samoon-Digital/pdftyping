@@ -148,7 +148,7 @@ class ProfileScreen extends StatelessWidget {
                   iconColor: const Color(0xFF7B1FA2),
                   iconBg: const Color(0xFFF3E5F5),
                   title: 'संस्करण',
-                  value: '1.6.0+6',
+                  value: '1.7.0+7',
                 ),
                 const _Divider(),
                 _InfoTile(
