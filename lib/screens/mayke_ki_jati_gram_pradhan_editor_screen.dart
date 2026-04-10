@@ -28,6 +28,13 @@ class MaykeKiJatiGramPradhanEditorScreen extends StatefulWidget {
 
 class _MaykeKiJatiGramPradhanEditorScreenState
     extends State<MaykeKiJatiGramPradhanEditorScreen> {
+  static const List<String> _vargOptions = [
+    'अन्य पिछड़ा वर्ग',
+    'अनुसूचित जाति',
+    'अनुसूचित जनजाति',
+    'सामान्य',
+  ];
+
   final _girlNameCtrl = TextEditingController();
   final _maikaAddressCtrl = TextEditingController();
   final _shadiYearsCtrl = TextEditingController();
@@ -39,6 +46,7 @@ class _MaykeKiJatiGramPradhanEditorScreenState
 
   final _formKey = GlobalKey<FormState>();
   int _step = 0;
+  bool _showVargOptions = false;
 
   @override
   void initState() {
@@ -369,8 +377,47 @@ class _MaykeKiJatiGramPradhanEditorScreenState
               fieldKey: 'mayke_jati_varg',
               label: 'वर्ग',
               hint: 'जैसे : अनुसूचित जाति / अन्य पिछड़ा वर्ग',
-              onChanged: (_) => setState(() {}),
+              enableSuggestions: false,
+              onTap: () => setState(() => _showVargOptions = true),
+              onChanged: (_) => setState(() => _showVargOptions = true),
             ),
+            if (_showVargOptions)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _vargOptions.map((option) {
+                    final selected = _vargCtrl.text.trim() == option;
+                    return ChoiceChip(
+                      label: Text(
+                        option,
+                        style: const TextStyle(
+                          fontFamily: 'NotoSansDevanagari',
+                          fontSize: 13,
+                        ),
+                      ),
+                      selected: selected,
+                      onSelected: (_) {
+                        _vargCtrl.text = option;
+                        _vargCtrl.selection = TextSelection.collapsed(
+                          offset: option.length,
+                        );
+                        setState(() => _showVargOptions = false);
+                      },
+                      selectedColor: const Color(
+                        0xFF1565C0,
+                      ).withValues(alpha: 0.13),
+                      checkmarkColor: const Color(0xFF1565C0),
+                      side: BorderSide(
+                        color: selected
+                            ? const Color(0xFF1565C0)
+                            : const Color(0xFFCCCCCC),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
             SuggestibleInputField(
               controller: _upjaatiCtrl,
               fieldKey: 'mayke_jati_upjaati',
