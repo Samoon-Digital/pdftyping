@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'dart:async';
 import '../services/web_pdf_download.dart';
@@ -43,6 +44,7 @@ class _PdfGeneratingDialogState extends State<PdfGeneratingDialog> {
   @override
   void initState() {
     super.initState();
+    if (kIsWeb) return;
     _timer = Timer.periodic(const Duration(milliseconds: 1100), (_) {
       if (mounted) {
         setState(() => _stepIndex = (_stepIndex + 1) % _steps.length);
@@ -58,6 +60,28 @@ class _PdfGeneratingDialogState extends State<PdfGeneratingDialog> {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) {
+      return const PopScope(
+        canPop: false,
+        child: Dialog(
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: Text(
+              'PDF बन रही है, कृपया प्रतीक्षा करें...',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: 'NotoSansDevanagari',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF212121),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return PopScope(
       canPop: false,
       child: Dialog(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:printing/printing.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import '../services/pdf_saver.dart';
 import '../widgets/suggestible_input_field.dart';

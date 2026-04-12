@@ -42,7 +42,7 @@
   <meta name="apple-mobile-web-app-title" content="PDF Typing">
   <meta name="theme-color" content="#1565C0">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/Icon-192.png">
   <link rel="manifest" href="manifest.json">
 
   <!-- ── JSON-LD Structured Data ── -->
@@ -195,7 +195,11 @@
 
   <script>
     (function () {
+      var hidden = false;
+
       function hideSkeleton() {
+        if (hidden) return;
+        hidden = true;
         var el = document.getElementById('sk');
         if (!el) return;
         el.style.transition = 'opacity 0.2s ease';
@@ -203,10 +207,58 @@
         setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 220);
       }
 
-      // Keep shimmer visible until Flutter paints the first real frame.
-      window.addEventListener('flutter-first-frame', function () {
-        hideSkeleton();
-      });
+      function hideAfterFirstPaint() {
+        requestAnimationFrame(function () {
+          requestAnimationFrame(hideSkeleton);
+        });
+      }
+
+      function flutterMounted() {
+        if (
+          document.querySelector(
+            'flt-glass-pane, flutter-view, flt-scene-host, flt-semantics-placeholder, [flt-clip], canvas'
+          )
+        ) {
+          return true;
+        }
+        var children = document.body ? document.body.children : [];
+        for (var i = 0; i < children.length; i++) {
+          var node = children[i];
+          if (node.id === 'sk' || node.tagName === 'SCRIPT') continue;
+          return true;
+        }
+        return false;
+      }
+
+      function pollUntilMounted() {
+        if (hidden) return;
+        if (flutterMounted()) {
+          hideAfterFirstPaint();
+          return;
+        }
+        requestAnimationFrame(pollUntilMounted);
+      }
+
+      // Primary: remove shimmer as soon as Flutter DOM mounts.
+      if (flutterMounted()) {
+        hideAfterFirstPaint();
+      } else {
+        var observer = new MutationObserver(function () {
+          if (!flutterMounted()) return;
+          observer.disconnect();
+          hideAfterFirstPaint();
+        });
+        observer.observe(document.documentElement, { childList: true, subtree: true });
+
+        // Secondary: first-frame signal from bootstrap.
+        window.addEventListener('flutter-first-frame', function () {
+          observer.disconnect();
+          hideAfterFirstPaint();
+        }, { once: true });
+
+        // Tertiary: frame polling backup (dynamic, no fixed timeout)
+        requestAnimationFrame(pollUntilMounted);
+      }
     })();
   </script>
 
