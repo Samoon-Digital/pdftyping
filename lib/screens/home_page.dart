@@ -31,6 +31,33 @@ class _HomePageState extends State<HomePage> {
   static const _appShareUrl =
       'https://play.google.com/store/apps/details?id=com.samoondigital.pdftyping';
 
+  static const _webFaqs = <_FaqItem>[
+    _FaqItem(
+      question: 'PDF Typing क्या है?',
+      answer:
+          'PDFTyping.in पर आप हिंदी सरकारी आवेदन पत्र और प्रमाण पत्र ऑनलाइन भरकर A4 PDF डाउनलोड कर सकते हैं।',
+    ),
+    _FaqItem(
+      question: 'क्या यह सेवा मुफ्त है?',
+      answer: 'हाँ, वेबसाइट पर फॉर्म भरना और PDF डाउनलोड करना मुफ्त है।',
+    ),
+    _FaqItem(
+      question: 'कौन-कौन से फॉर्म उपलब्ध हैं?',
+      answer:
+          'जाति, आय, निवास, जन्म, मृत्यु, बैंक आवेदन और अन्य ग्रामीण/शहरी प्रमाणन फॉर्म उपलब्ध हैं।',
+    ),
+    _FaqItem(
+      question: 'क्या PDF सीधे प्रिंट हो सकती है?',
+      answer:
+          'हाँ, डाउनलोड की गई PDF A4 फॉर्मेट में होती है और सीधे प्रिंट की जा सकती है।',
+    ),
+    _FaqItem(
+      question: 'मोबाइल पर बेहतर अनुभव कैसे मिलेगा?',
+      answer:
+          'Android यूजर Play Store से PDF Typing ऐप डाउनलोड करके तेज और बेहतर अनुभव पा सकते हैं।',
+    ),
+  ];
+
   // Template list — each has a unique id for unlock tracking
   static const _templates = <_TemplateItem>[
     _TemplateItem(
@@ -373,6 +400,10 @@ class _HomePageState extends State<HomePage> {
                       ),
                       const SizedBox(height: 14),
                     ],
+                    if (kIsWeb) ...[
+                      const SizedBox(height: 18),
+                      _FaqSection(items: _webFaqs),
+                    ],
                   ],
                 ),
               ),
@@ -401,6 +432,81 @@ class _CategorySection {
     required this.itemIds,
     this.dividerAfterItemId,
   });
+}
+
+class _FaqItem {
+  final String question;
+  final String answer;
+
+  const _FaqItem({required this.question, required this.answer});
+}
+
+class _FaqSection extends StatelessWidget {
+  final List<_FaqItem> items;
+
+  const _FaqSection({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(14, 14, 14, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.fromLTRB(6, 2, 6, 10),
+              child: Text(
+                'FAQs',
+                style: TextStyle(
+                  fontFamily: 'NotoSansDevanagari',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF111827),
+                ),
+              ),
+            ),
+            for (final faq in items)
+              ExpansionTile(
+                tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+                childrenPadding: const EdgeInsets.fromLTRB(8, 0, 8, 10),
+                dense: true,
+                iconColor: const Color(0xFF1565C0),
+                collapsedIconColor: const Color(0xFF64748B),
+                title: Text(
+                  faq.question,
+                  style: const TextStyle(
+                    fontFamily: 'NotoSansDevanagari',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1F2937),
+                  ),
+                ),
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      faq.answer,
+                      style: const TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
+                        fontSize: 13,
+                        height: 1.45,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 // ── Data class for template items ──

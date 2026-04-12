@@ -20,6 +20,8 @@
   <link rel="alternate" hreflang="hi-IN" href="https://pdftyping.in/">
   <link rel="alternate" hreflang="en-IN" href="https://pdftyping.in/">
   <link rel="alternate" hreflang="x-default" href="https://pdftyping.in/">
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="//www.gstatic.com">
 
   <!-- ── Open Graph ── -->
   <meta property="og:type" content="website">
@@ -83,6 +85,44 @@
         "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
         "installUrl": "https://play.google.com/store/apps/details?id=com.samoondigital.pdftyping",
         "downloadUrl": "https://play.google.com/store/apps/details?id=com.samoondigital.pdftyping"
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://pdftyping.in/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "PDF Typing क्या है?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "PDFTyping.in पर हिंदी सरकारी आवेदन पत्र और प्रमाण पत्र ऑनलाइन भरकर A4 PDF डाउनलोड किया जा सकता है।"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "क्या यह सेवा मुफ्त है?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "हाँ, वेबसाइट पर फॉर्म भरना और PDF डाउनलोड करना मुफ्त है।"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "कौन-कौन से फॉर्म उपलब्ध हैं?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "जाति, आय, निवास, जन्म, मृत्यु, बैंक आवेदन और अन्य ग्रामीण/शहरी फॉर्म उपलब्ध हैं।"
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "क्या PDF A4 प्रिंट के लिए सही रहती है?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "हाँ, डाउनलोड की गई PDF A4 फॉर्मेट में रहती है और सीधे प्रिंट की जा सकती है।"
+            }
+          }
+        ]
       }
     ]
   }
@@ -93,11 +133,11 @@
     * {
       box-sizing: border-box;
       margin: 0;
-      padding: 0;
+      padding: 0
     }
 
     body {
-      background: #f8fafc;
+      background: #f8fafc
     }
 
     #sk {
@@ -106,7 +146,7 @@
       z-index: 9999;
       background: #f8fafc;
       display: flex;
-      flex-direction: column;
+      flex-direction: column
     }
 
     .sk-bar {
@@ -115,53 +155,50 @@
       display: flex;
       align-items: center;
       padding: 0 16px;
-      gap: 16px;
+      gap: 16px
     }
 
     .sk-bar-title {
       width: 130px;
       height: 20px;
       border-radius: 4px;
-      background: rgba(255, 255, 255, .28);
+      background: rgba(255, 255, 255, .28)
     }
 
-    .sk-bar-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, .22);
-      margin-left: auto;
-    }
-
+    .sk-bar-icon,
     .sk-bar-icon2 {
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background: rgba(255, 255, 255, .22);
+      background: rgba(255, 255, 255, .22)
+    }
+
+    .sk-bar-icon {
+      margin-left: auto
     }
 
     .sk-body {
-      padding: 20px 16px 0;
+      padding: 20px 16px 0
     }
 
     .sk-h1 {
       width: 90px;
       height: 22px;
       border-radius: 5px;
-      margin-bottom: 8px;
+      margin-bottom: 8px
     }
 
     .sk-h2 {
       width: 260px;
       height: 13px;
       border-radius: 4px;
-      margin-bottom: 24px;
+      margin-bottom: 24px
     }
 
     .sk-card {
       height: 82px;
       border-radius: 22px;
-      margin-bottom: 14px;
+      margin-bottom: 14px
     }
 
     .sk-h1,
@@ -169,7 +206,7 @@
     .sk-card {
       background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
       background-size: 400% 100%;
-      animation: sk 1.4s ease infinite;
+      animation: sk 1.4s ease infinite
     }
 
     @keyframes sk {
@@ -201,76 +238,9 @@
     </div>
   </div>
 
-  <script>
-    (function () {
-      var hidden = false;
+  <script>(function () { try { if (window.Intl && 'v8BreakIterator' in Intl) { Object.defineProperty(Intl, 'v8BreakIterator', { value: undefined, configurable: true }) } } catch (_) { try { Intl.v8BreakIterator = undefined } catch (__) { } } var h = false; function x() { if (h) return; h = true; var e = document.getElementById('sk'); if (!e) return; e.style.transition = 'opacity .2s ease'; e.style.opacity = '0'; setTimeout(function () { if (e.parentNode) e.parentNode.removeChild(e) }, 220) } function p() { requestAnimationFrame(function () { requestAnimationFrame(x) }) } function m() { if (document.querySelector('flt-glass-pane,flutter-view,flt-scene-host,flt-semantics-placeholder,[flt-clip],canvas')) return true; var c = document.body ? document.body.children : []; for (var i = 0; i < c.length; i++) { var n = c[i]; if (n.id === 'sk' || n.tagName === 'SCRIPT') continue; return true } return false } function r() { if (h) return; if (m()) { p(); return } requestAnimationFrame(r) } if (m()) { p() } else { var o = new MutationObserver(function () { if (!m()) return; o.disconnect(); p() }); o.observe(document.documentElement, { childList: true, subtree: true }); window.addEventListener('flutter-first-frame', function () { o.disconnect(); p() }, { once: true }); requestAnimationFrame(r) } })();</script>
 
-      function hideSkeleton() {
-        if (hidden) return;
-        hidden = true;
-        var el = document.getElementById('sk');
-        if (!el) return;
-        el.style.transition = 'opacity 0.2s ease';
-        el.style.opacity = '0';
-        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 220);
-      }
-
-      function hideAfterFirstPaint() {
-        requestAnimationFrame(function () {
-          requestAnimationFrame(hideSkeleton);
-        });
-      }
-
-      function flutterMounted() {
-        if (
-          document.querySelector(
-            'flt-glass-pane, flutter-view, flt-scene-host, flt-semantics-placeholder, [flt-clip], canvas'
-          )
-        ) {
-          return true;
-        }
-        var children = document.body ? document.body.children : [];
-        for (var i = 0; i < children.length; i++) {
-          var node = children[i];
-          if (node.id === 'sk' || node.tagName === 'SCRIPT') continue;
-          return true;
-        }
-        return false;
-      }
-
-      function pollUntilMounted() {
-        if (hidden) return;
-        if (flutterMounted()) {
-          hideAfterFirstPaint();
-          return;
-        }
-        requestAnimationFrame(pollUntilMounted);
-      }
-
-      // Primary: remove shimmer as soon as Flutter DOM mounts.
-      if (flutterMounted()) {
-        hideAfterFirstPaint();
-      } else {
-        var observer = new MutationObserver(function () {
-          if (!flutterMounted()) return;
-          observer.disconnect();
-          hideAfterFirstPaint();
-        });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
-
-        // Secondary: first-frame signal from bootstrap.
-        window.addEventListener('flutter-first-frame', function () {
-          observer.disconnect();
-          hideAfterFirstPaint();
-        }, { once: true });
-
-        // Tertiary: frame polling backup (dynamic, no fixed timeout)
-        requestAnimationFrame(pollUntilMounted);
-      }
-    })();
-  </script>
-
-  <script src="flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js" defer></script>
 </body>
 
 </html>
