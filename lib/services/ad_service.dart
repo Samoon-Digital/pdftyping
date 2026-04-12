@@ -6,7 +6,8 @@ class AdService with WidgetsBindingObserver {
   AdService._();
   static final AdService instance = AdService._();
 
-  static const _appOpenRequestWindow = Duration(seconds: 12);
+  // Cold start: wait up to 8 s for first network load.
+  static const _coldStartWindow = Duration(seconds: 8);
   static const _minBackgroundForAppOpen = Duration(seconds: 2);
   static const _appOpenMaxAge = Duration(hours: 4);
   static const _interstitialMaxAge = Duration(hours: 1);
@@ -22,7 +23,8 @@ class AdService with WidgetsBindingObserver {
   bool _aoShowing = false;
   bool _skipNextResume = false;
   DateTime? _backgroundedAt;
-  DateTime? _pendingAppOpenUntil;
+  DateTime? _coldStartWindowUntil; // non-null only during cold-start
+  bool _pendingShow = false; // true when bg→fg fired but ad was still loading
   int _appOpenSuppressionCount = 0;
 
   // ── Interstitial state ──
@@ -43,7 +45,7 @@ class AdService with WidgetsBindingObserver {
     if (kIsWeb) return;
     await MobileAds.instance.initialize();
     WidgetsBinding.instance.addObserver(instance);
-    instance._requestAppOpen();
+    instance._coldStartWindowUntil = DateTime.now().add(_coldStartWindow);
     instance._loadAppOpen();
     instance._loadInterstitial();
   }
@@ -66,7 +68,13 @@ class AdService with WidgetsBindingObserver {
           _appOpenAd = ad;
           _appOpenLoadedAt = DateTime.now();
           _aoLoading = false;
-          _showAppOpenIfAvailable();
+          // If bg→fg fired while this load was in-flight, show immediately.
+          if (_pendingShow && !_appOpenIsSuppressed && !_aoShowing) {
+            _pendingShow = false;
+            _doShowAppOpen(ad);
+          } else {
+            _tryShowColdStart();
+          }
         },
         onAdFailedToLoad: (_) {
           _aoLoading = false;
@@ -78,52 +86,40 @@ class AdService with WidgetsBindingObserver {
 
   bool get _appOpenIsSuppressed => _appOpenSuppressionCount > 0;
 
-  void _requestAppOpen() {
-    _pendingAppOpenUntil = DateTime.now().add(_appOpenRequestWindow);
-    _showAppOpenIfAvailable();
-    _loadAppOpen();
-  }
-
-  void _clearPendingAppOpen() {
-    _pendingAppOpenUntil = null;
-  }
-
-  /// Call when user navigates into any editor/non-home screen.
-  /// Prevents a loading ad from popping up mid-editor.
-  void onNavigatedAway() => _clearPendingAppOpen();
-
-  void pushAppOpenSuppression() {
-    _appOpenSuppressionCount++;
-    _clearPendingAppOpen();
-  }
-
-  void popAppOpenSuppression() {
-    if (_appOpenSuppressionCount == 0) return;
-    _appOpenSuppressionCount--;
-  }
-
-  void _showAppOpenIfAvailable() {
-    final pendingAppOpenUntil = _pendingAppOpenUntil;
+  /// Cold-start path: fires from onAdLoaded; shows only if window still open.
+  void _tryShowColdStart() {
+    final until = _coldStartWindowUntil;
+    if (until == null || until.isBefore(DateTime.now())) return;
+    if (_aoShowing || _appOpenIsSuppressed) return;
     final ad = _appOpenAd;
-    if (_aoShowing || ad == null || pendingAppOpenUntil == null) {
+    if (ad == null) return;
+    _doShowAppOpen(ad);
+  }
+
+  /// bg→fg path: show INSTANTLY if preloaded; if in-flight, mark _pendingShow
+  /// so onAdLoaded fires the show the moment the load completes.
+  void _showIfPreloaded() {
+    if (_aoShowing || _appOpenIsSuppressed) return;
+    final ad = _appOpenAd;
+    if (ad == null) {
+      _pendingShow = true; // ad is loading — show as soon as it arrives
+      _loadAppOpen();
       return;
     }
-
     if (_isExpired(_appOpenLoadedAt, _appOpenMaxAge)) {
       ad.dispose();
       _appOpenAd = null;
       _appOpenLoadedAt = null;
-      _clearPendingAppOpen();
+      _pendingShow = true; // stale — show fresh load when it arrives
       _loadAppOpen();
       return;
     }
+    _pendingShow = false;
+    _doShowAppOpen(ad);
+  }
 
-    if (_appOpenIsSuppressed || pendingAppOpenUntil.isBefore(DateTime.now())) {
-      _clearPendingAppOpen();
-      return;
-    }
-
-    _clearPendingAppOpen();
+  void _doShowAppOpen(AppOpenAd ad) {
+    _coldStartWindowUntil = null;
     _skipNextResume = true;
     _appOpenAd = null;
     _appOpenLoadedAt = null;
@@ -132,7 +128,7 @@ class AdService with WidgetsBindingObserver {
       onAdDismissedFullScreenContent: (ad) {
         ad.dispose();
         _aoShowing = false;
-        _loadAppOpen();
+        _loadAppOpen(); // preload for next open
       },
       onAdFailedToShowFullScreenContent: (ad, _) {
         ad.dispose();
@@ -144,11 +140,30 @@ class AdService with WidgetsBindingObserver {
     ad.show();
   }
 
+  /// Call when user opens any editor — cancels cold-start window and pending show.
+  void onNavigatedAway() {
+    _pendingShow = false;
+    _coldStartWindowUntil = null;
+  }
+
+  void pushAppOpenSuppression() {
+    _appOpenSuppressionCount++;
+    _pendingShow = false;
+    _coldStartWindowUntil = null;
+  }
+
+  void popAppOpenSuppression() {
+    if (_appOpenSuppressionCount == 0) return;
+    _appOpenSuppressionCount--;
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.hidden:
       case AppLifecycleState.paused:
+        _pendingShow =
+            false; // discard stale pending — fresh check on next resume
         _backgroundedAt ??= DateTime.now();
         _loadAppOpen();
         _loadInterstitial();
@@ -165,7 +180,8 @@ class AdService with WidgetsBindingObserver {
             _minBackgroundForAppOpen) {
           return;
         }
-        _requestAppOpen();
+        _coldStartWindowUntil = null; // cold-start window no longer relevant
+        _showIfPreloaded(); // instant if cached; silent preload otherwise
         break;
       case AppLifecycleState.detached:
       case AppLifecycleState.inactive:
@@ -239,7 +255,7 @@ class AdService with WidgetsBindingObserver {
         _loadInterstitial();
       },
     );
-    _clearPendingAppOpen();
+    _coldStartWindowUntil = null;
     _skipNextResume = true;
     ad.show();
   }
