@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 /// A4 paper width in logical pixels at 96 dpi (210 mm ≈ 794 px).
 const double _kA4Width = 794.0;
 
-/// Width of each side ad column — reserve space for future banner ads.
+/// Width of each side ad column.
 const double _kAdColumnWidth = 160.0;
 
-/// On **web**: wraps [child] in a centred A4-wide column with sticky
-/// ad-banner placeholder columns on both sides.
-/// On **mobile/desktop**: returns [child] completely unchanged.
+/// Minimum total width required to show A4 + side ads.
+/// A4(794) + 2×ads(160) + breathing room ≈ 1140.
+const double _kMinDesktopWidth = 1140.0;
+
+/// On **desktop web** (≥1140px): A4-centred column + side ad placeholders.
+/// On **mobile/tablet web** or **native**: returns [child] unchanged.
 class WebA4Layout extends StatelessWidget {
   final Widget child;
 
@@ -17,18 +20,17 @@ class WebA4Layout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!kIsWeb) return child;
+    if (!kIsWeb || MediaQuery.sizeOf(context).width < _kMinDesktopWidth) {
+      return child;
+    }
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // ── Left ad column ──────────────────────────────────────────────
         SizedBox(
           width: _kAdColumnWidth,
           child: const _AdBannerPlaceholder(side: 'left'),
         ),
-
-        // ── A4-constrained main content ──────────────────────────────────
         Expanded(
           child: Align(
             alignment: Alignment.topCenter,
@@ -38,8 +40,6 @@ class WebA4Layout extends StatelessWidget {
             ),
           ),
         ),
-
-        // ── Right ad column ─────────────────────────────────────────────
         SizedBox(
           width: _kAdColumnWidth,
           child: const _AdBannerPlaceholder(side: 'right'),

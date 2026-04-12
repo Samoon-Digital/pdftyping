@@ -1,4 +1,5 @@
-import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/foundation.dart' show kDebugMode, kIsWeb;
+import '../widgets/web_a4_layout.dart';
 import 'package:flutter/material.dart';
 import 'aadhar_seeding_editor_screen.dart';
 import 'application_editor_screen.dart';
@@ -150,10 +151,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _maybeAskNotificationPermission();
-      UpdateService.checkForUpdate();
-    });
+    if (!kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _maybeAskNotificationPermission();
+        UpdateService.checkForUpdate();
+      });
+    }
   }
 
   Future<void> _maybeAskNotificationPermission() async {
@@ -329,51 +332,53 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: CustomScrollView(
-        physics: const ClampingScrollPhysics(),
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'श्रेणियाँ',
-                    style: TextStyle(
-                      fontFamily: 'NotoSansDevanagari',
-                      fontSize: 21,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF111827),
+      body: WebA4Layout(
+        child: CustomScrollView(
+          physics: const ClampingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'श्रेणियाँ',
+                      style: TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
+                        fontSize: 21,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF111827),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  const Text(
-                    'किसी श्रेणी पर टैप करें। अगले पेज पर उसकी पूरी सूची खुलेगी और फिर वहाँ से संबंधित एडिटर खोला जा सकेगा।',
-                    style: TextStyle(
-                      fontFamily: 'NotoSansDevanagari',
-                      fontSize: 13,
-                      height: 1.45,
-                      color: Color(0xFF6B7280),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'किसी श्रेणी पर टैप करें। अगले पेज पर उसकी पूरी सूची खुलेगी और फिर वहाँ से संबंधित एडिटर खोला जा सकेगा।',
+                      style: TextStyle(
+                        fontFamily: 'NotoSansDevanagari',
+                        fontSize: 13,
+                        height: 1.45,
+                        color: Color(0xFF6B7280),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  for (final category in _categories) ...[
-                    _CategoryCard(
-                      category: category,
-                      itemCount: category.itemIds.length,
-                      onTap: () => _openCategory(category, [
-                        for (final itemId in category.itemIds)
-                          templateMap[itemId]!,
-                      ]),
-                    ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 16),
+                    for (final category in _categories) ...[
+                      _CategoryCard(
+                        category: category,
+                        itemCount: category.itemIds.length,
+                        onTap: () => _openCategory(category, [
+                          for (final itemId in category.itemIds)
+                            templateMap[itemId]!,
+                        ]),
+                      ),
+                      const SizedBox(height: 14),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -578,10 +583,12 @@ class _CategoryTemplatesScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(category.title)),
-      body: ListView(
-        physics: const ClampingScrollPhysics(),
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-        children: rows,
+      body: WebA4Layout(
+        child: ListView(
+          physics: const ClampingScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+          children: rows,
+        ),
       ),
     );
   }
