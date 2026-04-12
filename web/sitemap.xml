@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://pdftyping.in/</loc>
+    <xhtml:link rel="alternate" hreflang="hi-IN" href="https://pdftyping.in/"/>
+    <xhtml:link rel="alternate" hreflang="en-IN" href="https://pdftyping.in/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pdftyping.in/"/>
     <lastmod>2026-04-12</lastmod>
-    <changefreq>weekly</changefreq>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://pdftyping.in/icons/Icon-512.png</image:loc>
+      <image:title>PDF Typing</image:title>
+    </image:image>
   </url>
 </urlset>

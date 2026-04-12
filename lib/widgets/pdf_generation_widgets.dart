@@ -3,6 +3,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../services/web_pdf_download.dart';
 
+void _goToHome(BuildContext context) {
+  Navigator.of(context, rootNavigator: true).popUntil((route) => route.isFirst);
+}
+
 // ── Show the web PDF success dialog (call after kIsWeb PDF generation) ──
 /// Dismisses the loading dialog, then shows a centered popup with a Download
 /// button.  Future: replace the onDownload body with a reward-ad / AdSense
@@ -289,7 +293,7 @@ class PdfSuccessSheet extends StatelessWidget {
               width: double.infinity,
               height: 46,
               child: TextButton(
-                onPressed: onMakeAnother,
+                onPressed: () => _goToHome(context),
                 style: TextButton.styleFrom(
                   foregroundColor: const Color(0xFF757575),
                   shape: RoundedRectangleBorder(
@@ -459,9 +463,7 @@ class _WebPdfSuccessDialogState extends State<_WebPdfSuccessDialog> {
                 width: double.infinity,
                 height: 44,
                 child: TextButton(
-                  onPressed: _downloading
-                      ? null
-                      : () => Navigator.of(context).pop(),
+                  onPressed: _downloading ? null : () => _goToHome(context),
                   style: TextButton.styleFrom(
                     foregroundColor: const Color(0xFF757575),
                     shape: RoundedRectangleBorder(

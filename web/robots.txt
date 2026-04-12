@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /assets/
-Disallow: /*.dart$
 
 Sitemap: https://pdftyping.in/sitemap.xml
