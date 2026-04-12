@@ -261,8 +261,7 @@ class _ApplicationEditorScreenState extends State<ApplicationEditorScreen> {
       await showWebPdfSuccessDialog(
         context,
         fileName: fileName,
-        onDownload: () =>
-            Printing.sharePdf(bytes: pdfBytes, filename: fileName),
+        pdfBytes: pdfBytes,
       );
       return;
     }

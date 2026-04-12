@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
+import '../services/web_pdf_download.dart';
 
 // ── Show the web PDF success dialog (call after kIsWeb PDF generation) ──
 /// Dismisses the loading dialog, then shows a centered popup with a Download
@@ -8,9 +9,8 @@ import 'dart:async';
 Future<void> showWebPdfSuccessDialog(
   BuildContext context, {
   required String fileName,
-  required Future<void> Function() onDownload,
+  required List<int> pdfBytes,
 }) async {
-  // Dismiss the PdfGeneratingDialog that is still on screen.
   if (Navigator.of(context).canPop()) Navigator.of(context).pop();
   if (!context.mounted) return;
 
@@ -18,7 +18,7 @@ Future<void> showWebPdfSuccessDialog(
     context: context,
     barrierDismissible: false,
     builder: (ctx) =>
-        _WebPdfSuccessDialog(fileName: fileName, onDownload: onDownload),
+        _WebPdfSuccessDialog(fileName: fileName, pdfBytes: pdfBytes),
   );
 }
 
@@ -291,12 +291,9 @@ class PdfSuccessSheet extends StatelessWidget {
 // ── Web-only: centered dialog shown after PDF is generated ──
 class _WebPdfSuccessDialog extends StatefulWidget {
   final String fileName;
-  final Future<void> Function() onDownload;
+  final List<int> pdfBytes;
 
-  const _WebPdfSuccessDialog({
-    required this.fileName,
-    required this.onDownload,
-  });
+  const _WebPdfSuccessDialog({required this.fileName, required this.pdfBytes});
 
   @override
   State<_WebPdfSuccessDialog> createState() => _WebPdfSuccessDialogState();
@@ -306,13 +303,9 @@ class _WebPdfSuccessDialogState extends State<_WebPdfSuccessDialog> {
   bool _downloading = false;
 
   Future<void> _handleDownload() async {
-    // ─── Future ad hook ────────────────────────────────────────────────────
-    // To show a reward ad or AdSense full-screen before download, insert the
-    // ad-display logic here before calling widget.onDownload().
-    // ───────────────────────────────────────────────────────────────────────
     setState(() => _downloading = true);
     try {
-      await widget.onDownload();
+      downloadWebPdf(widget.pdfBytes, widget.fileName);
     } finally {
       if (mounted) {
         setState(() => _downloading = false);

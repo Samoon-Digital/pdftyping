@@ -246,8 +246,7 @@ class _ParmaanPatrEditorScreenState extends State<ParmaanPatrEditorScreen> {
       await showWebPdfSuccessDialog(
         context,
         fileName: fileName,
-        onDownload: () =>
-            Printing.sharePdf(bytes: pdfBytes, filename: fileName),
+        pdfBytes: pdfBytes,
       );
       return;
     }

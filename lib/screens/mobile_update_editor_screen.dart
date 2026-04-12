@@ -248,8 +248,7 @@ class _MobileUpdateEditorScreenState extends State<MobileUpdateEditorScreen> {
       await showWebPdfSuccessDialog(
         context,
         fileName: fileName,
-        onDownload: () =>
-            Printing.sharePdf(bytes: pdfBytes, filename: fileName),
+        pdfBytes: pdfBytes,
       );
       return;
     }

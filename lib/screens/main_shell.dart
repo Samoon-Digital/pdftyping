@@ -100,11 +100,14 @@ class _WebHome extends StatefulWidget {
 }
 
 class _WebHomeState extends State<_WebHome> {
-  @override
-  void initState() {
-    super.initState();
+  bool _popupShown = false;
+
+  void _maybeShowPopup() {
+    if (_popupShown) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && MediaQuery.sizeOf(context).width < 768) {
+      if (!mounted || _popupShown) return;
+      if (MediaQuery.sizeOf(context).width < 768) {
+        _popupShown = true;
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -113,6 +116,12 @@ class _WebHomeState extends State<_WebHome> {
         );
       }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _maybeShowPopup();
   }
 
   @override

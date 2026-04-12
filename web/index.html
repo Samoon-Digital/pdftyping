@@ -99,12 +99,6 @@
       background: #f8fafc;
       display: flex;
       flex-direction: column;
-      transition: opacity 0.25s ease;
-    }
-
-    #sk.hidden {
-      opacity: 0;
-      pointer-events: none;
     }
 
     .sk-bar {
@@ -200,12 +194,20 @@
   </div>
 
   <script>
-    window.addEventListener('flutter-first-frame', function () {
-      var el = document.getElementById('sk');
-      if (!el) return;
-      el.classList.add('hidden');
-      setTimeout(function () { el.remove(); }, 280);
-    });
+    (function () {
+      function hideSkeleton() {
+        var el = document.getElementById('sk');
+        if (!el) return;
+        el.style.transition = 'opacity 0.2s ease';
+        el.style.opacity = '0';
+        setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 220);
+      }
+
+      // Keep shimmer visible until Flutter paints the first real frame.
+      window.addEventListener('flutter-first-frame', function () {
+        hideSkeleton();
+      });
+    })();
   </script>
 
   <script src="flutter_bootstrap.js" async></script>

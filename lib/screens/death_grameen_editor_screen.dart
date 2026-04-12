@@ -270,8 +270,7 @@ class _DeathGrameenEditorScreenState extends State<DeathGrameenEditorScreen> {
       await showWebPdfSuccessDialog(
         context,
         fileName: fileName,
-        onDownload: () =>
-            Printing.sharePdf(bytes: pdfBytes, filename: fileName),
+        pdfBytes: pdfBytes,
       );
       return;
     }
