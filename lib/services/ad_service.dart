@@ -6,7 +6,7 @@ class AdService with WidgetsBindingObserver {
   AdService._();
   static final AdService instance = AdService._();
 
-  static const _appOpenRequestWindow = Duration(milliseconds: 1200);
+  static const _appOpenRequestWindow = Duration(seconds: 12);
   static const _minBackgroundForAppOpen = Duration(seconds: 2);
   static const _appOpenMaxAge = Duration(hours: 4);
   static const _interstitialMaxAge = Duration(hours: 1);
@@ -87,6 +87,10 @@ class AdService with WidgetsBindingObserver {
   void _clearPendingAppOpen() {
     _pendingAppOpenUntil = null;
   }
+
+  /// Call when user navigates into any editor/non-home screen.
+  /// Prevents a loading ad from popping up mid-editor.
+  void onNavigatedAway() => _clearPendingAppOpen();
 
   void pushAppOpenSuppression() {
     _appOpenSuppressionCount++;

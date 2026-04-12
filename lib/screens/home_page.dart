@@ -16,6 +16,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../services/update_service.dart';
+import '../services/ad_service.dart';
 
 class HomePage extends StatefulWidget {
   final VoidCallback? onPdfSaved;
@@ -88,6 +89,13 @@ class _HomePageState extends State<HomePage> {
       color: Color(0xFFAD1457),
     ),
     _TemplateItem(
+      id: 'mayke_ki_jati_adhyaksh',
+      title: 'अध्यक्ष द्वारा प्रमाणित मायके का जाति प्रमाण पत्र',
+      subtitle: 'विवाहित महिला के मायके का जाति प्रमाण पत्र',
+      icon: Icons.badge_rounded,
+      color: Color(0xFFAD1457),
+    ),
+    _TemplateItem(
       id: 'shahri_sabhashad',
       title: 'सभासद द्वारा प्रमाणित प्रमाण पत्र',
       subtitle: 'शहरी क्षेत्र का आय / जाति / निवास प्रमाण पत्र',
@@ -111,10 +119,11 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.verified_user_rounded,
       itemIds: [
         'shahri_sabhashad',
+        'mayke_ki_jati_adhyaksh',
         'parmaan_patr',
         'mayke_ki_jati_gram_pradhan',
       ],
-      dividerAfterItemId: 'shahri_sabhashad',
+      dividerAfterItemId: 'mayke_ki_jati_adhyaksh',
     ),
     _CategorySection(
       id: 'birth_death',
@@ -236,6 +245,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _openEditor(String templateId, String templateTitle) {
+    AdService.instance.onNavigatedAway();
     final Widget screen;
     if (templateId == 'mobile_update') {
       screen = MobileUpdateEditorScreen(
@@ -267,10 +277,14 @@ class _HomePageState extends State<HomePage> {
         onPdfSaved: widget.onPdfSaved,
         editorTitle: templateTitle,
       );
-    } else if (templateId == 'mayke_ki_jati_gram_pradhan') {
+    } else if (templateId == 'mayke_ki_jati_gram_pradhan' ||
+        templateId == 'mayke_ki_jati_adhyaksh') {
       screen = MaykeKiJatiGramPradhanEditorScreen(
         onPdfSaved: widget.onPdfSaved,
         editorTitle: templateTitle,
+        certifierLabel: templateId == 'mayke_ki_jati_adhyaksh'
+            ? 'अध्यक्ष'
+            : 'प्रधान',
       );
     } else if (templateId == 'shahri_sabhashad') {
       screen = ShahriSabhashadEditorScreen(

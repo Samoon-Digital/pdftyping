@@ -14,11 +14,13 @@ import '../widgets/web_a4_layout.dart';
 class MaykeKiJatiGramPradhanEditorScreen extends StatefulWidget {
   final VoidCallback? onPdfSaved;
   final String? editorTitle;
+  final String certifierLabel;
 
   const MaykeKiJatiGramPradhanEditorScreen({
     super.key,
     this.onPdfSaved,
     this.editorTitle,
+    this.certifierLabel = 'प्रधान',
   });
 
   @override
@@ -328,6 +330,14 @@ class _MaykeKiJatiGramPradhanEditorScreenState
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
+              'सूचना: यह प्रारूप ${widget.certifierLabel} द्वारा प्रमाणित मायके के जाति प्रमाण पत्र हेतु है।',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontFamily: 'NotoSansDevanagari',
+                color: const Color(0xFF374151),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
               'विवरण भरें',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontFamily: 'NotoSansDevanagari',
@@ -530,7 +540,7 @@ class _MaykeKiJatiGramPradhanEditorScreenState
         Align(
           alignment: Alignment.center,
           child: Text(
-            'प्रधान द्वारा प्रमाणित मायके का जाति प्रमाण पत्र',
+            '${widget.certifierLabel} द्वारा प्रमाणित मायके का जाति प्रमाण पत्र',
             style: headingStyle,
             textAlign: TextAlign.center,
           ),
@@ -567,7 +577,7 @@ class _MaykeKiJatiGramPradhanEditorScreenState
             Padding(
               padding: const EdgeInsets.only(right: 23),
               child: Text(
-                'प्रधान हस्ताक्षर\nव मोहर',
+                '${widget.certifierLabel} हस्ताक्षर\nव मोहर',
                 style: baseStyle,
                 textAlign: TextAlign.center,
               ),
