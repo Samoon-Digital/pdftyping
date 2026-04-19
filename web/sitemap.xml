@@ -2,17 +2,92 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+
+  <!-- Homepage -->
   <url>
     <loc>https://pdftyping.in/</loc>
     <xhtml:link rel="alternate" hreflang="hi-IN" href="https://pdftyping.in/"/>
     <xhtml:link rel="alternate" hreflang="en-IN" href="https://pdftyping.in/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://pdftyping.in/"/>
-    <lastmod>2026-04-12</lastmod>
-    <changefreq>daily</changefreq>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <image:image>
       <image:loc>https://pdftyping.in/icons/Icon-512.png</image:loc>
-      <image:title>PDF Typing</image:title>
+      <image:title>PDF Typing - हिंदी सरकारी PDF फॉर्म ऑनलाइन भरें</image:title>
     </image:image>
   </url>
+
+  <!-- जाति • आय • निवास प्रमाण पत्र -->
+  <url>
+    <loc>https://pdftyping.in/#shahri-sabhashad</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdftyping.in/#parmaan-patr</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdftyping.in/#mayke-ki-jati-gram-pradhan</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdftyping.in/#mayke-ki-jati-adhyaksh</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- जन्म / मृत्यु प्रमाण पत्र -->
+  <url>
+    <loc>https://pdftyping.in/#death-grameen</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdftyping.in/#asha-janm</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdftyping.in/#asha-janm-cert</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdftyping.in/#sabhashad-mrityu</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- बैंकिंग आवेदन -->
+  <url>
+    <loc>https://pdftyping.in/#bima-hatao</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdftyping.in/#mobile-update</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://pdftyping.in/#aadhar-seeding</loc>
+    <lastmod>2026-04-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
