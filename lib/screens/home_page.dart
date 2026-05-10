@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'bal_aadhaar_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,6 +15,7 @@ class _HomePageState extends State<HomePage> {
       subtitle: '5 साल के अंदर उम्र के बच्चों के लिए',
       icon: Icons.child_care_rounded,
       accent: Color(0xFF0F766E),
+      openScreen: true,
     ),
     _GuideCardData(
       title: 'Aadhaar Biomteric - आधार कार्ड',
@@ -151,12 +153,14 @@ class _GuideCardData {
   final String subtitle;
   final IconData icon;
   final Color accent;
+  final bool openScreen;
 
   const _GuideCardData({
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.accent,
+    this.openScreen = false,
   });
 }
 
@@ -167,62 +171,80 @@ class _GuideCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
+    final onTap = data.openScreen
+        ? () {
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => const BalAadhaarScreen()));
+          }
+        : null;
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(20),
+      child: InkWell(
+        onTap: onTap,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: data.accent.withValues(alpha: 0.14)),
-        boxShadow: [
-          BoxShadow(
-            color: data.accent.withValues(alpha: 0.10),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: data.accent.withValues(alpha: 0.14)),
+            boxShadow: [
+              BoxShadow(
+                color: data.accent.withValues(alpha: 0.10),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [data.accent, data.accent.withValues(alpha: 0.72)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        data.accent,
+                        data.accent.withValues(alpha: 0.72),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(data.icon, color: Colors.white),
                 ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Icon(data.icon, color: Colors.white),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    data.title,
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      height: 1.2,
-                    ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        data.title,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          height: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        data.subtitle,
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          height: 1.35,
+                          color: Color(0xFF5B6472),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 5),
-                  Text(
-                    data.subtitle,
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      height: 1.35,
-                      color: Color(0xFF5B6472),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

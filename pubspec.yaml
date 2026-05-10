@@ -13,11 +13,8 @@ dependencies:
     sdk: flutter
   intl: any
   google_mobile_ads: ^5.1.0
+  in_app_update: ^4.2.3
   shared_preferences: ^2.3.4
-  firebase_core: any
-  firebase_analytics: any
-  firebase_messaging: any
-  flutter_local_notifications: any
 
 dev_dependencies:
   flutter_test:

@@ -65,7 +65,6 @@ android {
 flutter {
     source = "../.."
 }
-apply(plugin = "com.google.gms.google-services")
 
 dependencies {
     implementation("com.android.billingclient:billing:8.1.0")
