@@ -4,15 +4,15 @@ class AppTheme {
   AppTheme._();
 
   // ── Color Palette ──
-  static const Color _primary = Color(0xFF1565C0); // Rich blue
-  static const Color _primaryLight = Color(0xFF1976D2);
-  static const Color _secondary = Color(0xFF00897B); // Teal accent
-  static const Color _surface = Color(0xFFFAFAFA);
+  static const Color _primary = Color(0xFF0B3A6E);
+  static const Color _primaryLight = Color(0xFF1565C0);
+  static const Color _secondary = Color(0xFFF59E0B);
+  static const Color _surface = Color(0xFFFFFBF5);
   static const Color _card = Colors.white;
-  static const Color _scaffoldBg = Color(0xFFF5F7FA);
-  static const Color _textPrimary = Color(0xFF212121);
-  static const Color _textSecondary = Color(0xFF757575);
-  static const Color _divider = Color(0xFFE0E0E0);
+  static const Color _scaffoldBg = Color(0xFFFFF8F0);
+  static const Color _textPrimary = Color(0xFF102033);
+  static const Color _textSecondary = Color(0xFF5B6472);
+  static const Color _divider = Color(0xFFE7E0D6);
 
   static ThemeData get lightTheme {
     return ThemeData(
@@ -20,28 +20,28 @@ class AppTheme {
       brightness: Brightness.light,
       colorSchemeSeed: _primary,
       scaffoldBackgroundColor: _scaffoldBg,
-      fontFamily: 'Roboto',
+      fontFamily: 'NotoSansDevanagari',
 
       // ── AppBar ──
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
-        scrolledUnderElevation: 1,
-        backgroundColor: Colors.white,
-        foregroundColor: _textPrimary,
+        scrolledUnderElevation: 0,
+        backgroundColor: _primary,
+        foregroundColor: Colors.white,
         titleTextStyle: TextStyle(
-          color: _textPrimary,
+          color: Colors.white,
           fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
         ),
       ),
 
       // ── Card ──
       cardTheme: CardThemeData(
-        elevation: 1,
+        elevation: 0,
         color: _card,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       ),
 
@@ -88,17 +88,17 @@ class AppTheme {
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontSize: 28,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.w800,
           color: _textPrimary,
         ),
         headlineMedium: TextStyle(
           fontSize: 22,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: _textPrimary,
         ),
         titleLarge: TextStyle(
           fontSize: 18,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: _textPrimary,
         ),
         bodyLarge: TextStyle(fontSize: 16, color: _textPrimary),

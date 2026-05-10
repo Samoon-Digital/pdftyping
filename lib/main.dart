@@ -9,7 +9,6 @@ import 'services/ad_service.dart';
 
 // Firebase
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
@@ -118,26 +117,6 @@ void main() async {
     }
   });
 
-  // Handle user tapping a notification when the app is in background
-  FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-    FirebaseAnalytics.instance.logEvent(
-      name: 'notification_opened',
-      parameters: {'id': message.messageId ?? ''},
-    );
-  });
-
-  // Handle app opened from a terminated state via a notification
-  final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-  if (initialMessage != null) {
-    FirebaseAnalytics.instance.logEvent(
-      name: 'notification_opened_initial',
-      parameters: {'id': initialMessage.messageId ?? ''},
-    );
-  }
-
-  // Log open event (analytics)
-  FirebaseAnalytics.instance.logAppOpen();
-
   unawaited(AdService.init());
   runApp(const MainApp());
 }
@@ -149,7 +128,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'PDF Typing',
+      title: 'Aadhaar Guide Title',
       theme: AppTheme.lightTheme,
       locale: const Locale('en'),
       supportedLocales: const [Locale('en')],
