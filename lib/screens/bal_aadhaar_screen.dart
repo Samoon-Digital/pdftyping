@@ -201,53 +201,76 @@ class _PoiPoaPobTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(14),
-        child: Table(
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          border: TableBorder.all(color: const Color(0xFFD1D5DB), width: 1),
-          columnWidths: const {
-            0: FixedColumnWidth(56),
-            1: FixedColumnWidth(420),
-            2: FixedColumnWidth(110),
-            3: FixedColumnWidth(110),
-            4: FixedColumnWidth(110),
-          },
+    return Column(
+      children: [
+        _buildDocumentItem(
+          slNo: '5',
+          document:
+              'For Overseas Citizen of India (OCI) cardholders - Valid foreign passport (along with OCI card)',
+          poi: '☑',
+          poa: '☒*',
+          pob: '☑',
+        ),
+        _buildDocumentItem(
+          slNo: '6',
+          document:
+              'For nationals of Nepal and Bhutan:\n(a) Passport of Nepal/Bhutan\n(b) Valid Nepalese/Bhutanese Citizenship Certificate (along with Limited validity Photo Identity Certificate issued by Nepalese Mission / Royal Bhutanese Mission in India)',
+          poi: '☑',
+          poa: '☒*',
+          pob: '☑',
+        ),
+        _buildDocumentItem(
+          slNo: '7',
+          document:
+              'For Long Term Visa holders - Valid Long Term Visa (LTV), issued to minority communities of Afghanistan, Bangladesh and Pakistan (Hindus, Sikhs, Buddhists, Jains, Parsis and Christians)',
+          poi: '☑',
+          poa: '☑*',
+          pob: '☑',
+        ),
+        _buildDocumentItem(
+          slNo: '8',
+          document:
+              'For other foreign nationals - Valid foreign passport (along with valid visa)',
+          poi: '☑',
+          poa: '☒*',
+          pob: '☑',
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDocumentItem({
+    required String slNo,
+    required String document,
+    required String poi,
+    required String poa,
+    required String pob,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF9FAFB),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFD1D5DB)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeaderRow(),
-            _buildDataRow(
-              slNo: '5',
-              document:
-                  'For Overseas Citizen of India (OCI) cardholders - Valid foreign passport (along with OCI card)',
-              poi: '☑',
-              poa: '☒*',
-              pob: '☑',
+            Text(
+              '$slNo. $document',
+              style: const TextStyle(fontSize: 12.5, height: 1.4),
             ),
-            _buildDataRow(
-              slNo: '6',
-              document:
-                  'For nationals of Nepal and Bhutan:\n(a) Passport of Nepal/Bhutan\n(b) Valid Nepalese/Bhutanese Citizenship Certificate (along with Limited validity Photo Identity Certificate issued by Nepalese Mission / Royal Bhutanese Mission in India)',
-              poi: '☑',
-              poa: '☒*',
-              pob: '☑',
-            ),
-            _buildDataRow(
-              slNo: '7',
-              document:
-                  'For Long Term Visa holders - Valid Long Term Visa (LTV), issued to minority communities of Afghanistan, Bangladesh and Pakistan (Hindus, Sikhs, Buddhists, Jains, Parsis and Christians)',
-              poi: '☑',
-              poa: '☑*',
-              pob: '☑',
-            ),
-            _buildDataRow(
-              slNo: '8',
-              document:
-                  'For other foreign nationals - Valid foreign passport (along with valid visa)',
-              poi: '☑',
-              poa: '☒*',
-              pob: '☑',
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(child: _buildStatusCell('POI', poi)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildStatusCell('POA', poa)),
+                const SizedBox(width: 8),
+                Expanded(child: _buildStatusCell('POB', pob)),
+              ],
             ),
           ],
         ),
@@ -255,106 +278,31 @@ class _PoiPoaPobTable extends StatelessWidget {
     );
   }
 
-  TableRow _buildHeaderRow() {
-    return TableRow(
-      decoration: const BoxDecoration(color: Color(0xFFF3F4F6)),
-      children: const [
-        _TableCellBox(
-          child: Text(
-            'Sl. No.',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+  Widget _buildStatusCell(String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Column(
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF374151),
+            ),
           ),
-        ),
-        _TableCellBox(
-          child: Text(
-            'List of documents',
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+          const SizedBox(height: 3),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
           ),
-        ),
-        _TableCellBox(
-          child: Text(
-            'POI',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
-          ),
-        ),
-        _TableCellBox(
-          child: Text(
-            'POA',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
-          ),
-        ),
-        _TableCellBox(
-          child: Text(
-            'POB',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
-          ),
-        ),
-      ],
-    );
-  }
-
-  TableRow _buildDataRow({
-    required String slNo,
-    required String document,
-    required String poi,
-    required String poa,
-    required String pob,
-  }) {
-    return TableRow(
-      children: [
-        _TableCellBox(
-          child: Text(
-            slNo,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
-          ),
-        ),
-        _TableCellBox(
-          child: Text(
-            document,
-            style: const TextStyle(fontSize: 12.5, height: 1.4),
-          ),
-        ),
-        _TableCellBox(
-          child: Text(
-            poi,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-        ),
-        _TableCellBox(
-          child: Text(
-            poa,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-        ),
-        _TableCellBox(
-          child: Text(
-            pob,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _TableCellBox extends StatelessWidget {
-  final Widget child;
-
-  const _TableCellBox({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-      child: child,
+        ],
+      ),
     );
   }
 }
