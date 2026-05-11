@@ -176,10 +176,10 @@ class _BalAadhaarScreenState extends State<BalAadhaarScreen> {
             accent: const Color(0xFF374151),
             children: const [
               _Bullet(
-                'प्रश्न: नीचे दिए दस्तावेजों में से कौन-कौन से POI (Identity), POA (Address in India), और POB (Date of Birth) के रूप में मान्य हैं?',
+                'जो विदेशी लोग (OCI, LTV, नेपाल-भूटान नागरिक आदि) पिछले 12 महीनों में कम से कम 182 दिन भारत में रहे हैं, उन्हें आधार बनवाने के लिए ये दस्तावेज़ देने होंगे।',
               ),
               _Bullet(
-                'Question: Which documents are accepted as POI, POA (address in India), and POB for foreign nationals staying in India for 182 days or more in the immediately preceding 12 months?',
+                'Documents applicable for Overseas Citizen of India (OCI) cardholders, Long Term Visa (LTV) holders, nationals of Nepal and Bhutan and other foreign nationals who have stayed in India for 182 days or more in the immediately preceding 12 months.',
               ),
               SizedBox(height: 6),
               _PoiPoaPobTable(),
@@ -206,7 +206,7 @@ class _PoiPoaPobTable extends StatelessWidget {
         _buildDocumentItem(
           slNo: '5',
           document:
-              'For Overseas Citizen of India (OCI) cardholders - Valid foreign passport (along with OCI card)',
+              'Overseas Citizen of India (विदेश में रहने वाले भारतीय मूल के नागरिक) कार्ड रखने वाले व्यक्ति के लिए वैध विदेशी पासपोर्ट के साथ OCI कार्ड दिखाना जरूरी होगा।\nFor Overseas Citizen of India (OCI) cardholders - Valid foreign passport (along with OCI card)',
           poi: '☑',
           poa: '☒*',
           pob: '☑',
@@ -214,7 +214,7 @@ class _PoiPoaPobTable extends StatelessWidget {
         _buildDocumentItem(
           slNo: '6',
           document:
-              'For nationals of Nepal and Bhutan:\n(a) Passport of Nepal/Bhutan\n(b) Valid Nepalese/Bhutanese Citizenship Certificate (along with Limited validity Photo Identity Certificate issued by Nepalese Mission / Royal Bhutanese Mission in India)',
+              'नेपाल और भूटान के नागरिकों के लिए / For nationals of Nepal and Bhutan\n(a) नेपाल/भूटान का पासपोर्ट। Passport of Nepal/Bhutan\n(b) नेपाल और भूटान के नागरिकों के लिए नागरिकता प्रमाण पत्र या वैध पहचान दस्तावेज के साथ उनके दूतावास (भारत में) द्वारा जारी सीमित समय वाला फोटो पहचान पत्र भी देना जरूरी है।\n(b) Valid Nepalese/Bhutanese Citizenship Certificate (along with Limited validity Photo Identity Certificate issued by Nepalese Mission / Royal Bhutanese Mission in India)',
           poi: '☑',
           poa: '☒*',
           pob: '☑',
@@ -222,7 +222,7 @@ class _PoiPoaPobTable extends StatelessWidget {
         _buildDocumentItem(
           slNo: '7',
           document:
-              'For Long Term Visa holders - Valid Long Term Visa (LTV), issued to minority communities of Afghanistan, Bangladesh and Pakistan (Hindus, Sikhs, Buddhists, Jains, Parsis and Christians)',
+              'लॉन्ग टर्म वीजा (Long Term Visa) रखने वाले व्यक्ति के लिए — जो अफगानिस्तान, बांग्लादेश और पाकिस्तान के अल्पसंख्यक समुदायों (हिंदू, सिख, बौद्ध, जैन, पारसी और ईसाई) से हैं और भारत में रहने के लिए भारत सरकार द्वारा वैध लंबी अवधि का वीजा प्राप्त किया है।\nFor Long Term Visa holders - Valid Long Term Visa (LTV), issued to minority communities of Afghanistan, Bangladesh and Pakistan (Hindus, Sikhs, Buddhists, Jains, Parsis and Christians)',
           poi: '☑',
           poa: '☑*',
           pob: '☑',
@@ -230,7 +230,7 @@ class _PoiPoaPobTable extends StatelessWidget {
         _buildDocumentItem(
           slNo: '8',
           document:
-              'For other foreign nationals - Valid foreign passport (along with valid visa)',
+              'अन्य विदेशी नागरिकों के लिए — वैध विदेशी पासपोर्ट के साथ वैध वीजा देना जरूरी होगा।\nFor other foreign nationals - Valid foreign passport (along with valid visa)',
           poi: '☑',
           poa: '☒*',
           pob: '☑',
