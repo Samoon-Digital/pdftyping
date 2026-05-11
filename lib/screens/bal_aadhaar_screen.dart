@@ -169,8 +169,192 @@ class _BalAadhaarScreenState extends State<BalAadhaarScreen> {
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          _SectionCard(
+            title:
+                '4- OCI/LTV/Nepal/Bhutan व अन्य विदेशी नागरिकों के लिए दस्तावेज (POI/POA/POB)',
+            accent: const Color(0xFF374151),
+            children: const [
+              _Bullet(
+                'प्रश्न: नीचे दिए दस्तावेजों में से कौन-कौन से POI (Identity), POA (Address in India), और POB (Date of Birth) के रूप में मान्य हैं?',
+              ),
+              _Bullet(
+                'Question: Which documents are accepted as POI, POA (address in India), and POB for foreign nationals staying in India for 182 days or more in the immediately preceding 12 months?',
+              ),
+              SizedBox(height: 6),
+              _PoiPoaPobTable(),
+              SizedBox(height: 8),
+              Text(
+                '* POA में ✖* का अर्थ है कि यह श्रेणी सामान्यतः भारतीय पता प्रमाण नहीं मानी जाती।',
+                style: TextStyle(fontSize: 12.5, color: Color(0xFF4B5563)),
+              ),
+            ],
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _PoiPoaPobTable extends StatelessWidget {
+  const _PoiPoaPobTable();
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: Table(
+          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+          border: TableBorder.all(color: const Color(0xFFD1D5DB), width: 1),
+          columnWidths: const {
+            0: FixedColumnWidth(56),
+            1: FixedColumnWidth(420),
+            2: FixedColumnWidth(110),
+            3: FixedColumnWidth(110),
+            4: FixedColumnWidth(110),
+          },
+          children: [
+            _buildHeaderRow(),
+            _buildDataRow(
+              slNo: '5',
+              document:
+                  'For Overseas Citizen of India (OCI) cardholders - Valid foreign passport (along with OCI card)',
+              poi: '☑',
+              poa: '☒*',
+              pob: '☑',
+            ),
+            _buildDataRow(
+              slNo: '6',
+              document:
+                  'For nationals of Nepal and Bhutan:\n(a) Passport of Nepal/Bhutan\n(b) Valid Nepalese/Bhutanese Citizenship Certificate (along with Limited validity Photo Identity Certificate issued by Nepalese Mission / Royal Bhutanese Mission in India)',
+              poi: '☑',
+              poa: '☒*',
+              pob: '☑',
+            ),
+            _buildDataRow(
+              slNo: '7',
+              document:
+                  'For Long Term Visa holders - Valid Long Term Visa (LTV), issued to minority communities of Afghanistan, Bangladesh and Pakistan (Hindus, Sikhs, Buddhists, Jains, Parsis and Christians)',
+              poi: '☑',
+              poa: '☑*',
+              pob: '☑',
+            ),
+            _buildDataRow(
+              slNo: '8',
+              document:
+                  'For other foreign nationals - Valid foreign passport (along with valid visa)',
+              poi: '☑',
+              poa: '☒*',
+              pob: '☑',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  TableRow _buildHeaderRow() {
+    return TableRow(
+      decoration: const BoxDecoration(color: Color(0xFFF3F4F6)),
+      children: const [
+        _TableCellBox(
+          child: Text(
+            'Sl. No.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+          ),
+        ),
+        _TableCellBox(
+          child: Text(
+            'List of documents',
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+          ),
+        ),
+        _TableCellBox(
+          child: Text(
+            'POI',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+          ),
+        ),
+        _TableCellBox(
+          child: Text(
+            'POA',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+          ),
+        ),
+        _TableCellBox(
+          child: Text(
+            'POB',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
+          ),
+        ),
+      ],
+    );
+  }
+
+  TableRow _buildDataRow({
+    required String slNo,
+    required String document,
+    required String poi,
+    required String poa,
+    required String pob,
+  }) {
+    return TableRow(
+      children: [
+        _TableCellBox(
+          child: Text(
+            slNo,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700),
+          ),
+        ),
+        _TableCellBox(
+          child: Text(
+            document,
+            style: const TextStyle(fontSize: 12.5, height: 1.4),
+          ),
+        ),
+        _TableCellBox(
+          child: Text(
+            poi,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+        ),
+        _TableCellBox(
+          child: Text(
+            poa,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+        ),
+        _TableCellBox(
+          child: Text(
+            pob,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TableCellBox extends StatelessWidget {
+  final Widget child;
+
+  const _TableCellBox({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+      child: child,
     );
   }
 }
