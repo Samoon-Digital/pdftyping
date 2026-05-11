@@ -172,7 +172,7 @@ class _BalAadhaarScreenState extends State<BalAadhaarScreen> {
           const SizedBox(height: 12),
           _SectionCard(
             title:
-                '4- OCI/LTV/Nepal/Bhutan व अन्य विदेशी नागरिकों के लिए दस्तावेज (POI/POA/POB)',
+                '4- OCI/LTV/Nepal/Bhutan व अन्य विदेशी नागरिकों के लिए दस्तावेज (पहचान का प्रमाण / पते का प्रमाण / जन्म का प्रमाण)',
             accent: const Color(0xFF374151),
             children: const [
               _Bullet(
@@ -185,7 +185,7 @@ class _BalAadhaarScreenState extends State<BalAadhaarScreen> {
               _PoiPoaPobTable(),
               SizedBox(height: 8),
               Text(
-                '* POA में ✖* का अर्थ है कि यह श्रेणी सामान्यतः भारतीय पता प्रमाण नहीं मानी जाती।',
+                '* पते का प्रमाण (Proof of Address) में ✖* का अर्थ है कि यह श्रेणी सामान्यतः भारतीय पता प्रमाण नहीं मानी जाती।',
                 style: TextStyle(fontSize: 12.5, color: Color(0xFF4B5563)),
               ),
             ],
@@ -265,11 +265,26 @@ class _PoiPoaPobTable extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                Expanded(child: _buildStatusCell('POI', poi)),
+                Expanded(
+                  child: _buildStatusCell(
+                    'पहचान का प्रमाण - Proof of identity',
+                    poi,
+                  ),
+                ),
                 const SizedBox(width: 8),
-                Expanded(child: _buildStatusCell('POA', poa)),
+                Expanded(
+                  child: _buildStatusCell(
+                    'पते का प्रमाण - Proof of Address',
+                    poa,
+                  ),
+                ),
                 const SizedBox(width: 8),
-                Expanded(child: _buildStatusCell('POB', pob)),
+                Expanded(
+                  child: _buildStatusCell(
+                    'जन्म का प्रमाण - Proof of Birth',
+                    pob,
+                  ),
+                ),
               ],
             ),
           ],
@@ -290,6 +305,7 @@ class _PoiPoaPobTable extends StatelessWidget {
         children: [
           Text(
             label,
+            textAlign: TextAlign.center,
             style: const TextStyle(
               fontSize: 11.5,
               fontWeight: FontWeight.w700,
