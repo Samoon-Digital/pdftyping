@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'aadhaar_biometric_screen.dart';
 import 'bal_aadhaar_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,13 +16,14 @@ class _HomePageState extends State<HomePage> {
       subtitle: '5 साल के अंदर उम्र के बच्चों के लिए',
       icon: Icons.child_care_rounded,
       accent: Color(0xFF0F766E),
-      openScreen: true,
+      screen: BalAadhaarScreen(),
     ),
     _GuideCardData(
       title: 'Aadhaar Biomteric - आधार कार्ड',
       subtitle: '5 साल के ऊपर उम्र के बच्चों के लिए',
       icon: Icons.fingerprint_rounded,
       accent: Color(0xFF1565C0),
+      screen: AadhaarBiometricScreen(),
     ),
     _GuideCardData(
       title: 'Name Update - नाम संसोधन',
@@ -153,14 +155,14 @@ class _GuideCardData {
   final String subtitle;
   final IconData icon;
   final Color accent;
-  final bool openScreen;
+  final Widget? screen;
 
   const _GuideCardData({
     required this.title,
     required this.subtitle,
     required this.icon,
     required this.accent,
-    this.openScreen = false,
+    this.screen,
   });
 }
 
@@ -171,11 +173,11 @@ class _GuideCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final onTap = data.openScreen
+    final onTap = data.screen != null
         ? () {
             Navigator.of(
               context,
-            ).push(MaterialPageRoute(builder: (_) => const BalAadhaarScreen()));
+            ).push(MaterialPageRoute(builder: (_) => data.screen!));
           }
         : null;
 
