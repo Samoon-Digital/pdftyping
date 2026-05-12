@@ -44,7 +44,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               setState(() => _notificationsEnabled = value);
               _saveSettings();
             },
-            activeColor: Theme.of(context).colorScheme.primary,
+            activeThumbColor: Theme.of(context).colorScheme.primary,
           ),
           const Divider(),
           ListTile(
