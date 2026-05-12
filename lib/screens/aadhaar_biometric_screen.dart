@@ -18,7 +18,7 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _HeaderCard(stepText: _showStepTwo ? 'Step 2 of 2' : 'Step 1 of 2'),
+          const _HeaderCard(),
           const SizedBox(height: 16),
           if (_showStepTwo) ...[
             const Padding(
@@ -74,7 +74,12 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
               onToggle: () => setState(
                 () => _expandedSections['poa'] = !_expandedSections['poa']!,
               ),
-              documents: const ['Documents will be populated here'],
+              documents: const [
+                '1 - Domicile Certificate issued by State Government - निवास प्रमाण पत्र तहसील स्तर / राज्य सरकार द्वारा निर्गत',
+                '2 - Scheduled Tribe (ST) / Scheduled Caste (SC) / Other Backward Caste (OBC) Certificate issued by Central Government / State Government - केंद्र सरकार / राज्य सरकार / तहसील स्तर द्वारा जारी अनुसूचित जनजाति (ST) / अनुसूचित जाति (SC) / अन्य पिछड़ा वर्ग (OBC) जाति प्रमाण पत्र',
+                '3 - Document to prove legal guardianship issued by Central Government / State Government authority / court of law under relevant Acts (Guardians and Wards Act, 1890 / National Trust Act, 1999 / Rights of Persons with Disabilities Act, 2016) - गार्जियनशिप सर्टिफिकेट / अभिभावकता प्रमाण पत्र / कोर्ट द्वारा जारी गार्जियन ऑर्डर',
+                '4 - Certificate issued on UIDAI Standard Certificate format by District Child Protection Officer (DCPO) along with order of placement of child in CCI in Form 18 of Juvenile Justice Model Rules, 2016 (as amended in 2022) - UIDAI मानक प्रमाणपत्र प्रारूप पर जिला बाल संरक्षण अधिकारी (DCPO) द्वारा जारी प्रमाणपत्र, साथ में किशोर न्याय मॉडल नियम, 2016 (2022 में संशोधित) के प्रपत्र 18 में बालक/बालिका को बाल देखभाल संस्थान (CCI) में रखने के आदेश सहित।',
+              ],
             ),
             const SizedBox(height: 12),
             _DocumentSection(
@@ -176,9 +181,7 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
 }
 
 class _HeaderCard extends StatelessWidget {
-  final String stepText;
-
-  const _HeaderCard({required this.stepText});
+  const _HeaderCard();
 
   @override
   Widget build(BuildContext context) {
@@ -217,12 +220,13 @@ class _HeaderCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text(
-            stepText,
-            style: const TextStyle(
+          const Text(
+            'आधार नामांकन से पहले सभी महत्वपूर्ण सूचनाएं ध्यान से पढ़ें।',
+            style: TextStyle(
               color: Colors.white,
               fontSize: 13,
               fontWeight: FontWeight.w700,
+              height: 1.35,
             ),
           ),
         ],
@@ -289,39 +293,45 @@ class _DocumentSection extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (isExpanded) ...[
-                  const SizedBox(height: 10),
-                  ...documents
-                      .map(
-                        (doc) => Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '• ',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: borderAccent,
+                AnimatedSize(
+                  duration: const Duration(milliseconds: 180),
+                  curve: Curves.easeOut,
+                  child: isExpanded
+                      ? Column(
+                          children: [
+                            const SizedBox(height: 10),
+                            ...documents.map(
+                              (doc) => Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '• ',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: borderAccent,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        doc,
+                                        style: const TextStyle(
+                                          fontSize: 12.5,
+                                          height: 1.4,
+                                          color: Color(0xFF374151),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              Expanded(
-                                child: Text(
-                                  doc,
-                                  style: const TextStyle(
-                                    fontSize: 12.5,
-                                    height: 1.4,
-                                    color: Color(0xFF374151),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ],
+                            ),
+                          ],
+                        )
+                      : const SizedBox.shrink(),
+                ),
               ],
             ),
           ),
