@@ -10,6 +10,7 @@ class Aadhaar18YearsScreen extends StatefulWidget {
 class _Aadhaar18YearsScreenState extends State<Aadhaar18YearsScreen> {
   bool _showStepTwo = false;
   bool _identityExpanded = false;
+  bool _addressExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +72,38 @@ class _Aadhaar18YearsScreenState extends State<Aadhaar18YearsScreen> {
                 '12 - Third gender / Transgender Identity Card / Certificate issued under Transgender Persons (Protection of Rights) Act, 2019 - ट्रांसजेंडर व्यक्ति का पहचान पत्र/प्रमाण पत्र (अधिनियम 2019 के तहत जारी)।',
                 '13 - Certificate issued by Gazetted Officer at NACO / State Health Department / State AIDS Control Society (or nominee) as per Supreme Court order dated 19.05.2022 - NACO / राज्य स्वास्थ्य विभाग / State AIDS Control Society (या नामित अधिकारी) द्वारा जारी प्रमाण पत्र।',
                 '14 - Prisoner Induction Document (PID) issued by Prison Officer with signature and seal - जेल अधिकारी द्वारा हस्ताक्षर और मुहर के साथ जारी PID दस्तावेज।',
+              ],
+            ),
+            const SizedBox(height: 12),
+            _DocumentSection(
+              title: 'Proof of Address - पते का प्रमाण',
+              accent: const Color(0xFFDCFCE7),
+              borderAccent: const Color(0xFF0F766E),
+              isExpanded: _addressExpanded,
+              onToggle: () =>
+                  setState(() => _addressExpanded = !_addressExpanded),
+              documents: const [
+                '1 - Valid Indian Passport - वैध भारतीय पासपोर्ट',
+                '2 - Ration /PDS Photograph Card/e-Ration Card - राशन कार्ड या ई-राशन कार्ड, जिस पर आपकी फोटो लगी हो।',
+                '3 - Voter Identity Card /e-Voter Identity Card whose details are displayed online on the website of the Election Commission of India or the Chief Electoral Officer concerned - वोटर आईडी कार्ड / ई-वोटर आईडी कार्ड, जिसकी जानकारी चुनाव आयोग की वेबसाइट पर ऑनलाइन दिखाई देती हो।',
+                '4 - Service Photo Identity Card issued by Central Government/State Government/ PSU/ regulatory body / statutory body - सरकारी/कंपनी वाला आईडी कार्ड (जिसमें आपकी फोटो हो)।',
+                '5 - Pensioner Photo Identity Card / Freedom Fighter Photo Identity Card / Pension Payment Order issued by Central Government/ State Government/ PSU / regulatory body / statutory body - पेंशनर का फोटो वाला पहचान पत्र / स्वतंत्रता सेनानी का फोटो वाला पहचान पत्र / या पेंशन मिलने का सरकारी कागज (PPO नंबर वाला), जो सरकार देती है।',
+                '6 - Certificate as per the UIDAI prescribed format, jointly signed and stamped by the Head of Shelter Home registered under RPwD Act, 2016 and the District Social Welfare Officer (DSWO) / Authorized Officer of equivalent rank for disability related matters in the district - यह एक सरकारी प्रमाण पत्र है जो उन लोगों के लिए बनता है जो शेल्टर होम (सरकारी आश्रय गृह) में रहते हैं और जिनकी डिसएबिलिटी (विकलांगता) से जुड़ी पहचान और रिकॉर्ड सही करने के लिए दिया जाता है। यह कागज शेल्टर होम का हेड + जिला समाज कल्याण अधिकारी मिलकर साइन और स्टैम्प करके बनाते हैं।',
+                '7 - MGNREGA/NREGS Job Card and Domicile Certificate issued by State Government - MGNREGA जॉब कार्ड और राज्य सरकार द्वारा जारी डोमिसाइल प्रमाण पत्र (निवास प्रमाण पत्र)।',
+                '8 - Scheduled Tribe (ST) / Scheduled Caste (SC) / Other Backward Caste (OBC) Certificate issued by Central Government / State Government - केंद्र सरकार / राज्य सरकार / तहसील स्तर द्वारा जारी अनुसूचित जनजाति (ST) / अनुसूचित जाति (SC) / अन्य पिछड़ा वर्ग (OBC) जाति प्रमाण पत्र।',
+                '9 - Third gender / Transgender Identity Card / Certificate issued under the Transgender Persons (Protection of Rights) Act, 2019 and rules made thereunder - ट्रांसजेंडर व्यक्ति का पहचान पत्र/प्रमाण पत्र (ट्रांसजेंडर व्यक्तियों के अधिकार संरक्षण अधिनियम, 2019 के तहत जारी)।',
+                '10 - Certificate issued on UIDAI Standard Certificate format by (i) MP/ MLA/ MLC/ Municipal Councillor (ii) Gazetted Officer Group A/ EPFO Officer (iii) Tehsildar/ Gazetted Officer Group B - सांसद / विधायक / विधान परिषद सदस्य / नगर पार्षद या ग्रुप A/B गजेटेड अधिकारी, EPFO अधिकारी या तहसीलदार द्वारा UIDAI मानक प्रमाण पत्र प्रारूप में जारी प्रमाण पत्र।',
+                '11 - Gazetted Officer at National AIDS Control Organisation (NACO) / State Health Department / Project Director of the State AIDS Control Society or nominee (pursuance of Supreme Court Judgment dated 19.5.2022) - NACO / State Health Department / State AIDS Control Society (or nominee) द्वारा जारी प्रमाण पत्र (माननीय सुप्रीम कोर्ट आदेश 19.05.2022 के अनुसार)।',
+                '12 - Recognised educational institution (signed by the Head of Institute, only for the institute students concerned) - मान्यता प्राप्त शिक्षण संस्थान (जिस पर संस्था के प्रमुख द्वारा केवल संबंधित विद्यार्थियों के लिए हस्ताक्षर किया गया हो)।',
+                '13 - Village Panchayat Head/ President or Mukhiya/ Gaon Bura/ equivalent authority (rural) / Village Panchayat Secretary/ Village Revenue Officer or equivalent - ग्राम पंचायत प्रमुख / मुखिया / गाँव बुड़ा / समकक्ष प्राधिकारी / ग्राम पंचायत सचिव / ग्राम राजस्व अधिकारी या समकक्ष।',
+                '14 - Electricity bill (pre-paid/post-paid, not older than 3 months) - बिजली बिल (प्री-पेड/पोस्ट-पेड), जो 3 महीने से अधिक पुराना न हो।',
+                '15 - Water bill (not older than 3 months) - पानी का बिल (जो 3 महीने से अधिक पुराना न हो)।',
+                '16 - Telephone landline bill/ post-paid mobile bill/ broadband bill (not older than 3 months) - लैंडलाइन टेलीफोन बिल / पोस्ट-पेड मोबाइल बिल / ब्रॉडबैंड बिल (जो 3 महीने से अधिक पुराना न हो)।',
+                '17 - Valid sale agreement/ gift deed registered with Registrar Office, or registered/unregistered rent, lease agreement or leave and licence agreement - बिक्री समझौता / उपहार विलेख / पंजीकृत या किराये का समझौता / लीज या रहने की अनुमति वाला समझौता (जो रजिस्ट्रार के पास दर्ज हो)।',
+                '18 - Gas bill (not older than 3 months) - 3 महीने से अधिक पुराना न हो ऐसा गैस बिल (LPG/पाइप्ड गैस का बिल)।',
+                '19 - Allotment letter of accommodation issued by Central Government/ State Government/ PSU / regulatory body / statutory body (not older than 1 year) - केंद्र सरकार / राज्य सरकार / PSU / नियामक प्राधिकरण / वैधानिक निकाय द्वारा जारी आवास आवंटन पत्र (जो 1 वर्ष से अधिक पुराना न हो)।',
+                '20 - Life or Medical insurance policy (valid up to 1 year from date of issue) - जीवन या मेडिकल बीमा पॉलिसी (जो पॉलिसी जारी होने की तारीख से 1 वर्ष तक वैध हो)।',
+                '21 - Prisoner Induction Document (PID) issued by Prison Officer with signature and seal - Prisoner Induction Document (PID) जो जेल अधिकारी द्वारा हस्ताक्षर और मुहर के साथ जारी किया जाता है।',
               ],
             ),
             const SizedBox(height: 16),
