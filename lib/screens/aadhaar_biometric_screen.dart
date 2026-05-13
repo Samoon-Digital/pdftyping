@@ -113,7 +113,11 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
               onToggle: () => setState(
                 () => _expandedSections['pob'] = !_expandedSections['pob']!,
               ),
-              documents: const ['Documents will be populated here'],
+              documents: const [
+                '1 - Birth certificate issued under the Registration of Births and Deaths Act, 1969 and the rules made thereunder - जन्म और मृत्यु पंजीकरण अधिनियम, 1969 तथा उसके तहत बनाए गए नियमों के अनुसार जारी किया गया जन्म प्रमाण पत्र',
+                '2 - Valid Indian Passport - वैध भारतीय पासपोर्ट',
+                '3 - Third gender / Transgender Identity Card / Certificate issued under the Transgender Persons (Protection of Rights) Act, 2019 and rules made thereunder - तीसरे लिंग / ट्रांसजेंडर पहचान पत्र / प्रमाण पत्र, जो ट्रांसजेंडर व्यक्तियों (अधिकारों का संरक्षण) अधिनियम, 2019 और उसके तहत बनाए गए नियमों के अनुसार जारी किया गया हो।',
+              ],
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
@@ -324,32 +328,8 @@ class _DocumentSection extends StatelessWidget {
                           children: [
                             const SizedBox(height: 10),
                             ...documents.map(
-                              (doc) => Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '• ',
-                                      style: TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: borderAccent,
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        doc,
-                                        style: const TextStyle(
-                                          fontSize: 12.5,
-                                          height: 1.4,
-                                          color: Color(0xFF374151),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                              (doc) =>
+                                  _DocumentItem(doc: doc, accent: borderAccent),
                             ),
                           ],
                         )
@@ -359,6 +339,62 @@ class _DocumentSection extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DocumentItem extends StatelessWidget {
+  final String doc;
+  final Color accent;
+
+  const _DocumentItem({required this.doc, required this.accent});
+
+  @override
+  Widget build(BuildContext context) {
+    final parts = doc.split(' - ');
+    final numbering = parts[0];
+    final english = parts.length > 1 ? parts[1] : '';
+    final hindi = parts.length > 2 ? parts.sublist(2).join(' - ') : '';
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '• ',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: accent,
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$numbering - $english',
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    height: 1.35,
+                    color: Color(0xFF374151),
+                  ),
+                ),
+                if (hindi.isNotEmpty)
+                  Text(
+                    hindi,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      height: 1.35,
+                      color: Color(0xFF374151),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
