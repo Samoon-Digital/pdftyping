@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'aadhaar_18_years_screen.dart';
 import 'aadhaar_biometric_screen.dart';
 import 'bal_aadhaar_screen.dart';
 
@@ -20,10 +21,17 @@ class _HomePageState extends State<HomePage> {
     ),
     _GuideCardData(
       title: 'Aadhaar Biomteric - आधार कार्ड',
-      subtitle: '5 साल के ऊपर उम्र के बच्चों के लिए',
+      subtitle: '5 साल से ऊपर 18 साल से कम उम्र के लिए',
       icon: Icons.fingerprint_rounded,
       accent: Color(0xFF1565C0),
       screen: AadhaarBiometricScreen(),
+    ),
+    _GuideCardData(
+      title: 'Aadhaar Biomteric - आधार कार्ड',
+      subtitle: '18 साल ऊपर के व्यक्ति के लिए केवल',
+      icon: Icons.fingerprint_rounded,
+      accent: Color(0xFF1565C0),
+      screen: Aadhaar18YearsScreen(),
     ),
     _GuideCardData(
       title: 'Name Update - नाम संसोधन',
