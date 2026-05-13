@@ -3,6 +3,7 @@ import 'aadhaar_18_years_screen.dart';
 import 'aadhaar_biometric_screen.dart';
 import 'bal_aadhaar_screen.dart';
 import 'name_update_screen.dart';
+import 'address_update_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -52,6 +53,7 @@ class _HomePageState extends State<HomePage> {
       subtitle: 'पिता / पति का नाम व पता संसोधन',
       icon: Icons.location_on_rounded,
       accent: Color(0xFFF59E0B),
+      screen: AddressUpdateScreen(),
     ),
   ];
 
