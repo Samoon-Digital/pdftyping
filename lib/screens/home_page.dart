@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'aadhaar_18_years_screen.dart';
 import 'aadhaar_biometric_screen.dart';
 import 'bal_aadhaar_screen.dart';
+import 'name_update_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -38,6 +39,7 @@ class _HomePageState extends State<HomePage> {
       subtitle: 'नाम संसोधन / नाम बदलाव के लिए',
       icon: Icons.badge_rounded,
       accent: Color(0xFF7C3AED),
+      screen: NameUpdateScreen(),
     ),
     _GuideCardData(
       title: 'Date Of Birth Update - जन्मतिथि संसोधन',
