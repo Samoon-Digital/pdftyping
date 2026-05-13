@@ -9,7 +9,12 @@ class AadhaarBiometricScreen extends StatefulWidget {
 
 class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
   bool _showStepTwo = false;
-  final _expandedSections = {'poi': false, 'poa': false, 'pob': false};
+  final _expandedSections = {
+    'poi': false,
+    'poa': false,
+    'por': false,
+    'pob': false,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +84,24 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
                 '2 - Scheduled Tribe (ST) / Scheduled Caste (SC) / Other Backward Caste (OBC) Certificate issued by Central Government / State Government - केंद्र सरकार / राज्य सरकार / तहसील स्तर द्वारा जारी अनुसूचित जनजाति (ST) / अनुसूचित जाति (SC) / अन्य पिछड़ा वर्ग (OBC) जाति प्रमाण पत्र',
                 '3 - Document to prove legal guardianship issued by Central Government / State Government authority / court of law under relevant Acts (Guardians and Wards Act, 1890 / National Trust Act, 1999 / Rights of Persons with Disabilities Act, 2016) - गार्जियनशिप सर्टिफिकेट / अभिभावकता प्रमाण पत्र / कोर्ट द्वारा जारी गार्जियन ऑर्डर',
                 '4 - Certificate issued on UIDAI Standard Certificate format by District Child Protection Officer (DCPO) along with order of placement of child in CCI in Form 18 of Juvenile Justice Model Rules, 2016 (as amended in 2022) - UIDAI मानक प्रमाणपत्र प्रारूप पर जिला बाल संरक्षण अधिकारी (DCPO) द्वारा जारी प्रमाणपत्र, साथ में किशोर न्याय मॉडल नियम, 2016 (2022 में संशोधित) के प्रपत्र 18 में बालक/बालिका को बाल देखभाल संस्थान (CCI) में रखने के आदेश सहित।',
+              ],
+            ),
+            const SizedBox(height: 12),
+            _DocumentSection(
+              title: 'Proof of Relationship - रिश्ते का प्रमाण',
+              accent: const Color(0xFFE0E7FF),
+              borderAccent: const Color(0xFF7C3AED),
+              isExpanded: _expandedSections['por']!,
+              onToggle: () => setState(
+                () => _expandedSections['por'] = !_expandedSections['por']!,
+              ),
+              documents: const [
+                '1 - Birth certificate issued under the Registration of Births and Deaths Act, 1969 and the rules made thereunder - जन्म और मृत्यु पंजीकरण अधिनियम, 1969 तथा उसके तहत बनाए गए नियमों के अनुसार जारी किया गया जन्म प्रमाण पत्र',
+                '2 - Valid Indian Passport - वैध भारतीय पासपोर्ट',
+                '3 - Domicile Certificate issued by State Government - निवास प्रमाण पत्र तहसील स्तर / राज्य सरकार द्वारा निर्गत',
+                '4 - Scheduled Tribe (ST) / Scheduled Caste (SC) / Other Backward Caste (OBC) Certificate issued by Central Government / State Government - केंद्र सरकार / राज्य सरकार / तहसील स्तर द्वारा जारी अनुसूचित जनजाति (ST) / अनुसूचित जाति (SC) / अन्य पिछड़ा वर्ग (OBC) जाति प्रमाण पत्र',
+                '5 - Certificate issued on UIDAI Standard Certificate format by District Child Protection Officer (DCPO) along with order of placement of child in CCI in Form 18 of Juvenile Justice Model Rules, 2016 (as amended in 2022) - UIDAI मानक प्रमाणपत्र प्रारूप पर जिला बाल संरक्षण अधिकारी (DCPO) द्वारा जारी प्रमाणपत्र, साथ में किशोर न्याय मॉडल नियम, 2016 (2022 में संशोधित) के प्रपत्र 18 में बालक/बालिका को बाल देखभाल संस्थान (CCI) में रखने के आदेश सहित।',
+                '6 - Third gender / Transgender Identity Card / Certificate issued under the Transgender Persons (Protection of Rights) Act, 2019 - तीसरे लिंग / ट्रांसजेंडर पहचान पत्र / प्रमाण पत्र, जो ट्रांसजेंडर व्यक्तियों (अधिकारों का संरक्षण) अधिनियम, 2019 और उसके तहत बनाए गए नियमों के अनुसार जारी किया गया हो।',
               ],
             ),
             const SizedBox(height: 12),
