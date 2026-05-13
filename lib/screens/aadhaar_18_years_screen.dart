@@ -11,6 +11,7 @@ class _Aadhaar18YearsScreenState extends State<Aadhaar18YearsScreen> {
   bool _showStepTwo = false;
   bool _identityExpanded = false;
   bool _addressExpanded = false;
+  bool _birthExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +105,22 @@ class _Aadhaar18YearsScreenState extends State<Aadhaar18YearsScreen> {
                 '19 - Allotment letter of accommodation issued by Central Government/ State Government/ PSU / regulatory body / statutory body (not older than 1 year) - केंद्र सरकार / राज्य सरकार / PSU / नियामक प्राधिकरण / वैधानिक निकाय द्वारा जारी आवास आवंटन पत्र (जो 1 वर्ष से अधिक पुराना न हो)।',
                 '20 - Life or Medical insurance policy (valid up to 1 year from date of issue) - जीवन या मेडिकल बीमा पॉलिसी (जो पॉलिसी जारी होने की तारीख से 1 वर्ष तक वैध हो)।',
                 '21 - Prisoner Induction Document (PID) issued by Prison Officer with signature and seal - Prisoner Induction Document (PID) जो जेल अधिकारी द्वारा हस्ताक्षर और मुहर के साथ जारी किया जाता है।',
+              ],
+            ),
+            const SizedBox(height: 12),
+            _DocumentSection(
+              title: 'Proof of Birth - जन्म तिथि का प्रमाण',
+              accent: const Color(0xFFFFEDD5),
+              borderAccent: const Color(0xFFF59E0B),
+              isExpanded: _birthExpanded,
+              onToggle: () => setState(() => _birthExpanded = !_birthExpanded),
+              documents: const [
+                '1 - Birth certificate issued under the Registration of Births and Deaths Act, 1969 and the rules made thereunder - जन्म और मृत्यु पंजीकरण अधिनियम, 1969 तथा उसके तहत बनाए गए नियमों के अनुसार जारी किया गया जन्म प्रमाण पत्र',
+                '2 - Valid Indian Passport - वैध भारतीय पासपोर्ट',
+                '3 - Service Photo Identity Card issued by Central Government/ State Government/ PSU/ regulatory body / statutory body - सरकारी/कंपनी वाला आईडी कार्ड (जिसमें आपकी फोटो हो)',
+                '4 - Pensioner Photo Identity Card / Freedom Fighter Photo Identity Card / Pension Payment Order issued by Central Government/ State Government/ PSU / regulatory body / statutory body - पेंशनर का फोटो वाला पहचान पत्र / स्वतंत्रता सेनानी का फोटो वाला पहचान पत्र / या पेंशन मिलने का सरकारी कागज (PPO नंबर वाला), जो सरकार देती है।',
+                '5 - Mark-sheet/Certificate issued by recognised Board of Education or university or deemed university or higher educational institution established by a Central or State Act - मान्यता प्राप्त बोर्ड/विश्वविद्यालय या सरकार द्वारा मान्यता प्राप्त संस्थान से जारी अंकपत्र या प्रमाण पत्र',
+                '6 - Third gender / Transgender Identity Card / Certificate issued under the Transgender Persons (Protection of Rights) Act, 2019 and rules made thereunder - ट्रांसजेंडर व्यक्ति का पहचान पत्र/प्रमाण पत्र (ट्रांसजेंडर व्यक्तियों के अधिकार संरक्षण अधिनियम, 2019 के तहत जारी)',
               ],
             ),
             const SizedBox(height: 16),
