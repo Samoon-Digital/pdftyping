@@ -4,6 +4,7 @@ import 'aadhaar_biometric_screen.dart';
 import 'bal_aadhaar_screen.dart';
 import 'name_update_screen.dart';
 import 'address_update_screen.dart';
+import 'dob_update_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -47,6 +48,7 @@ class _HomePageState extends State<HomePage> {
       subtitle: 'जन्मतिथि बदलाव / संसोधन हेतु',
       icon: Icons.event_rounded,
       accent: Color(0xFFB91C1C),
+      screen: DobUpdateScreen(),
     ),
     _GuideCardData(
       title: 'Address Update - पता संसोधन',
