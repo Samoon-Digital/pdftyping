@@ -5,6 +5,10 @@ import 'bal_aadhaar_screen.dart';
 import 'name_update_screen.dart';
 import 'address_update_screen.dart';
 import 'dob_update_screen.dart';
+import 'relationship_update_screen.dart';
+import 'finger_face_biometric_update_screen.dart';
+import 'mobile_number_update_screen.dart';
+import 'fees_update_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -56,6 +60,34 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.location_on_rounded,
       accent: Color(0xFFF59E0B),
       screen: AddressUpdateScreen(),
+    ),
+    _GuideCardData(
+      title: 'Proof of Relationship - रिश्ते का प्रमाण',
+      subtitle: 'रिलेशनशिप डॉक्यूमेंट अपडेट के लिए',
+      icon: Icons.people_alt_rounded,
+      accent: Color(0xFF0EA5A4),
+      screen: RelationshipUpdateScreen(),
+    ),
+    _GuideCardData(
+      title: 'Finger Face Biometric Update - अंगूठा और फोटो संसोधन',
+      subtitle: '5 साल से ऊपर किसी भी उम्र तक',
+      icon: Icons.fingerprint,
+      accent: Color(0xFF7C2D12),
+      screen: FingerFaceBiometricUpdateScreen(),
+    ),
+    _GuideCardData(
+      title: 'Mobile Number Update - मोबाईल नंबर संसोधन',
+      subtitle: 'नया नंबर या पुराना नंबर बदलने के लिए',
+      icon: Icons.phone_android_rounded,
+      accent: Color(0xFF1D4ED8),
+      screen: MobileNumberUpdateScreen(),
+    ),
+    _GuideCardData(
+      title: 'Aadhaar Fees - आधार शुल्क',
+      subtitle: 'नामांकन और अपडेट शुल्क विवरण',
+      icon: Icons.currency_rupee_rounded,
+      accent: Color(0xFF166534),
+      screen: FeesUpdateScreen(),
     ),
   ];
 
@@ -140,8 +172,8 @@ class _HomePageState extends State<HomePage> {
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
           ),
           const SizedBox(height: 12),
-          for (final card in _cards) ...[
-            _GuideCard(data: card),
+          for (final entry in _cards.asMap().entries) ...[
+            _GuideCard(data: entry.value, serial: entry.key + 1),
             const SizedBox(height: 12),
           ],
           const SizedBox(height: 8),
@@ -182,8 +214,9 @@ class _GuideCardData {
 
 class _GuideCard extends StatelessWidget {
   final _GuideCardData data;
+  final int serial;
 
-  const _GuideCard({required this.data});
+  const _GuideCard({required this.data, required this.serial});
 
   @override
   Widget build(BuildContext context) {
@@ -217,6 +250,24 @@ class _GuideCard extends StatelessWidget {
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: data.accent.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Text(
+                    '$serial',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: data.accent,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
                 Container(
                   width: 52,
                   height: 52,
