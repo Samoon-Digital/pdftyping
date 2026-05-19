@@ -2,6 +2,46 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+enum ScreenInterstitialPlacement {
+  aadhaar5To18,
+  aadhaar18Plus,
+  addressUpdate,
+  biometricUpdate,
+  childBalAadhaar,
+  dobUpdate,
+  mobileUpdate,
+  nameUpdate,
+  ratecard,
+  relationshipDocument,
+}
+
+extension ScreenInterstitialPlacementX on ScreenInterstitialPlacement {
+  String get adUnitId {
+    switch (this) {
+      case ScreenInterstitialPlacement.aadhaar5To18:
+        return 'ca-app-pub-1638673809508848/2231643751';
+      case ScreenInterstitialPlacement.aadhaar18Plus:
+        return 'ca-app-pub-1638673809508848/3068562799';
+      case ScreenInterstitialPlacement.addressUpdate:
+        return 'ca-app-pub-1638673809508848/7048022019';
+      case ScreenInterstitialPlacement.biometricUpdate:
+        return 'ca-app-pub-1638673809508848/5787745385';
+      case ScreenInterstitialPlacement.childBalAadhaar:
+        return 'ca-app-pub-1638673809508848/5926512032';
+      case ScreenInterstitialPlacement.dobUpdate:
+        return 'ca-app-pub-1638673809508848/3255053604';
+      case ScreenInterstitialPlacement.mobileUpdate:
+        return 'ca-app-pub-1638673809508848/1848500378';
+      case ScreenInterstitialPlacement.nameUpdate:
+        return 'ca-app-pub-1638673809508848/8605480413';
+      case ScreenInterstitialPlacement.ratecard:
+        return 'ca-app-pub-1638673809508848/3063481917';
+      case ScreenInterstitialPlacement.relationshipDocument:
+        return 'ca-app-pub-1638673809508848/8129317787';
+    }
+  }
+}
+
 class AdService with WidgetsBindingObserver {
   AdService._();
   static final AdService instance = AdService._();
@@ -10,11 +50,13 @@ class AdService with WidgetsBindingObserver {
   static const _coldStartWindow = Duration(seconds: 8);
   static const _minBackgroundForAppOpen = Duration(seconds: 2);
   static const _appOpenMaxAge = Duration(hours: 4);
-  static const _interstitialMaxAge = Duration(hours: 1);
+  static const _screenInterstitialSessionCap = 4;
+  static const _screenInterstitialCooldown = Duration(seconds: 45);
+  static const _samePlacementCooldown = Duration(minutes: 2);
+  static const _screenInterstitialLoadWindow = Duration(seconds: 6);
 
   // ── Ad Unit IDs ──
   static const _appOpenAdUnit = 'ca-app-pub-1638673809508848/2471334449';
-  static const _interstitialAdUnit = 'ca-app-pub-1638673809508848/4556898771';
 
   // ── App Open state ──
   AppOpenAd? _appOpenAd;
@@ -27,18 +69,13 @@ class AdService with WidgetsBindingObserver {
   bool _pendingShow = false; // true when bg→fg fired but ad was still loading
   int _appOpenSuppressionCount = 0;
 
-  // ── Interstitial state ──
-  InterstitialAd? _interstitialAd;
-  DateTime? _interstitialLoadedAt;
-  bool _intLoading = false;
-
-  // ── Session / CPM control ──
-  // Max 2 interstitials per session. Post-PDF-save bypasses cooldown (highest CPM moment).
-  // Regular nav tap: min 3-min cooldown between shows.
-  static const _sessionCap = 2;
-  static const _cooldown = Duration(minutes: 3);
-  int _sessionShown = 0;
-  DateTime? _lastShown;
+  // ── Screen-entry interstitial state ──
+  int _screenInterstitialRequestToken = 0;
+  bool _screenInterstitialShowing = false;
+  int _screenInterstitialShown = 0;
+  DateTime? _lastScreenInterstitialShownAt;
+  final Map<ScreenInterstitialPlacement, DateTime> _lastPlacementShownAt =
+      <ScreenInterstitialPlacement, DateTime>{};
 
   // ── Init (call once in main) ──
   static Future<void> init() async {
@@ -47,7 +84,6 @@ class AdService with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(instance);
     instance._coldStartWindowUntil = DateTime.now().add(_coldStartWindow);
     instance._loadAppOpen();
-    instance._loadInterstitial();
   }
 
   bool _isExpired(DateTime? loadedAt, Duration maxAge) =>
@@ -166,7 +202,6 @@ class AdService with WidgetsBindingObserver {
             false; // discard stale pending — fresh check on next resume
         _backgroundedAt ??= DateTime.now();
         _loadAppOpen();
-        _loadInterstitial();
         break;
       case AppLifecycleState.resumed:
         if (_skipNextResume) {
@@ -190,73 +225,72 @@ class AdService with WidgetsBindingObserver {
   }
 
   // ─────────────────────────────────────────
-  // INTERSTITIAL AD
+  // SCREEN-ENTRY INTERSTITIAL AD
   // ─────────────────────────────────────────
 
-  void _loadInterstitial() {
-    if (_intLoading || _interstitialAd != null) return;
-    _intLoading = true;
+  void loadAndShowScreenInterstitial({
+    required ScreenInterstitialPlacement placement,
+    required bool Function() canShow,
+  }) {
+    if (kIsWeb || _aoShowing || _screenInterstitialShowing) return;
+
+    final now = DateTime.now();
+    if (_screenInterstitialShown >= _screenInterstitialSessionCap) return;
+    if (_lastScreenInterstitialShownAt != null &&
+        now.difference(_lastScreenInterstitialShownAt!) <
+            _screenInterstitialCooldown) {
+      return;
+    }
+
+    final placementShownAt = _lastPlacementShownAt[placement];
+    if (placementShownAt != null &&
+        now.difference(placementShownAt) < _samePlacementCooldown) {
+      return;
+    }
+
+    _pendingShow = false;
+    _coldStartWindowUntil = null;
+
+    final requestToken = ++_screenInterstitialRequestToken;
+    final requestedAt = now;
+
     InterstitialAd.load(
-      adUnitId: _interstitialAdUnit,
+      adUnitId: placement.adUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          _interstitialAd = ad;
-          _interstitialLoadedAt = DateTime.now();
-          _intLoading = false;
+          final isFreshLoad =
+              DateTime.now().difference(requestedAt) <=
+              _screenInterstitialLoadWindow;
+          if (requestToken != _screenInterstitialRequestToken ||
+              !isFreshLoad ||
+              !canShow()) {
+            ad.dispose();
+            return;
+          }
+
+          final shownAt = DateTime.now();
+          _screenInterstitialShowing = true;
+          _screenInterstitialShown++;
+          _lastScreenInterstitialShownAt = shownAt;
+          _lastPlacementShownAt[placement] = shownAt;
+          _skipNextResume = true;
+
+          ad.fullScreenContentCallback = FullScreenContentCallback(
+            onAdDismissedFullScreenContent: (ad) {
+              ad.dispose();
+              _screenInterstitialShowing = false;
+            },
+            onAdFailedToShowFullScreenContent: (ad, _) {
+              ad.dispose();
+              _screenInterstitialShowing = false;
+              _skipNextResume = false;
+            },
+          );
+          ad.show();
         },
-        onAdFailedToLoad: (_) {
-          _intLoading = false;
-          Future.delayed(const Duration(seconds: 8), _loadInterstitial);
-        },
+        onAdFailedToLoad: (_) {},
       ),
     );
-  }
-
-  /// Show interstitial when navigating to Saved screen.
-  ///
-  /// [priority] = true  → post-PDF-save: skip cooldown, always show if cap not reached.
-  /// [priority] = false → manual nav tap: respect 3-min cooldown + session cap.
-  void showInterstitialForSaved({bool priority = false}) {
-    if (kIsWeb || _sessionShown >= _sessionCap) return;
-
-    if (!priority) {
-      final now = DateTime.now();
-      if (_lastShown != null && now.difference(_lastShown!) < _cooldown) return;
-    }
-
-    final ad = _interstitialAd;
-    if (ad == null) {
-      _loadInterstitial(); // cache miss — load for next time
-      return;
-    }
-
-    if (_isExpired(_interstitialLoadedAt, _interstitialMaxAge)) {
-      ad.dispose();
-      _interstitialAd = null;
-      _interstitialLoadedAt = null;
-      _loadInterstitial();
-      return;
-    }
-
-    _interstitialAd = null;
-    _interstitialLoadedAt = null;
-    _sessionShown++;
-    _lastShown = DateTime.now();
-
-    ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdDismissedFullScreenContent: (ad) {
-        ad.dispose();
-        _loadInterstitial();
-      },
-      onAdFailedToShowFullScreenContent: (ad, _) {
-        ad.dispose();
-        _skipNextResume = false;
-        _loadInterstitial();
-      },
-    );
-    _coldStartWindowUntil = null;
-    _skipNextResume = true;
-    ad.show();
   }
 }
