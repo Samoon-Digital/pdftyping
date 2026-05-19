@@ -114,7 +114,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Aadhaar Guide Title'),
+        title: const Text('Aadhaar Update Guide'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 12),
