@@ -22,7 +22,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Aadhaar Guide Title',
+      title: 'Update Guide',
       theme: AppTheme.lightTheme,
       locale: const Locale('en'),
       supportedLocales: const [Locale('en')],
