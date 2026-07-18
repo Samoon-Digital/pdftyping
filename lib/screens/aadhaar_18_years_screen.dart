@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
 class Aadhaar18YearsScreen extends StatefulWidget {
   const Aadhaar18YearsScreen({super.key});
@@ -12,6 +13,15 @@ class _Aadhaar18YearsScreenState extends State<Aadhaar18YearsScreen> {
   bool _identityExpanded = false;
   bool _addressExpanded = false;
   bool _birthExpanded = false;
+
+  void _showDocumentList() {
+    setState(() => _showStepTwo = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _showStepTwo) {
+        InterstitialManager.instance.showIfAvailable();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +201,7 @@ class _Aadhaar18YearsScreenState extends State<Aadhaar18YearsScreen> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => setState(() => _showStepTwo = true),
+                onPressed: _showDocumentList,
                 icon: const Icon(Icons.list_alt_rounded),
                 label: const Text('See List - सूची देखें'),
               ),

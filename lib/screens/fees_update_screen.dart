@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
-class FeesUpdateScreen extends StatelessWidget {
+class FeesUpdateScreen extends StatefulWidget {
   const FeesUpdateScreen({super.key});
+
+  @override
+  State<FeesUpdateScreen> createState() => _FeesUpdateScreenState();
+}
+
+class _FeesUpdateScreenState extends State<FeesUpdateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    InterstitialManager.instance.showIfAvailable();
+  }
 
   @override
   Widget build(BuildContext context) {

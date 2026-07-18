@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
-class DobUpdateScreen extends StatelessWidget {
+class DobUpdateScreen extends StatefulWidget {
   const DobUpdateScreen({super.key});
+
+  @override
+  State<DobUpdateScreen> createState() => _DobUpdateScreenState();
+}
+
+class _DobUpdateScreenState extends State<DobUpdateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    InterstitialManager.instance.showIfAvailable();
+  }
 
   static const _documents = <_DobItem>[
     _DobItem('1', 'Valid Indian Passport - वैध भारतीय पासपोर्ट'),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
 class BalAadhaarScreen extends StatefulWidget {
   const BalAadhaarScreen({super.key});
@@ -35,6 +36,11 @@ class _BalAadhaarScreenState extends State<BalAadhaarScreen> {
                   Navigator.of(dialogContext).pop();
                   if (mounted) {
                     setState(() => _noticeVisible = false);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        InterstitialManager.instance.showIfAvailable();
+                      }
+                    });
                   }
                 },
                 child: const Text('OK'),

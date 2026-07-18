@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
-class NameUpdateScreen extends StatelessWidget {
+class NameUpdateScreen extends StatefulWidget {
   const NameUpdateScreen({super.key});
+
+  @override
+  State<NameUpdateScreen> createState() => _NameUpdateScreenState();
+}
+
+class _NameUpdateScreenState extends State<NameUpdateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    InterstitialManager.instance.showIfAvailable();
+  }
 
   static const _documents = <_PoiItem>[
     _PoiItem('1', 'Valid Indian Passport - वैध भारतीय पासपोर्ट'),

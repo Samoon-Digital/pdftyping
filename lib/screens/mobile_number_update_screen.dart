@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
-class MobileNumberUpdateScreen extends StatelessWidget {
+class MobileNumberUpdateScreen extends StatefulWidget {
   const MobileNumberUpdateScreen({super.key});
+
+  @override
+  State<MobileNumberUpdateScreen> createState() =>
+      _MobileNumberUpdateScreenState();
+}
+
+class _MobileNumberUpdateScreenState extends State<MobileNumberUpdateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    InterstitialManager.instance.showIfAvailable();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -11,6 +11,7 @@ class UpdateService with WidgetsBindingObserver {
   static Timer? _completeRetryTimer;
   static int _retryCount = 0;
   static bool _started = false;
+  static bool _completionPending = false;
 
   static Future<void> init() async {
     if (defaultTargetPlatform != TargetPlatform.android) return;
@@ -22,7 +23,7 @@ class UpdateService with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
+    if (state == AppLifecycleState.resumed && _completionPending) {
       unawaited(_completeFlexibleUpdate());
     }
   }
@@ -34,6 +35,7 @@ class UpdateService with WidgetsBindingObserver {
       if (!info.flexibleUpdateAllowed) return;
 
       await InAppUpdate.startFlexibleUpdate();
+      _completionPending = true;
       _scheduleAutoComplete();
       await _completeFlexibleUpdate();
     } catch (_) {
@@ -47,6 +49,7 @@ class UpdateService with WidgetsBindingObserver {
       _completeRetryTimer?.cancel();
       _completeRetryTimer = null;
       _retryCount = 0;
+      _completionPending = false;
     } catch (_) {
       // Update may still be downloading; retry timer handles this.
     }
@@ -63,6 +66,7 @@ class UpdateService with WidgetsBindingObserver {
       if (_retryCount >= 12) {
         timer.cancel();
         _completeRetryTimer = null;
+        _completionPending = false;
       }
     });
   }

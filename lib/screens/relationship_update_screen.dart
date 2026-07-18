@@ -1,7 +1,20 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
-class RelationshipUpdateScreen extends StatelessWidget {
+class RelationshipUpdateScreen extends StatefulWidget {
   const RelationshipUpdateScreen({super.key});
+
+  @override
+  State<RelationshipUpdateScreen> createState() =>
+      _RelationshipUpdateScreenState();
+}
+
+class _RelationshipUpdateScreenState extends State<RelationshipUpdateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    InterstitialManager.instance.showIfAvailable();
+  }
 
   static const _documents = <_RelationItem>[
     _RelationItem('1', 'Valid Indian Passport - वैध भारतीय पासपोर्ट'),

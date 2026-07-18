@@ -1,7 +1,21 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
-class FingerFaceBiometricUpdateScreen extends StatelessWidget {
+class FingerFaceBiometricUpdateScreen extends StatefulWidget {
   const FingerFaceBiometricUpdateScreen({super.key});
+
+  @override
+  State<FingerFaceBiometricUpdateScreen> createState() =>
+      _FingerFaceBiometricUpdateScreenState();
+}
+
+class _FingerFaceBiometricUpdateScreenState
+    extends State<FingerFaceBiometricUpdateScreen> {
+  @override
+  void initState() {
+    super.initState();
+    InterstitialManager.instance.showIfAvailable();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/interstitial_manager.dart';
 
 class AadhaarBiometricScreen extends StatefulWidget {
   const AadhaarBiometricScreen({super.key});
@@ -15,6 +16,15 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
     'por': false,
     'pob': false,
   };
+
+  void _showDocumentList() {
+    setState(() => _showStepTwo = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _showStepTwo) {
+        InterstitialManager.instance.showIfAvailable();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -195,7 +205,7 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
             SizedBox(
               width: double.infinity,
               child: FilledButton.icon(
-                onPressed: () => setState(() => _showStepTwo = true),
+                onPressed: _showDocumentList,
                 icon: const Icon(Icons.list_alt_rounded),
                 label: const Text('See List - सूची देखें'),
               ),

@@ -4,11 +4,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_shell.dart';
+import 'ads/interstitial_manager.dart';
 import 'services/update_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  unawaited(InterstitialManager.instance.initialize());
   unawaited(UpdateService.init());
   runApp(const MainApp());
 }
