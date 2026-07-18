@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/shared_native_ad.dart';
 import '../ads/interstitial_manager.dart';
 
 class Aadhaar18YearsScreen extends StatefulWidget {
@@ -61,6 +62,10 @@ class _Aadhaar18YearsScreenState extends State<Aadhaar18YearsScreen> {
               ),
             ),
             const SizedBox(height: 16),
+            const SharedNativeAd(
+              placementId: 'aadhaar_18_before_proof_identity',
+            ),
+            const SizedBox(height: 12),
             _DocumentSection(
               title: 'Proof of Identity - पहचान का प्रमाण',
               accent: const Color(0xFFC7D2FE),

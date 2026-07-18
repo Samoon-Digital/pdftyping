@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/shared_native_ad.dart';
 import '../ads/interstitial_manager.dart';
 
 class MobileNumberUpdateScreen extends StatefulWidget {
@@ -59,6 +60,8 @@ class _MobileNumberUpdateScreenState extends State<MobileNumberUpdateScreen> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          const SharedNativeAd(placementId: 'mobile_number_after_card'),
         ],
       ),
     );

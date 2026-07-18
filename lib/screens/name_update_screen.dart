@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/shared_native_ad.dart';
 import '../ads/interstitial_manager.dart';
 
 class NameUpdateScreen extends StatefulWidget {
@@ -87,7 +88,7 @@ class _NameUpdateScreenState extends State<NameUpdateScreen> {
       appBar: AppBar(title: const Text('नाम संशोधन')),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
-        itemCount: _documents.length + 1,
+        itemCount: _documents.length + 3,
         separatorBuilder: (BuildContext context, int index) =>
             const SizedBox(height: 12),
         itemBuilder: (context, index) {
@@ -106,7 +107,20 @@ class _NameUpdateScreenState extends State<NameUpdateScreen> {
             );
           }
 
-          final item = _documents[index - 1];
+          if (index == 3) {
+            return const SharedNativeAd(placementId: 'name_after_ration_card');
+          }
+          if (index == 16) {
+            return const SharedNativeAd(placementId: 'name_after_third_gender');
+          }
+          var adjustedIndex = index;
+          if (index > 16) {
+            adjustedIndex -= 2;
+          } else if (index > 3) {
+            adjustedIndex -= 1;
+          }
+
+          final item = _documents[adjustedIndex - 1];
           return Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(

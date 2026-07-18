@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/shared_native_ad.dart';
 import '../ads/interstitial_manager.dart';
 
 class FeesUpdateScreen extends StatefulWidget {
@@ -23,6 +24,8 @@ class _FeesUpdateScreenState extends State<FeesUpdateScreen> {
         padding: const EdgeInsets.all(16),
         children: const [
           _TopHeader(),
+          SizedBox(height: 12),
+          SharedNativeAd(placementId: 'fees_after_top_card'),
           SizedBox(height: 12),
           _FeeSectionCard(
             title: '(1) Biometric Update - बायोमेट्रिक अपडेट',

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/shared_native_ad.dart';
 import 'aadhaar_18_years_screen.dart';
 import 'aadhaar_biometric_screen.dart';
 import 'bal_aadhaar_screen.dart';
@@ -156,6 +157,14 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 12),
           for (final entry in _cards.asMap().entries) ...[
             _GuideCard(data: entry.value, serial: entry.key + 1),
+            if (entry.key == 0) ...[
+              const SizedBox(height: 12),
+              const SharedNativeAd(placementId: 'home_after_child_aadhaar'),
+            ],
+            if (entry.key == 8) ...[
+              const SizedBox(height: 12),
+              const SharedNativeAd(placementId: 'home_after_mobile_number'),
+            ],
             const SizedBox(height: 12),
           ],
         ],
