@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../ads/app_open_ad_manager.dart';
@@ -235,6 +236,16 @@ class NotificationService {
 
   Future<bool> _areNotificationsEnabled() async {
     try {
+      final notificationStatus = await Permission.notification.status;
+      if (notificationStatus.isGranted || notificationStatus.isLimited) {
+        return true;
+      }
+      if (notificationStatus.isDenied ||
+          notificationStatus.isPermanentlyDenied ||
+          notificationStatus.isRestricted) {
+        return false;
+      }
+
       final androidEnabled = await _localNotifications
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
@@ -258,6 +269,16 @@ class NotificationService {
 
   Future<bool> _requestNotificationPermission() async {
     try {
+      final permissionStatus = await Permission.notification.request();
+      if (permissionStatus.isGranted || permissionStatus.isLimited) {
+        return true;
+      }
+      if (permissionStatus.isDenied ||
+          permissionStatus.isPermanentlyDenied ||
+          permissionStatus.isRestricted) {
+        return false;
+      }
+
       final androidGranted = await _localNotifications
           .resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin
