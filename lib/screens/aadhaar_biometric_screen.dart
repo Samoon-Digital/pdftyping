@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../ads/shared_native_ad.dart';
 import '../ads/interstitial_manager.dart';
+import '../widgets/banner_ad_scaffold.dart';
 
 class AadhaarBiometricScreen extends StatefulWidget {
   const AadhaarBiometricScreen({super.key});
@@ -29,7 +30,7 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return BannerAdScaffold(
       appBar: AppBar(title: const Text('आधार बायोमेट्रिक')),
       body: ListView(
         padding: const EdgeInsets.all(16),

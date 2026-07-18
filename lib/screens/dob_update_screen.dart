@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../ads/shared_native_ad.dart';
 import '../ads/interstitial_manager.dart';
+import '../widgets/banner_ad_scaffold.dart';
 
 class DobUpdateScreen extends StatefulWidget {
   const DobUpdateScreen({super.key});
@@ -40,7 +41,7 @@ class _DobUpdateScreenState extends State<DobUpdateScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Scaffold(
+    return BannerAdScaffold(
       appBar: AppBar(title: const Text('जन्मतिथि संशोधन')),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
