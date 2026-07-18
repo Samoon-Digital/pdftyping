@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../ads/app_open_ad_manager.dart';
 import 'home_page.dart';
 import 'settings_screen.dart';
 
@@ -11,6 +12,20 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AppOpenAdManager.instance.setHomeTabVisible(_currentIndex == 0);
+    });
+  }
+
+  @override
+  void dispose() {
+    AppOpenAdManager.instance.setHomeTabVisible(false);
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +55,7 @@ class _MainShellState extends State<MainShell> {
             onDestinationSelected: (i) {
               if (i == _currentIndex) return;
               setState(() => _currentIndex = i);
+              AppOpenAdManager.instance.setHomeTabVisible(i == 0);
             },
             backgroundColor: Colors.white,
             indicatorColor: primary.withValues(alpha: 0.12),
