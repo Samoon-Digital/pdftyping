@@ -8,6 +8,10 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 // Load key.properties for release signing
 val keyPropertiesFile = rootProject.file("key.properties")
 val keyProperties = Properties()

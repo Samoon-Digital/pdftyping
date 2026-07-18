@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../ads/shared_native_ad.dart';
+import '../services/notification_service.dart';
+import '../services/share_service.dart';
 import 'aadhaar_18_years_screen.dart';
 import 'aadhaar_biometric_screen.dart';
 import 'bal_aadhaar_screen.dart';
@@ -19,6 +22,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(
+          NotificationService.instance.showPermissionDialogIfNeeded(context),
+        );
+      }
+    });
+  }
+
   static const _cards = <_GuideCardData>[
     _GuideCardData(
       title: 'Child Aadhaar - बाल आधार',
@@ -95,7 +110,16 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Aadhaar Update Guide')),
+      appBar: AppBar(
+        title: const Text('Aadhaar Update Guide'),
+        actions: [
+          IconButton(
+            tooltip: 'Share',
+            icon: const Icon(Icons.share_rounded),
+            onPressed: ShareService.shareApp,
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

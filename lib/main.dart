@@ -7,13 +7,18 @@ import 'screens/main_shell.dart';
 import 'ads/app_open_ad_manager.dart';
 import 'ads/interstitial_manager.dart';
 import 'services/update_service.dart';
+import 'services/firebase_in_app_messaging_service.dart';
+import 'services/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  registerFirebaseMessagingBackgroundHandler();
 
   unawaited(AppOpenAdManager.instance.initialize());
   unawaited(InterstitialManager.instance.initialize());
   unawaited(UpdateService.init());
+  unawaited(NotificationService.instance.initialize());
+  unawaited(FirebaseInAppMessagingService.instance.initialize());
   runApp(const MainApp());
 }
 
