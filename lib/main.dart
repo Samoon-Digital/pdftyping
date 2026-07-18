@@ -4,13 +4,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_shell.dart';
-import 'services/ad_service.dart';
 import 'services/update_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  unawaited(AdService.init());
   unawaited(UpdateService.init());
   runApp(const MainApp());
 }

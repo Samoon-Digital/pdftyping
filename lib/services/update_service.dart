@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 import 'package:flutter/widgets.dart';
 import 'package:in_app_update/in_app_update.dart';
 
@@ -13,7 +13,7 @@ class UpdateService with WidgetsBindingObserver {
   static bool _started = false;
 
   static Future<void> init() async {
-    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
+    if (defaultTargetPlatform != TargetPlatform.android) return;
     if (_started) return;
     _started = true;
     WidgetsBinding.instance.addObserver(_instance);

@@ -48,8 +48,6 @@ class _BalAadhaarScreenState extends State<BalAadhaarScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: AppBar(title: const Text('बाल आधार')),
       body: ListView(

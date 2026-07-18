@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import '../services/ad_service.dart';
-import '../widgets/screen_entry_interstitial_host.dart';
 import 'aadhaar_18_years_screen.dart';
 import 'aadhaar_biometric_screen.dart';
 import 'bal_aadhaar_screen.dart';
@@ -27,7 +25,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.child_care_rounded,
       accent: Color(0xFF0F766E),
       screen: BalAadhaarScreen(),
-      adPlacement: ScreenInterstitialPlacement.childBalAadhaar,
     ),
     _GuideCardData(
       title: 'Aadhaar Biomteric - आधार कार्ड',
@@ -35,7 +32,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.fingerprint_rounded,
       accent: Color(0xFF1565C0),
       screen: AadhaarBiometricScreen(),
-      adPlacement: ScreenInterstitialPlacement.aadhaar5To18,
     ),
     _GuideCardData(
       title: 'Aadhaar Biomteric - आधार कार्ड',
@@ -43,7 +39,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.fingerprint_rounded,
       accent: Color(0xFF1565C0),
       screen: Aadhaar18YearsScreen(),
-      adPlacement: ScreenInterstitialPlacement.aadhaar18Plus,
     ),
     _GuideCardData(
       title: 'Name Update - नाम संसोधन',
@@ -51,7 +46,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.badge_rounded,
       accent: Color(0xFF7C3AED),
       screen: NameUpdateScreen(),
-      adPlacement: ScreenInterstitialPlacement.nameUpdate,
     ),
     _GuideCardData(
       title: 'Date Of Birth Update - जन्मतिथि संसोधन',
@@ -59,7 +53,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.event_rounded,
       accent: Color(0xFFB91C1C),
       screen: DobUpdateScreen(),
-      adPlacement: ScreenInterstitialPlacement.dobUpdate,
     ),
     _GuideCardData(
       title: 'Address Update - पता संसोधन',
@@ -67,7 +60,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.location_on_rounded,
       accent: Color(0xFFF59E0B),
       screen: AddressUpdateScreen(),
-      adPlacement: ScreenInterstitialPlacement.addressUpdate,
     ),
     _GuideCardData(
       title: 'Proof of Relationship - रिश्ते का प्रमाण',
@@ -75,7 +67,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.people_alt_rounded,
       accent: Color(0xFF0EA5A4),
       screen: RelationshipUpdateScreen(),
-      adPlacement: ScreenInterstitialPlacement.relationshipDocument,
     ),
     _GuideCardData(
       title: 'Finger Face Biometric Update - अंगूठा और फोटो संसोधन',
@@ -83,7 +74,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.fingerprint,
       accent: Color(0xFF7C2D12),
       screen: FingerFaceBiometricUpdateScreen(),
-      adPlacement: ScreenInterstitialPlacement.biometricUpdate,
     ),
     _GuideCardData(
       title: 'Mobile Number Update - मोबाईल नंबर संसोधन',
@@ -91,7 +81,6 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.phone_android_rounded,
       accent: Color(0xFF1D4ED8),
       screen: MobileNumberUpdateScreen(),
-      adPlacement: ScreenInterstitialPlacement.mobileUpdate,
     ),
     _GuideCardData(
       title: 'Aadhaar Fees - आधार शुल्क',
@@ -99,32 +88,13 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.currency_rupee_rounded,
       accent: Color(0xFF166534),
       screen: FeesUpdateScreen(),
-      adPlacement: ScreenInterstitialPlacement.ratecard,
     ),
   ];
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Aadhaar Update Guide'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: Icon(
-              Icons.ads_click_rounded,
-              color: theme.colorScheme.primary,
-            ),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('Aadhaar Update Guide')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -200,7 +170,6 @@ class _GuideCardData {
   final IconData icon;
   final Color accent;
   final Widget? screen;
-  final ScreenInterstitialPlacement? adPlacement;
 
   const _GuideCardData({
     required this.title,
@@ -208,7 +177,6 @@ class _GuideCardData {
     required this.icon,
     required this.accent,
     this.screen,
-    this.adPlacement,
   });
 }
 
@@ -222,15 +190,9 @@ class _GuideCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final onTap = data.screen != null
         ? () {
-            AdService.instance.onNavigatedAway();
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ScreenEntryInterstitialHost(
-                  placement: data.adPlacement,
-                  child: data.screen!,
-                ),
-              ),
-            );
+            Navigator.of(
+              context,
+            ).push(MaterialPageRoute(builder: (_) => data.screen!));
           }
         : null;
 

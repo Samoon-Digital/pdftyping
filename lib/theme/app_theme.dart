@@ -5,8 +5,6 @@ class AppTheme {
 
   // ── Color Palette ──
   static const Color _primary = Color(0xFF0B3A6E);
-  static const Color _primaryLight = Color(0xFF1565C0);
-  static const Color _secondary = Color(0xFFF59E0B);
   static const Color _surface = Color(0xFFFFFBF5);
   static const Color _card = Colors.white;
   static const Color _scaffoldBg = Color(0xFFFFF8F0);

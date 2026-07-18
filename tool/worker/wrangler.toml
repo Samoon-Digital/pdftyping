@@ -1,8 +1,0 @@
-name = "pdftyping-proxy"
-main = "worker.js"
-compatibility_date = "2026-03-15"
-
-routes = [
-  { pattern = "pdftyping.in/*", zone_name = "pdftyping.in" },
-  { pattern = "www.pdftyping.in/*", zone_name = "pdftyping.in" }
-]
