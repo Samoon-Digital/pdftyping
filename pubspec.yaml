@@ -1,7 +1,7 @@
 ﻿name: pdftyping
 description: "A new Flutter project."
 publish_to: "none"
-version: 1.8.2+10
+version: 1.8.3+11
 
 environment:
   sdk: ^3.11.1
@@ -45,4 +45,5 @@ flutter_launcher_icons:
   ios: true
   remove_alpha_ios: true
   image_path: assets/launcher.png
+
 

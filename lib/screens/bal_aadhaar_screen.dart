@@ -11,45 +11,12 @@ class BalAadhaarScreen extends StatefulWidget {
 }
 
 class _BalAadhaarScreenState extends State<BalAadhaarScreen> {
-  bool _noticeVisible = true;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && _noticeVisible) {
-        showDialog<void>(
-          context: context,
-          barrierDismissible: false,
-          builder: (dialogContext) => AlertDialog(
-            insetPadding: const EdgeInsets.all(20),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(22),
-            ),
-            title: const Text('महत्वपूर्ण सूचना / Important Notice'),
-            content: const SingleChildScrollView(
-              child: Text(
-                'बच्चे के आधार बनाते समय माता या पिता किसी एक का आधार कार्ड और फिंगरप्रिंट लगेगा और बच्चे के आधार कार्ड पर वही मोबाईल नंबर अपडेट होगा जो नंबर माता या पिता के आधार  में मोजूद होगा\n\nअगर आप बच्चे के आधार में अपना आधार लगा रहे हैं तो ध्यान दे आपके आधार में पहले से आधार में मोबाईल नंबर  रजिस्टर होना चाहिए  जिससे बच्चे का आधार कार्ड डाउनलोड कर पाएंगे \nअगर आपके आधार में नंबर नहीं लगा है तो पहले नंबर अपडेट कराएँ',
-              ),
-            ),
-            actions: [
-              FilledButton(
-                onPressed: () {
-                  Navigator.of(dialogContext).pop();
-                  if (mounted) {
-                    setState(() => _noticeVisible = false);
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) {
-                        InterstitialManager.instance.showIfAvailable();
-                      }
-                    });
-                  }
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          ),
-        );
+      if (mounted) {
+        InterstitialManager.instance.showIfAvailable();
       }
     });
   }

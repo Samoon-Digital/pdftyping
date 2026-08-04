@@ -2,22 +2,28 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform;
-import 'package:flutter/widgets.dart';
+    show TargetPlatform, defaultTargetPlatform, kDebugMode;
+import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 import 'app_open_ad_manager.dart';
 
 const String _androidInterstitialAdUnitId =
     'ca-app-pub-1638673809508848/1848500378';
+const String _androidInterstitialTestAdUnitId =
+    'ca-app-pub-3940256099942544/1033173712';
 const Duration _maxInterstitialCacheAge = Duration(hours: 1);
 const Duration _baseRetryDelay = Duration(seconds: 30);
 const Duration _maxRetryDelay = Duration(minutes: 5);
+const Duration _preShowNoticeDuration = Duration(milliseconds: 1200);
+const Duration _pendingShowTimeout = Duration(seconds: 10);
 
 String? get _interstitialAdUnitId {
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
-      return _androidInterstitialAdUnitId;
+      return kDebugMode
+          ? _androidInterstitialTestAdUnitId
+          : _androidInterstitialAdUnitId;
     case TargetPlatform.iOS:
     case TargetPlatform.fuchsia:
     case TargetPlatform.linux:
@@ -53,11 +59,16 @@ class InterstitialManager with WidgetsBindingObserver {
   DateTime? _loadedAt;
   Timer? _retryTimer;
   Timer? _expirationTimer;
+  Timer? _pendingShowTimer;
+  OverlayEntry? _noticeOverlayEntry;
 
   bool _initialized = false;
   bool _initializing = false;
   bool _isLoading = false;
   bool _isShowing = false;
+  bool _showPending = false;
+  bool _pendingShowRequest = false;
+  bool _appIsForeground = true;
   bool _isDisposed = false;
   int _failedLoadCount = 0;
   int _loadRequestToken = 0;
@@ -80,64 +91,40 @@ class InterstitialManager with WidgetsBindingObserver {
       _loadOne();
     } catch (error, stackTrace) {
       _log('Initialization failed.', error, stackTrace);
-      _scheduleRetry();
+      _scheduleRetry(error);
     } finally {
       _initializing = false;
     }
   }
 
-  /// Shows the currently loaded interstitial immediately, if it is valid.
+  /// Shows the currently loaded interstitial after a short top notice.
   ///
-  /// If no valid ad is ready, the app continues normally and a background load
-  /// is ensured. This method never waits for a network request.
+  /// If the screen asks before preload finishes, the request is kept briefly;
+  /// once the ad loads, the notice is shown and then the ad opens.
   void showIfAvailable() {
     if (!_isSupported || _isDisposed) return;
     if (!_initialized) {
+      _queuePendingShow();
       unawaited(initialize());
       return;
     }
-    if (_isShowing) return;
+    if (_isShowing || _showPending || !_appIsForeground) return;
 
     if (_isLoadedAdExpired) {
       _destroyLoadedAd();
+      _queuePendingShow();
       _loadOne();
       return;
     }
 
     final ad = _interstitialAd;
     if (ad == null) {
+      _queuePendingShow();
       _loadOne();
       return;
     }
 
-    _interstitialAd = null;
-    _loadedAt = null;
-    _expirationTimer?.cancel();
-    _expirationTimer = null;
-    _retryTimer?.cancel();
-    _retryTimer = null;
-    AppOpenAdManager.instance.suppressNextForegroundShow();
-    _isShowing = true;
-
-    ad.fullScreenContentCallback = FullScreenContentCallback(
-      onAdShowedFullScreenContent: (_) {
-        _log('Interstitial shown.');
-      },
-      onAdDismissedFullScreenContent: (dismissedAd) {
-        _finishShowingAd(dismissedAd);
-      },
-      onAdFailedToShowFullScreenContent: (failedAd, error) {
-        _log('Interstitial failed to show.', error);
-        _finishShowingAd(failedAd);
-      },
-    );
-
-    try {
-      ad.show();
-    } catch (error, stackTrace) {
-      _log('Interstitial show threw.', error, stackTrace);
-      _finishShowingAd(ad);
-    }
+    _beginShowWithNotice(ad);
   }
 
   /// Releases all manager-owned timers, listeners, and loaded ad references.
@@ -147,6 +134,9 @@ class InterstitialManager with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _retryTimer?.cancel();
     _retryTimer = null;
+    _pendingShowTimer?.cancel();
+    _pendingShowTimer = null;
+    _removeNoticeOverlay();
     _destroyLoadedAd();
   }
 
@@ -154,7 +144,9 @@ class InterstitialManager with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
+        _appIsForeground = true;
         _performMaintenance();
+        _maybeUsePendingShow();
         break;
       case AppLifecycleState.detached:
         dispose();
@@ -162,12 +154,14 @@ class InterstitialManager with WidgetsBindingObserver {
       case AppLifecycleState.hidden:
       case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
+        _appIsForeground = false;
+        _clearPendingShow();
         break;
     }
   }
 
   void _performMaintenance() {
-    if (_isDisposed || !_initialized || _isShowing) return;
+    if (_isDisposed || !_initialized || _isShowing || _showPending) return;
     if (_isLoadedAdExpired) {
       _destroyLoadedAd();
     }
@@ -181,7 +175,13 @@ class InterstitialManager with WidgetsBindingObserver {
   }
 
   void _loadOne() {
-    if (_isDisposed || !_initialized || _isLoading || _isShowing) return;
+    if (_isDisposed ||
+        !_initialized ||
+        _isLoading ||
+        _isShowing ||
+        _showPending) {
+      return;
+    }
     if (_interstitialAd != null) return;
 
     final adUnitId = _interstitialAdUnitId;
@@ -195,7 +195,10 @@ class InterstitialManager with WidgetsBindingObserver {
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          if (_isDisposed || requestToken != _loadRequestToken || _isShowing) {
+          if (_isDisposed ||
+              requestToken != _loadRequestToken ||
+              _isShowing ||
+              _showPending) {
             ad.dispose();
             return;
           }
@@ -206,6 +209,7 @@ class InterstitialManager with WidgetsBindingObserver {
           _retryTimer = null;
           _setLoadedAd(ad);
           _log('Interstitial loaded.');
+          _maybeUsePendingShow();
         },
         onAdFailedToLoad: (error) {
           if (_isDisposed || requestToken != _loadRequestToken) return;
@@ -228,7 +232,7 @@ class InterstitialManager with WidgetsBindingObserver {
   void _scheduleExpirationRefresh() {
     _expirationTimer?.cancel();
     _expirationTimer = Timer(_maxInterstitialCacheAge, () {
-      if (_isDisposed || _isShowing) return;
+      if (_isDisposed || _isShowing || _showPending) return;
       if (_isLoadedAdExpired) {
         _destroyLoadedAd();
       }
@@ -236,8 +240,37 @@ class InterstitialManager with WidgetsBindingObserver {
     });
   }
 
+  void _queuePendingShow() {
+    if (_isDisposed || !_appIsForeground) return;
+    _pendingShowRequest = true;
+    _pendingShowTimer?.cancel();
+    _pendingShowTimer = Timer(_pendingShowTimeout, _clearPendingShow);
+  }
+
+  void _clearPendingShow() {
+    _pendingShowRequest = false;
+    _pendingShowTimer?.cancel();
+    _pendingShowTimer = null;
+  }
+
+  void _maybeUsePendingShow() {
+    if (!_pendingShowRequest || _isDisposed || !_appIsForeground) return;
+    if (_isShowing || _showPending || _isLoadedAdExpired) return;
+
+    final ad = _interstitialAd;
+    if (ad == null) return;
+
+    _clearPendingShow();
+    _beginShowWithNotice(ad);
+  }
+
+  void _beginShowWithNotice(InterstitialAd ad) {
+    _showPending = true;
+    unawaited(_showAfterNotice(ad));
+  }
+
   void _scheduleRetry([Object? error]) {
-    if (_isDisposed || _isShowing || !_isSupported) return;
+    if (_isDisposed || _isShowing || _showPending || !_isSupported) return;
 
     _failedLoadCount++;
     final delay = _retryDelayForAttempt(_failedLoadCount);
@@ -265,6 +298,122 @@ class InterstitialManager with WidgetsBindingObserver {
     return Duration(seconds: seconds);
   }
 
+  Future<void> _showAfterNotice(InterstitialAd ad) async {
+    var shouldLoadAfterPending = false;
+    try {
+      await _showTopAdNotice();
+      if (_isDisposed || !_appIsForeground || !identical(_interstitialAd, ad)) {
+        return;
+      }
+      if (_isLoadedAdExpired) {
+        _destroyLoadedAd();
+        shouldLoadAfterPending = true;
+        return;
+      }
+      _showLoadedAd(ad);
+    } finally {
+      if (!_isShowing) {
+        _showPending = false;
+        if (shouldLoadAfterPending && !_isDisposed) {
+          _loadOne();
+        }
+      }
+    }
+  }
+
+  Future<void> _showTopAdNotice() async {
+    final overlay =
+        AppOpenAdManager.instance.navigatorKey.currentState?.overlay;
+    if (overlay == null) {
+      await Future<void>.delayed(_preShowNoticeDuration);
+      return;
+    }
+
+    _removeNoticeOverlay();
+    _noticeOverlayEntry = OverlayEntry(
+      builder: (context) {
+        return Positioned(
+          top: MediaQuery.paddingOf(context).top + 10,
+          left: 14,
+          right: 14,
+          child: IgnorePointer(
+            child: Material(
+              color: Colors.transparent,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: const Color(0xFF111827),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.22),
+                      blurRadius: 14,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  child: Text(
+                    'Ad will appear shortly',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      height: 1.2,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+    overlay.insert(_noticeOverlayEntry!);
+    try {
+      await Future<void>.delayed(_preShowNoticeDuration);
+    } finally {
+      _removeNoticeOverlay();
+    }
+  }
+
+  void _removeNoticeOverlay() {
+    _noticeOverlayEntry?.remove();
+    _noticeOverlayEntry = null;
+  }
+
+  void _showLoadedAd(InterstitialAd ad) {
+    _interstitialAd = null;
+    _loadedAt = null;
+    _expirationTimer?.cancel();
+    _expirationTimer = null;
+    _retryTimer?.cancel();
+    _retryTimer = null;
+    AppOpenAdManager.instance.suppressNextForegroundShow();
+    _isShowing = true;
+
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (_) {
+        _log('Interstitial shown.');
+      },
+      onAdDismissedFullScreenContent: (dismissedAd) {
+        _finishShowingAd(dismissedAd);
+      },
+      onAdFailedToShowFullScreenContent: (failedAd, error) {
+        _log('Interstitial failed to show.', error);
+        _finishShowingAd(failedAd);
+      },
+    );
+
+    try {
+      unawaited(ad.show());
+    } catch (error, stackTrace) {
+      _log('Interstitial show threw.', error, stackTrace);
+      _finishShowingAd(ad);
+    }
+  }
+
   void _finishShowingAd(InterstitialAd ad) {
     try {
       ad.fullScreenContentCallback = null;
@@ -274,6 +423,7 @@ class InterstitialManager with WidgetsBindingObserver {
     }
 
     _isShowing = false;
+    _showPending = false;
     if (!_isDisposed) {
       _loadOne();
     }

@@ -21,6 +21,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  static const _homeNativePlacementId = 'home_after_name_update';
+
   static const _cards = <_GuideCardData>[
     _GuideCardData(
       title: 'Child Aadhaar - बाल आधार',
@@ -95,6 +97,12 @@ class _HomePageState extends State<HomePage> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    SharedNativeAd.preload(placementId: _homeNativePlacementId);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -119,57 +127,6 @@ class _HomePageState extends State<HomePage> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFFB91C1C), Color(0xFFF59E0B)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.22),
-                  blurRadius: 14,
-                  offset: const Offset(0, 7),
-                ),
-              ],
-            ),
-            child: const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.notifications_active_rounded,
-                      color: Colors.white,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      'Important Notice',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Aadhaar update guide ke liye neeche diye gaye cards ko follow karein.',
-                  style: TextStyle(
-                    color: Colors.white,
-                    height: 1.35,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
           const Text(
             'Aadhaar Update Options',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
@@ -177,13 +134,9 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 8),
           for (final entry in _cards.asMap().entries) ...[
             _GuideCard(data: entry.value),
-            if (entry.key == 0) ...[
+            if (entry.key == 3) ...[
               const SizedBox(height: 8),
-              const SharedNativeAd(placementId: 'home_after_child_aadhaar'),
-            ],
-            if (entry.key == 8) ...[
-              const SizedBox(height: 8),
-              const SharedNativeAd(placementId: 'home_after_mobile_number'),
+              const SharedNativeAd(placementId: _homeNativePlacementId),
             ],
             const SizedBox(height: 8),
           ],

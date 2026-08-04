@@ -14,6 +14,7 @@ const Duration _minimumForegroundInterval = Duration(minutes: 4);
 const int _maxSessionAppOpenShows = 2;
 const Duration _baseRetryDelay = Duration(seconds: 30);
 const Duration _maxRetryDelay = Duration(minutes: 5);
+const Duration _coldStartResolveRetryDelay = Duration(milliseconds: 250);
 
 String? get _appOpenAdUnitId {
   switch (defaultTargetPlatform) {
@@ -59,6 +60,7 @@ class AppOpenAdManager with WidgetsBindingObserver {
   DateTime? _lastShownAt;
   Timer? _retryTimer;
   Timer? _expirationTimer;
+  Timer? _coldStartResolveTimer;
 
   bool _initialized = false;
   bool _initializing = false;
@@ -156,6 +158,7 @@ class AppOpenAdManager with WidgetsBindingObserver {
     WidgetsBinding.instance.removeObserver(this);
     _retryTimer?.cancel();
     _retryTimer = null;
+    _cancelColdStartResolveRetry();
     _destroyLoadedAd();
   }
 
@@ -184,15 +187,33 @@ class AppOpenAdManager with WidgetsBindingObserver {
     if (!_coldStartDecisionPending || _isShowing || _appOpenAd == null) return;
 
     if (_homeLeftDuringColdStart) {
+      _cancelColdStartResolveRetry();
       _coldStartDecisionPending = false;
       _log('Cold-start App Open skipped because user left home.');
       return;
     }
 
-    if (!_isHomeVisibleForColdStart) return;
+    if (!_isHomeVisibleForColdStart) {
+      _scheduleColdStartResolveRetry();
+      return;
+    }
 
+    _cancelColdStartResolveRetry();
     _coldStartDecisionPending = false;
     _showLoadedAd(_AppOpenShowReason.coldStart);
+  }
+
+  void _scheduleColdStartResolveRetry() {
+    if (!_appIsForeground || _coldStartResolveTimer?.isActive == true) return;
+    _coldStartResolveTimer = Timer(_coldStartResolveRetryDelay, () {
+      _coldStartResolveTimer = null;
+      _maybeResolveColdStartAd();
+    });
+  }
+
+  void _cancelColdStartResolveRetry() {
+    _coldStartResolveTimer?.cancel();
+    _coldStartResolveTimer = null;
   }
 
   bool get _isHomeVisibleForColdStart {
@@ -322,6 +343,7 @@ class AppOpenAdManager with WidgetsBindingObserver {
     _retryTimer?.cancel();
     _retryTimer = null;
     _isShowing = true;
+    _cancelColdStartResolveRetry();
     _suppressNextForegroundResume = true;
     _hasBackgroundTrip = false;
 
