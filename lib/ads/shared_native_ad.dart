@@ -2,12 +2,14 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform;
+    show TargetPlatform, defaultTargetPlatform, kDebugMode;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 const String _androidNativeAdUnitId = 'ca-app-pub-1638673809508848/3504661542';
+const String _androidNativeTestAdUnitId =
+    'ca-app-pub-3940256099942544/2247696110';
 const String _androidNativeAdFactoryId = 'sharedNativeAdFactory';
 const double _nativeAdMinHeight = 360;
 const double _nativeAdMaxHeight = 420;
@@ -15,7 +17,7 @@ const double _nativeAdMaxHeight = 420;
 String? get _nativeAdUnitId {
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
-      return _androidNativeAdUnitId;
+      return kDebugMode ? _androidNativeTestAdUnitId : _androidNativeAdUnitId;
     case TargetPlatform.iOS:
     case TargetPlatform.fuchsia:
     case TargetPlatform.linux:
@@ -147,12 +149,15 @@ class _SharedNativeAdState extends State<SharedNativeAd> {
       final markerOffset = viewport.getOffsetToReveal(renderObject, 0).offset;
       final visibleStart = position.pixels;
       final visibleEnd = position.pixels + position.viewportDimension;
-      return markerOffset >= visibleStart && markerOffset <= visibleEnd;
+      const preloadDistance = 600.0;
+      return markerOffset >= visibleStart &&
+          markerOffset <= visibleEnd + preloadDistance;
     }
 
     final topLeft = renderObject.localToGlobal(Offset.zero);
     final screenHeight = MediaQuery.sizeOf(context).height;
-    return topLeft.dy >= 0 && topLeft.dy <= screenHeight;
+    const preloadDistance = 600.0;
+    return topLeft.dy >= 0 && topLeft.dy <= screenHeight + preloadDistance;
   }
 
   double _heightForWidth(double width) {

@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:flutter/foundation.dart'
-    show TargetPlatform, defaultTargetPlatform;
+    show TargetPlatform, defaultTargetPlatform, kDebugMode;
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 const String _androidAppOpenAdUnitId = 'ca-app-pub-1638673809508848/3074105061';
+const String _androidAppOpenTestAdUnitId =
+    'ca-app-pub-3940256099942544/9257395921';
 const Duration _maxAppOpenAdCacheAge = Duration(hours: 4);
 const Duration _minimumForegroundInterval = Duration(minutes: 4);
 const int _maxSessionAppOpenShows = 2;
@@ -16,7 +18,7 @@ const Duration _maxRetryDelay = Duration(minutes: 5);
 String? get _appOpenAdUnitId {
   switch (defaultTargetPlatform) {
     case TargetPlatform.android:
-      return _androidAppOpenAdUnitId;
+      return kDebugMode ? _androidAppOpenTestAdUnitId : _androidAppOpenAdUnitId;
     case TargetPlatform.iOS:
     case TargetPlatform.fuchsia:
     case TargetPlatform.linux:
@@ -365,7 +367,8 @@ class AppOpenAdManager with WidgetsBindingObserver {
   }
 
   void _scheduleRetry([Object? error]) {
-    if (!_isSupported || _isShowing || !_canLoadMoreAds) return;
+    if (!_isSupported || _isDisposed || _isShowing) return;
+    if (_initialized && !_canLoadMoreAds) return;
 
     _failedLoadCount++;
     final delay = _retryDelayForAttempt(_failedLoadCount);
