@@ -13,6 +13,7 @@ import 'relationship_update_screen.dart';
 import 'finger_face_biometric_update_screen.dart';
 import 'mobile_number_update_screen.dart';
 import 'fees_update_screen.dart';
+import 'settings_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -118,26 +119,35 @@ class _HomePageState extends State<HomePage> {
             icon: const Icon(Icons.share_rounded),
             onPressed: ShareService.shareApp,
           ),
+          IconButton(
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings_rounded),
+            onPressed: () {
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (_) => const SettingsScreen()));
+            },
+          ),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 16),
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(18),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
             decoration: BoxDecoration(
               gradient: const LinearGradient(
                 colors: [Color(0xFFB91C1C), Color(0xFFF59E0B)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
                   color: const Color(0xFFF59E0B).withValues(alpha: 0.22),
-                  blurRadius: 18,
-                  offset: const Offset(0, 10),
+                  blurRadius: 14,
+                  offset: const Offset(0, 7),
                 ),
               ],
             ),
@@ -155,7 +165,7 @@ class _HomePageState extends State<HomePage> {
                       'Important Notice',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 18,
+                        fontSize: 16,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
@@ -173,23 +183,23 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 16),
           const Text(
             'Aadhaar Update Options',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           for (final entry in _cards.asMap().entries) ...[
-            _GuideCard(data: entry.value, serial: entry.key + 1),
+            _GuideCard(data: entry.value),
             if (entry.key == 0) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               const SharedNativeAd(placementId: 'home_after_child_aadhaar'),
             ],
             if (entry.key == 8) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               const SharedNativeAd(placementId: 'home_after_mobile_number'),
             ],
-            const SizedBox(height: 12),
+            const SizedBox(height: 8),
           ],
         ],
       ),
@@ -215,9 +225,8 @@ class _GuideCardData {
 
 class _GuideCard extends StatelessWidget {
   final _GuideCardData data;
-  final int serial;
 
-  const _GuideCard({required this.data, required this.serial});
+  const _GuideCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -231,47 +240,30 @@ class _GuideCard extends StatelessWidget {
 
     return Material(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(14),
         child: Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: data.accent.withValues(alpha: 0.14)),
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: data.accent.withValues(alpha: 0.16)),
             boxShadow: [
               BoxShadow(
-                color: data.accent.withValues(alpha: 0.10),
-                blurRadius: 16,
-                offset: const Offset(0, 8),
+                color: const Color(0xFF111827).withValues(alpha: 0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 10),
             child: Row(
               children: [
                 Container(
-                  width: 36,
-                  height: 36,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: data.accent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Text(
-                    '$serial',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: data.accent,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Container(
-                  width: 52,
-                  height: 52,
+                  width: 44,
+                  height: 44,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
@@ -281,11 +273,11 @@ class _GuideCard extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(13),
                   ),
-                  child: Icon(data.icon, color: Colors.white),
+                  child: Icon(data.icon, color: Colors.white, size: 23),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 11),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -293,22 +285,28 @@ class _GuideCard extends StatelessWidget {
                       Text(
                         data.title,
                         style: const TextStyle(
-                          fontSize: 15,
+                          fontSize: 14.2,
                           fontWeight: FontWeight.w800,
                           height: 1.2,
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 3),
                       Text(
                         data.subtitle,
                         style: const TextStyle(
-                          fontSize: 12.5,
-                          height: 1.35,
+                          fontSize: 12,
+                          height: 1.28,
                           color: Color(0xFF5B6472),
                         ),
                       ),
                     ],
                   ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: data.accent.withValues(alpha: 0.72),
+                  size: 22,
                 ),
               ],
             ),
