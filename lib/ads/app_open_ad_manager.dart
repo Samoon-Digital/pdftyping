@@ -38,6 +38,8 @@ void _log(String message, [Object? error, StackTrace? stackTrace]) {
   }());
 }
 
+enum _AppOpenShowReason { coldStart, foreground }
+
 class AppOpenAdManager with WidgetsBindingObserver {
   AppOpenAdManager._()
     : navigatorObserver = _AppOpenNavigatorObserver(),
@@ -61,16 +63,18 @@ class AppOpenAdManager with WidgetsBindingObserver {
   bool _isLoading = false;
   bool _isShowing = false;
   bool _isDisposed = false;
-  bool _appIsResumed = true;
-  bool _homeTabVisible = true;
-  bool _coldStartShowPending = true;
-  bool _coldStartHomeLeft = false;
+  bool _appIsForeground = true;
+  bool _homeSurfaceVisible = true;
+  bool _coldStartDecisionPending = true;
+  bool _homeLeftDuringColdStart = false;
+  bool _foregroundShowUsed = false;
+  bool _hasBackgroundTrip = false;
+  bool _suppressNextForegroundResume = false;
   int _failedLoadCount = 0;
   int _loadRequestToken = 0;
-  int _foregroundEventId = 0;
-  int _lastShownForegroundEventId = -1;
+  int _resumeEventId = 0;
+  int _lastForegroundAttemptEventId = -1;
   int _sessionShowCount = 0;
-  bool _foregroundShowUsed = false;
 
   bool get _isSupported => _appOpenAdUnitId != null;
 
@@ -86,33 +90,57 @@ class AppOpenAdManager with WidgetsBindingObserver {
       _loadOne();
     } catch (error, stackTrace) {
       _log('Initialization failed.', error, stackTrace);
-      _scheduleRetry();
+      _scheduleRetry(error);
     } finally {
       _initializing = false;
     }
   }
 
   void setHomeTabVisible(bool isVisible) {
-    _homeTabVisible = isVisible;
-    if (!isVisible && _coldStartShowPending && !_isShowing) {
-      _coldStartHomeLeft = true;
+    _homeSurfaceVisible = isVisible;
+    if (!isVisible) {
+      _markHomeLeftDuringColdStart();
     }
-    _maybeShowColdStartAd();
+    _maybeResolveColdStartAd();
+  }
+
+  void suppressNextForegroundShow() {
+    if (_isDisposed) return;
+    _suppressNextForegroundResume = true;
+    _hasBackgroundTrip = false;
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
-        _appIsResumed = true;
-        _foregroundEventId++;
-        _showOnForegroundIfAvailable();
+        final hadBackgroundTrip = _hasBackgroundTrip;
+        _appIsForeground = true;
+        _resumeEventId++;
+        _maybeResolveColdStartAd();
+
+        if (_suppressNextForegroundResume) {
+          _suppressNextForegroundResume = false;
+          _hasBackgroundTrip = false;
+          _loadOne();
+          break;
+        }
+
+        if (hadBackgroundTrip) {
+          _showOnForegroundIfAvailable();
+        }
+        _hasBackgroundTrip = false;
         _loadOne();
         break;
       case AppLifecycleState.hidden:
-      case AppLifecycleState.inactive:
       case AppLifecycleState.paused:
-        _appIsResumed = false;
+        _appIsForeground = false;
+        if (!_isShowing && !_suppressNextForegroundResume) {
+          _hasBackgroundTrip = true;
+        }
+        break;
+      case AppLifecycleState.inactive:
+        _appIsForeground = false;
         break;
       case AppLifecycleState.detached:
         dispose();
@@ -130,8 +158,8 @@ class AppOpenAdManager with WidgetsBindingObserver {
   }
 
   void _handleRoutePushed(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    if (previousRoute != null && _coldStartShowPending && !_isShowing) {
-      _coldStartHomeLeft = true;
+    if (previousRoute != null) {
+      _markHomeLeftDuringColdStart();
     }
   }
 
@@ -139,47 +167,64 @@ class AppOpenAdManager with WidgetsBindingObserver {
     Route<dynamic>? newRoute,
     Route<dynamic>? oldRoute,
   }) {
-    if (oldRoute != null && _coldStartShowPending && !_isShowing) {
-      _coldStartHomeLeft = true;
+    if (oldRoute != null) {
+      _markHomeLeftDuringColdStart();
     }
   }
 
-  void _maybeShowColdStartAd() {
-    if (!_coldStartShowPending || _isShowing || _appOpenAd == null) return;
+  void _markHomeLeftDuringColdStart() {
+    if (_coldStartDecisionPending && !_isShowing) {
+      _homeLeftDuringColdStart = true;
+    }
+  }
 
-    if (_coldStartHomeLeft) {
-      _coldStartShowPending = false;
+  void _maybeResolveColdStartAd() {
+    if (!_coldStartDecisionPending || _isShowing || _appOpenAd == null) return;
+
+    if (_homeLeftDuringColdStart) {
+      _coldStartDecisionPending = false;
+      _log('Cold-start App Open skipped because user left home.');
       return;
     }
 
-    if (!_isColdStartHomeVisible) return;
+    if (!_isHomeVisibleForColdStart) return;
 
-    _coldStartShowPending = false;
-    _showLoadedAd(ignoreMinimumInterval: true);
+    _coldStartDecisionPending = false;
+    _showLoadedAd(_AppOpenShowReason.coldStart);
   }
 
-  bool get _isColdStartHomeVisible {
-    if (!_appIsResumed || !_homeTabVisible) return false;
+  bool get _isHomeVisibleForColdStart {
+    if (!_appIsForeground || !_homeSurfaceVisible) return false;
     final navigator = navigatorKey.currentState;
     if (navigator == null) return false;
     return !navigator.canPop();
   }
 
   void _showOnForegroundIfAvailable() {
-    if (_foregroundShowUsed || !_canShowInCurrentSession) return;
-    if (_lastShownForegroundEventId == _foregroundEventId) return;
+    if (_coldStartDecisionPending || !_canUseForegroundAd) return;
+    if (_lastForegroundAttemptEventId == _resumeEventId) return;
+
     if (_appOpenAd == null) {
       _loadOne();
       return;
     }
-    if (!_canShowForMinimumInterval) return;
-    _showLoadedAd(isForegroundEvent: true);
+
+    if (!_canShowForForegroundInterval) return;
+
+    _lastForegroundAttemptEventId = _resumeEventId;
+    _showLoadedAd(_AppOpenShowReason.foreground);
   }
 
-  bool get _canShowInCurrentSession =>
+  bool get _canUseForegroundAd =>
+      !_foregroundShowUsed && _sessionShowCount < _maxSessionAppOpenShows;
+
+  bool get _canLoadMoreAds =>
+      !_isDisposed &&
+      _initialized &&
+      !_foregroundShowUsed &&
       _sessionShowCount < _maxSessionAppOpenShows;
 
-  bool get _canShowForMinimumInterval {
+  bool get _canShowForForegroundInterval {
     final lastShownAt = _lastShownAt;
     return lastShownAt == null ||
         DateTime.now().difference(lastShownAt) >= _minimumForegroundInterval;
@@ -192,14 +237,8 @@ class AppOpenAdManager with WidgetsBindingObserver {
   }
 
   void _loadOne() {
-    if (_isDisposed ||
-        !_initialized ||
-        _isLoading ||
-        _isShowing ||
-        !_canShowInCurrentSession ||
-        _foregroundShowUsed) {
-      return;
-    }
+    if (!_canLoadMoreAds || _isLoading || _isShowing) return;
+
     if (_appOpenAd != null) {
       if (_isLoadedAdExpired) {
         _destroyLoadedAd();
@@ -220,20 +259,23 @@ class AppOpenAdManager with WidgetsBindingObserver {
         request: const AdRequest(),
         adLoadCallback: AppOpenAdLoadCallback(
           onAdLoaded: (ad) {
-            if (_isDisposed ||
-                requestToken != _loadRequestToken ||
-                _isShowing) {
+            if (_isDisposed || requestToken != _loadRequestToken) {
               ad.dispose();
               return;
             }
 
             _isLoading = false;
+            if (_isShowing || !_canLoadMoreAds) {
+              ad.dispose();
+              return;
+            }
+
             _failedLoadCount = 0;
             _retryTimer?.cancel();
             _retryTimer = null;
             _setLoadedAd(ad);
             _log('App Open loaded.');
-            _maybeShowColdStartAd();
+            _maybeResolveColdStartAd();
           },
           onAdFailedToLoad: (error) {
             if (_isDisposed || requestToken != _loadRequestToken) return;
@@ -254,16 +296,10 @@ class AppOpenAdManager with WidgetsBindingObserver {
     _scheduleExpirationRefresh();
   }
 
-  void _showLoadedAd({
-    bool ignoreMinimumInterval = false,
-    bool isForegroundEvent = false,
-  }) {
+  void _showLoadedAd(_AppOpenShowReason reason) {
     if (_isDisposed || !_initialized || _isShowing) return;
-    if (!_canShowInCurrentSession ||
-        (isForegroundEvent && _foregroundShowUsed)) {
-      return;
-    }
-    if (!ignoreMinimumInterval && !_canShowForMinimumInterval) return;
+    if (reason == _AppOpenShowReason.foreground && !_canUseForegroundAd) return;
+    if (_sessionShowCount >= _maxSessionAppOpenShows) return;
 
     if (_isLoadedAdExpired) {
       _destroyLoadedAd();
@@ -284,20 +320,20 @@ class AppOpenAdManager with WidgetsBindingObserver {
     _retryTimer?.cancel();
     _retryTimer = null;
     _isShowing = true;
-    _lastShownAt = DateTime.now();
-    _lastShownForegroundEventId = _foregroundEventId;
+    _suppressNextForegroundResume = true;
+    _hasBackgroundTrip = false;
 
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (_) {
-        _recordShown(isForegroundEvent: isForegroundEvent);
-        _log('App Open shown.');
+        _recordShown(reason);
+        _log('App Open shown (${reason.name}).');
       },
       onAdDismissedFullScreenContent: (dismissedAd) {
-        _finishShowingAd(dismissedAd);
+        _finishShowingAd(dismissedAd, reason: reason);
       },
       onAdFailedToShowFullScreenContent: (failedAd, error) {
         _log('App Open failed to show.', error);
-        _finishShowingAd(failedAd);
+        _finishShowingAd(failedAd, reason: reason);
       },
     );
 
@@ -305,13 +341,14 @@ class AppOpenAdManager with WidgetsBindingObserver {
       unawaited(ad.show());
     } catch (error, stackTrace) {
       _log('App Open show threw.', error, stackTrace);
-      _finishShowingAd(ad);
+      _finishShowingAd(ad, reason: reason);
     }
   }
 
-  void _recordShown({required bool isForegroundEvent}) {
+  void _recordShown(_AppOpenShowReason reason) {
     _sessionShowCount++;
-    if (isForegroundEvent) {
+    _lastShownAt = DateTime.now();
+    if (reason == _AppOpenShowReason.foreground) {
       _foregroundShowUsed = true;
     }
   }
@@ -328,7 +365,7 @@ class AppOpenAdManager with WidgetsBindingObserver {
   }
 
   void _scheduleRetry([Object? error]) {
-    if (_isDisposed || _isShowing || !_isSupported) return;
+    if (!_isSupported || _isShowing || !_canLoadMoreAds) return;
 
     _failedLoadCount++;
     final delay = _retryDelayForAttempt(_failedLoadCount);
@@ -356,7 +393,7 @@ class AppOpenAdManager with WidgetsBindingObserver {
     return Duration(seconds: seconds);
   }
 
-  void _finishShowingAd(AppOpenAd ad) {
+  void _finishShowingAd(AppOpenAd ad, {required _AppOpenShowReason reason}) {
     try {
       ad.fullScreenContentCallback = null;
       ad.dispose();
@@ -365,9 +402,11 @@ class AppOpenAdManager with WidgetsBindingObserver {
     }
 
     _isShowing = false;
-    if (!_isDisposed) {
-      _loadOne();
-    }
+
+    if (_isDisposed) return;
+    if (reason == _AppOpenShowReason.foreground) return;
+
+    _loadOne();
   }
 
   void _destroyLoadedAd() {

@@ -1,8 +1,6 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+﻿<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="com.android.vending.BILLING"/>
-    <!-- Android 13+ runtime notification permission; requested in app UI -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="Update Guide"
         android:name="${applicationName}"
@@ -33,9 +31,6 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-1638673809508848~4472304142"/>
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="aadhaar_update_guide_updates"/>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
@@ -54,3 +49,4 @@
         </intent>
     </queries>
 </manifest>
+

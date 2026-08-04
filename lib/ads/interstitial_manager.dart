@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
+import 'app_open_ad_manager.dart';
+
 const String _androidInterstitialAdUnitId =
     'ca-app-pub-1638673809508848/1848500378';
 const Duration _maxInterstitialCacheAge = Duration(hours: 1);
@@ -114,6 +116,7 @@ class InterstitialManager with WidgetsBindingObserver {
     _expirationTimer = null;
     _retryTimer?.cancel();
     _retryTimer = null;
+    AppOpenAdManager.instance.suppressNextForegroundShow();
     _isShowing = true;
 
     ad.fullScreenContentCallback = FullScreenContentCallback(
