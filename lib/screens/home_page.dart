@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../ads/shared_native_ad.dart';
 import '../services/share_service.dart';
 import 'aadhaar_18_years_screen.dart';
 import 'aadhaar_biometric_screen.dart';
@@ -21,8 +20,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  static const _homeNativePlacementId = 'home_after_name_update';
-
   static const _cards = <_GuideCardData>[
     _GuideCardData(
       title: 'Child Aadhaar - बाल आधार',
@@ -97,12 +94,6 @@ class _HomePageState extends State<HomePage> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-    SharedNativeAd.preload(placementId: _homeNativePlacementId);
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -134,10 +125,6 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 8),
           for (final entry in _cards.asMap().entries) ...[
             _GuideCard(data: entry.value),
-            if (entry.key == 3) ...[
-              const SizedBox(height: 8),
-              const SharedNativeAd(placementId: _homeNativePlacementId),
-            ],
             const SizedBox(height: 8),
           ],
         ],

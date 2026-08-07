@@ -65,7 +65,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('संस्करण'),
-            subtitle: const Text('1.8.0'),
+            subtitle: const Text('1.8.4'),
           ),
         ],
       ),

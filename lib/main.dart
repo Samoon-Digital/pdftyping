@@ -6,7 +6,6 @@ import 'theme/app_theme.dart';
 import 'screens/main_shell.dart';
 import 'ads/app_open_ad_manager.dart';
 import 'ads/interstitial_manager.dart';
-import 'ads/shared_native_ad.dart';
 import 'services/update_service.dart';
 
 void main() async {
@@ -14,7 +13,6 @@ void main() async {
 
   unawaited(AppOpenAdManager.instance.initialize());
   unawaited(InterstitialManager.instance.initialize());
-  SharedNativeAd.preload(placementId: 'home_after_name_update');
   unawaited(UpdateService.init());
   runApp(const MainApp());
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../ads/shared_native_ad.dart';
 import '../ads/interstitial_manager.dart';
 import '../widgets/banner_ad_scaffold.dart';
 
@@ -103,8 +102,6 @@ class _BalAadhaarScreenState extends State<BalAadhaarScreen> {
               _Bullet('यही सबसे मान्य (valid) जन्म प्रमाण पत्र माना जाता है।'),
             ],
           ),
-          const SizedBox(height: 12),
-          const SharedNativeAd(placementId: 'child_aadhaar_after_first_card'),
           const SizedBox(height: 12),
           _SectionCard(
             title:

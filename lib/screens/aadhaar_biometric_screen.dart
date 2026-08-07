@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../ads/shared_native_ad.dart';
 import '../ads/interstitial_manager.dart';
 import '../widgets/banner_ad_scaffold.dart';
 
@@ -66,10 +65,6 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            const SharedNativeAd(
-              placementId: 'aadhaar_biometric_before_proof_identity',
-            ),
-            const SizedBox(height: 12),
             _DocumentSection(
               title: 'Proof of Identity - पहचान का प्रमाण',
               accent: const Color(0xFFC7D2FE),
