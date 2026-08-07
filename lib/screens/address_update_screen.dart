@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../ads/interstitial_manager.dart';
-import '../widgets/banner_ad_scaffold.dart';
 
 class AddressUpdateScreen extends StatefulWidget {
   const AddressUpdateScreen({super.key});
@@ -107,7 +106,7 @@ class _AddressUpdateScreenState extends State<AddressUpdateScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return BannerAdScaffold(
+    return Scaffold(
       appBar: AppBar(title: const Text('पता संसोधन')),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),

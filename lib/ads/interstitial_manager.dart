@@ -6,8 +6,6 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
-import 'app_open_ad_manager.dart';
-
 const String _androidInterstitialAdUnitId =
     'ca-app-pub-1638673809508848/1848500378';
 const String _androidInterstitialTestAdUnitId =
@@ -54,6 +52,8 @@ class InterstitialManager with WidgetsBindingObserver {
   InterstitialManager._();
 
   static final InterstitialManager instance = InterstitialManager._();
+
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   InterstitialAd? _interstitialAd;
   DateTime? _loadedAt;
@@ -322,8 +322,7 @@ class InterstitialManager with WidgetsBindingObserver {
   }
 
   Future<void> _showTopAdNotice() async {
-    final overlay =
-        AppOpenAdManager.instance.navigatorKey.currentState?.overlay;
+    final overlay = navigatorKey.currentState?.overlay;
     if (overlay == null) {
       await Future<void>.delayed(_preShowNoticeDuration);
       return;
@@ -390,7 +389,6 @@ class InterstitialManager with WidgetsBindingObserver {
     _expirationTimer = null;
     _retryTimer?.cancel();
     _retryTimer = null;
-    AppOpenAdManager.instance.suppressNextForegroundShow();
     _isShowing = true;
 
     ad.fullScreenContentCallback = FullScreenContentCallback(

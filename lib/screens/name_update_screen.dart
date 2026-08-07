@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../ads/interstitial_manager.dart';
-import '../widgets/banner_ad_scaffold.dart';
 
 class NameUpdateScreen extends StatefulWidget {
   const NameUpdateScreen({super.key});
@@ -84,7 +83,7 @@ class _NameUpdateScreenState extends State<NameUpdateScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return BannerAdScaffold(
+    return Scaffold(
       appBar: AppBar(title: const Text('नाम संशोधन')),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),

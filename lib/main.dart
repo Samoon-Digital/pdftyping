@@ -4,14 +4,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_shell.dart';
-import 'ads/app_open_ad_manager.dart';
 import 'ads/interstitial_manager.dart';
 import 'services/update_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  unawaited(AppOpenAdManager.instance.initialize());
   unawaited(InterstitialManager.instance.initialize());
   unawaited(UpdateService.init());
   runApp(const MainApp());
@@ -34,8 +32,7 @@ class MainApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      navigatorKey: AppOpenAdManager.instance.navigatorKey,
-      navigatorObservers: [AppOpenAdManager.instance.navigatorObserver],
+      navigatorKey: InterstitialManager.instance.navigatorKey,
       home: const MainShell(),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../ads/interstitial_manager.dart';
-import '../widgets/banner_ad_scaffold.dart';
 
 class Aadhaar18YearsScreen extends StatefulWidget {
   const Aadhaar18YearsScreen({super.key});
@@ -26,7 +25,7 @@ class _Aadhaar18YearsScreenState extends State<Aadhaar18YearsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BannerAdScaffold(
+    return Scaffold(
       appBar: AppBar(title: const Text('18 Years Old')),
       body: ListView(
         padding: const EdgeInsets.all(16),

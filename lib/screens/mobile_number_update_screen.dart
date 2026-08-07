@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../ads/interstitial_manager.dart';
-import '../widgets/banner_ad_scaffold.dart';
 
 class MobileNumberUpdateScreen extends StatefulWidget {
   const MobileNumberUpdateScreen({super.key});
@@ -19,7 +18,7 @@ class _MobileNumberUpdateScreenState extends State<MobileNumberUpdateScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BannerAdScaffold(
+    return Scaffold(
       appBar: AppBar(title: const Text('मोबाईल नंबर संसोधन')),
       body: ListView(
         padding: const EdgeInsets.all(16),
