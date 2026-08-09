@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import '../ads/native_ad_manager.dart';
 import '../services/share_service.dart';
 import 'aadhaar_18_years_screen.dart';
 import 'aadhaar_biometric_screen.dart';
@@ -20,6 +21,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    NativeAdManager.instance.start();
+  }
+
   static const _cards = <_GuideCardData>[
     _GuideCardData(
       title: 'Child Aadhaar - बाल आधार',

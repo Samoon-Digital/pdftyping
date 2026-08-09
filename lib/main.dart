@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'theme/app_theme.dart';
 import 'screens/main_shell.dart';
+import 'ads/app_open_ad_manager.dart';
 import 'ads/interstitial_manager.dart';
 import 'services/update_service.dart';
 
@@ -13,6 +14,7 @@ void main() {
   runApp(const MainApp());
 
   WidgetsBinding.instance.addPostFrameCallback((_) {
+    AppOpenAdManager.instance.start();
     unawaited(InterstitialManager.instance.initialize());
     unawaited(UpdateService.init());
   });
@@ -36,6 +38,7 @@ class MainApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       navigatorKey: InterstitialManager.instance.navigatorKey,
+      navigatorObservers: [AppOpenAdManager.instance],
       home: const MainShell(),
     );
   }

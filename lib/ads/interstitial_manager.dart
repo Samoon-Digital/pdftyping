@@ -75,6 +75,8 @@ class InterstitialManager with WidgetsBindingObserver {
 
   bool get _isSupported => _interstitialAdUnitId != null;
 
+  bool get isShowingFullScreenAd => _isShowing || _showPending;
+
   /// Initializes Google Mobile Ads and starts one background preload.
   ///
   /// This method is safe to call more than once. It never blocks app startup
