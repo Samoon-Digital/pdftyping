@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../ads/interstitial_manager.dart';
+import '../widgets/shared_native_ad_slot.dart';
 
 class AadhaarBiometricScreen extends StatefulWidget {
   const AadhaarBiometricScreen({super.key});
@@ -63,6 +64,8 @@ class _AadhaarBiometricScreenState extends State<AadhaarBiometricScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 12),
+            const SharedNativeAdSlot(),
             const SizedBox(height: 16),
             _DocumentSection(
               title: 'Proof of Identity - पहचान का प्रमाण',

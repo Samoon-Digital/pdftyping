@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../ads/interstitial_manager.dart';
+import '../widgets/shared_native_ad_slot.dart';
 
 class FingerFaceBiometricUpdateScreen extends StatefulWidget {
   const FingerFaceBiometricUpdateScreen({super.key});
@@ -60,6 +61,8 @@ class _FingerFaceBiometricUpdateScreenState
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          const SharedNativeAdSlot(),
         ],
       ),
     );

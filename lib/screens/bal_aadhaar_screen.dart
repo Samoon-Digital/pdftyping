@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../ads/interstitial_manager.dart';
+import '../widgets/shared_native_ad_slot.dart';
 
 class BalAadhaarScreen extends StatefulWidget {
   const BalAadhaarScreen({super.key});
@@ -198,6 +199,7 @@ class _PoiPoaPobTable extends StatelessWidget {
           poa: '☑*',
           pob: '☑',
         ),
+        const SharedNativeAdSlot(),
         _buildDocumentItem(
           slNo: '8',
           document:
