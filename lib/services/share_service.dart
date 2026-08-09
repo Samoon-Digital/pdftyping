@@ -11,6 +11,7 @@ class ShareService {
       'https://play.google.com/store/apps/details?id=com.samoondigital.pdftyping';
 
   static const String _shareText = 'Aadhaar Update Guide\n$playStoreUrl';
+  static Future<File>? _launcherIconFile;
 
   static Future<void> shareApp() async {
     try {
@@ -41,10 +42,21 @@ class ShareService {
   }
 
   static Future<File> _prepareLauncherIcon() async {
+    final pendingIcon = _launcherIconFile;
+    if (pendingIcon != null) return pendingIcon;
+
+    return _launcherIconFile = _writeLauncherIcon();
+  }
+
+  static Future<File> _writeLauncherIcon() async {
     final data = await rootBundle.load('assets/launcher.png');
     final tempDirectory = await getTemporaryDirectory();
     final file = File('${tempDirectory.path}/aadhaar_update_guide.png');
-    await file.writeAsBytes(data.buffer.asUint8List(), flush: true);
+    if (await file.exists()) return file;
+
+    await file.writeAsBytes(
+      data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+    );
     return file;
   }
 }

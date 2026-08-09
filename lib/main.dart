@@ -7,12 +7,15 @@ import 'screens/main_shell.dart';
 import 'ads/interstitial_manager.dart';
 import 'services/update_service.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
-  unawaited(InterstitialManager.instance.initialize());
-  unawaited(UpdateService.init());
   runApp(const MainApp());
+
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    unawaited(InterstitialManager.instance.initialize());
+    unawaited(UpdateService.init());
+  });
 }
 
 class MainApp extends StatelessWidget {
